@@ -1,0 +1,8 @@
+Implementation language we have chosen and why:
+Python.
+
+Scanner Generator we have chosen and why (or why not):
+ANTLR? Spark? Modgrammar?
+
+Pointer to the source code for our simple lexer example *as a relative path witihn your repository*.
+0xDEADBEEF

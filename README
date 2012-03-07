@@ -1,0 +1,7 @@
+This is the project for CSSE404 - Compilers
+Spring 2012
+Team name: Javapyc
+Members: Kevin Wells, Stephen Mayhew, Seth Troisi
+
+Our target language will likely be python bytecode.
+Our implementation language will likely be python.
