@@ -12,9 +12,12 @@ reasons:
 
 # Scanner Generator
 
-Apark or Ply?
+Python has a considerable number of scanner generator libraries available.  For
+this project, we have decided to use Spark, which provides a simple, pythonic
+way to define tokens and syntax to generate tokens and parse trees.
 
 # Lexer Example Location
 
-Pointer to the source code for our simple lexer example *as a relative path witihn your repository*.
-0xDEADBEEF
+An example of our lexer in action can be found at
+`/trunk/SparkTest/simplescanner.py`.
+
