@@ -1,4 +1,6 @@
-from spark import *
+#!/usr/bin/python
+
+from spark3 import *
 
 class Token():
 	def __init__(self, type, attr=None):
@@ -60,11 +62,8 @@ def main():
 	input = f.read()
 	scanner = MiniJava2Scanner()
 	for token in scanner.tokenize(input):
-		print token
+		print(token)
 	
-
-main()
-
-
-
+if __name__ == '__main__':
+    main()
 
