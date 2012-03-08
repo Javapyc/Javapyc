@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from spark3 import *
+from spark import *
 
 class Token():
 	def __init__(self, type, attr=None):
