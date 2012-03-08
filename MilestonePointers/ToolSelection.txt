@@ -1,8 +1,20 @@
-Implementation language we have chosen and why:
-Python.
+# Implementation Language
 
-Scanner Generator we have chosen and why (or why not):
-ANTLR? Spark? Modgrammar?
+We have decided to use CPython 3 as our implementation language for various
+reasons: 
+- It contains modules that can automatically serialize and parse any code that
+  we generate into pyc files
+- The CPython version we use will provide information about op codes and other
+  useful information for generating code
+- The focus of this class is to explore the fundamental concepts that are
+  required for a compiler.  Using Python allows us to focus only on the details
+  that matter
+
+# Scanner Generator
+
+Apark or Ply?
+
+# Lexer Example Location
 
 Pointer to the source code for our simple lexer example *as a relative path witihn your repository*.
 0xDEADBEEF
