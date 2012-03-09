@@ -26,9 +26,8 @@ class Minus(BinaryExpr):
     def value(self):
         return self.left.value() - self.right.value()
 
-class Term:
-    def classname(self):
-        return self.__class__.__name__
+class Term(Expr):
+    pass
 
 class BinaryTerm(Expr):
     def __init__(self, left, right):
@@ -45,9 +44,8 @@ class Div(BinaryTerm):
     def value(self):
         return int(self.left.value() / self.right.value())
 
-class Factor:
-    def classname(self):
-        return self.__class__.__name__
+class Factor(Term):
+    pass
 
 class Integer(Factor):
     def __init__(self, val):
