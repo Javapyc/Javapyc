@@ -95,7 +95,7 @@ class ExprParser(GenericParser):
         return token.typename()
 
 def main():
-    parser = argparse.ArgumentParser(description='lex some MiniJava')
+    parser = argparse.ArgumentParser(description='parse some MiniJava')
     parser.add_argument('files', nargs='+', type=InputFile)
     args = parser.parse_args()
     if not args:
