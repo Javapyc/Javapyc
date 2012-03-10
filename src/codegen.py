@@ -143,10 +143,14 @@ class CodeGen:
         self._codeofs = 0
 
     def code(self):
+        co_consts = list(self.co_consts)
+        for i, const in enumerate(co_consts):
+            if isinstance(const, CodeGen):
+                co_consts[i] = const.code()
         return Code(self.co_argcount, len(self.co_varnames),
                     self.co_nlocals, self.co_stacksize, 
                     self.co_flags, self.co_code.tostring(), 
-                    tuple(self.co_consts), tuple(self.co_names),
+                    tuple(co_consts), tuple(self.co_names),
                     tuple(self.co_varnames), self.co_filename,
                     self.co_name, self.co_firstlineno, 
                     self.co_lnotab.tostring(), self.co_freevars,
