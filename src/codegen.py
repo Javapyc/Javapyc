@@ -222,6 +222,8 @@ class CodeGen:
 def main():
     import imp
     import marshal
+    import time
+    import struct
     c = CodeGen("testmod.java")
     c.setLine(1)
     c.LOAD_NAME('print')
@@ -235,8 +237,8 @@ def main():
     with open('testmod.pyc', 'wb') as fout:
         #magic header
         fout.write(imp.get_magic())
-        #timestamp (null for now)
-        fout.write(b'\x00\x00\x00\x00')
+        #timestamp
+        fout.write(struct.pack('I', int(time.time())))
         #code object
         marshal.dump(co, fout)
     import testmod
