@@ -174,6 +174,12 @@ class CodeGen:
         self._lineno = line
         self._codeofs = len(self.co_code)
 
+    def getName(self, name):
+        if name not in self.co_names:
+            self.co_names.append(name)
+        index = self.co_names.index(name)
+        return index
+
     def write(self, op, value=None):
         self.co_code.append(op)
         if value != None:
@@ -188,12 +194,24 @@ class CodeGen:
         self.pushStack()
 
     def LOAD_NAME(self, value):
-        if value not in self.co_names:
-            self.co_names.append(value)
-        index = self.co_names.index(value)
+        index = self.getName(value)
         self.write(Ops.LOAD_NAME, index)
         self.pushStack()
     
+    def STORE_NAME(self, value):
+        index = self.getName(value)
+        self.write(Ops.STORE_NAME, index)
+        self.popStack()
+    
+    def POP_TOP(self):
+        self.write(Ops.POP_TOP)
+        self.popStack()
+    
+    def MAKE_FUNCTION(self, defaults=0):
+        self.write(Ops.MAKE_FUNCTION, defaults)
+        self.popStack(1+defaults)
+        self.pushStack()
+
     def CALL_FUNCTION(self, argc=0):
         self.write(Ops.CALL_FUNCTION)
         self.co_code.append(argc)
@@ -224,15 +242,44 @@ def main():
     import marshal
     import time
     import struct
+
+    t = CodeGen("testmod.java")
+    #actual generated code will go here
+    t.setLine(1)
+    t.LOAD_NAME('print')
+    t.LOAD_CONST(5)
+    t.LOAD_CONST(42-5)
+    t.BINARY_ADD()
+    t.CALL_FUNCTION(1)
+    t.POP_TOP()
+
+    t.LOAD_CONST(None)
+    t.RETURN_VALUE()
+
+
     c = CodeGen("testmod.java")
-    c.setLine(1)
-    c.LOAD_NAME('print')
-    c.LOAD_CONST(5)
-    c.LOAD_CONST(42-5)
-    c.BINARY_ADD()
-    c.CALL_FUNCTION(1)
-    #c.LOAD_CONST(None)
+    def pr(s):
+        #prints a message
+        c.LOAD_NAME('print')
+        c.LOAD_CONST(s)
+        c.CALL_FUNCTION(1)
+        c.POP_TOP()
+    #make main function
+    c.LOAD_CONST(t)
+    c.MAKE_FUNCTION()
+    c.STORE_NAME('main')
+
+    #ifmain
+    #c.LOAD_NAME('__name__')
+    #c.LOAD_CONST('__main__')
+    c.LOAD_NAME('main')
+    c.CALL_FUNCTION()
+    c.POP_TOP()
+
+    #module return
+    c.LOAD_CONST(None)
     c.RETURN_VALUE()
+
     co = c.code()
     with open('testmod.pyc', 'wb') as fout:
         #magic header
