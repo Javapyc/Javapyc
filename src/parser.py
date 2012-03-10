@@ -94,6 +94,17 @@ class ExprParser(GenericParser):
     def typestring(self, token):
         return token.typename()
 
+def dump(tree, indent=0):
+    print(tree)
+    #TODO support prettier printing
+    #def iprint(node):
+    #    print('  ' * indent, end='')
+    #    print(str(node))
+    #for node in tree:
+    #    iprint(node)
+    #    import pdb; pdb.set_trace()
+
+
 def main():
     parser = argparse.ArgumentParser(description='parse some MiniJava')
     parser.add_argument('files', nargs='+', type=InputFile)
