@@ -63,6 +63,10 @@ class ExpressionScanner(GenericScanner):
         t = Delimiter(s)
         self.rv.append(t)
 
+def dump(tokens):
+    for token in tokens:
+        print(token)
+
 def main():
     parser = argparse.ArgumentParser(description='lex some MiniJava')
     parser.add_argument('files', nargs='+', type=InputFile)

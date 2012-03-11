@@ -21,22 +21,26 @@ def main():
     for inputFile in args.files:
         with inputFile as f:
             s = f.read()
+
+            #Lexical Analysis
             scanner = lexer.ExpressionScanner()
             tokens = scanner.tokenize(s)
             if args.phase == 'lex':
-                for token in tokens:
-                    print(token)
+                lexer.dump(tokens)
                 break
 
+            #Parsing
             p = parser.ExprParser()
             tree = p.parse(tokens)
             if args.phase == 'parse':
                 parser.dump(tree)
                 break
             
+            #Typecheck Parse Tree
             if args.phase == 'typecheck':
                 break
             
+            #Generate Code
             if args.phase == 'codegen':
                 break
 
