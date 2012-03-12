@@ -40,7 +40,6 @@ class MiniJavaScanner(GenericScanner):
 		t = Token(type='Operator', attr=s)
 		self.rv.append(t)
 
-
 	def t_delimiter(self, s):
 		r' {|}|\(|\)|\[|\]|; '
 		self.rv.append(Token('Delimiter', s))
@@ -48,6 +47,7 @@ class MiniJavaScanner(GenericScanner):
 	def t_ID(self, s):
 		r' [a-zA-Z](\w|\d)* '
 		self.rv.append(Token('ID', s))
+
 
 class MiniJava2Scanner(MiniJavaScanner):
 	''' Do this so that reserved words are checked first '''
