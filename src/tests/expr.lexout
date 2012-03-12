@@ -1,0 +1,9 @@
+Integer, 4
+Operator, *
+Delimiter, (
+Integer, 10
+Operator, +
+Integer, 5
+Operator, -
+Integer, 1
+Delimiter, )

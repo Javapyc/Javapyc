@@ -7,7 +7,7 @@ import sys
 
 class Token:
     def __str__(self):
-        return '({0}, {1})'.format(self.__class__.__name__, self.getToken())
+        return '{0}, {1}'.format(self.__class__.__name__, self.getToken())
     def typename(self):
         return self.__class__.__name__
 
@@ -90,9 +90,9 @@ class ExpressionScanner(ExpressionScanner2):
         self.rv.append(t)
 
 
-def dump(tokens):
+def dump(tokens, outfile):
     for token in tokens:
-        print(token)
+        print(token, file=outfile)
 
 def main():
     parser = argparse.ArgumentParser(description='lex some MiniJava')
