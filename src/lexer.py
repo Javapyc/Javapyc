@@ -23,9 +23,15 @@ class Whitespace(SimpleToken):
 class Integer(SimpleToken):
     pass
 
+class ID(SimpleToken):
+    pass
+
 class Delimiter(SimpleToken):
     def typename(self):
         return self.val
+
+class ReservedWord(SimpleToken):
+    pass
 
 class Operator(Token):
     def __init__(self, op):
@@ -35,7 +41,7 @@ class Operator(Token):
     def typename(self):
         return self.op
 
-class ExpressionScanner(GenericScanner):
+class ExpressionScanner2(GenericScanner):
     def __init__(self):
         GenericScanner.__init__(self)
         
@@ -48,20 +54,41 @@ class ExpressionScanner(GenericScanner):
         r'\s+'
         pass
 
+    # Does this need to be checked before the / operator? Probably. 
+    def t_comment(self, s):
+        r'(/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
+        pass
+
     def t_integer(self, s):
         r'[1-9]\d*|0'
         t = Integer(int(s))
         self.rv.append(t)
 
-    def t_operator(self, s):
-        r'\+|\-|\*'
-        t = Operator(s)
-        self.rv.append(t)
-    
     def t_delimiter(self, s):
-        r'{|}|\(|\)|\[|\]|;|='
+        r';|\.|,|=|\(|\)|{|}|\[|\]'
         t = Delimiter(s)
         self.rv.append(t)
+
+    def t_ID(self, s):
+        r'[a-zA-Z](\w|\d)*'
+        t = ID(s)
+        self.rv.append(t)
+
+class ExpressionScanner(ExpressionScanner2):
+    ''' Do this so that reserved words are checked first '''
+
+    # Need to be checked first or will be considered an ID
+    def t_reserved(self, s):
+        r'class|public|static|extends|void|int|boolean|if|else|while|return|null|true|false|this|new|String|main|System\.out\.println'
+        t = ReservedWord(s)
+        self.rv.append(t)
+
+    # This needs to be checked before t_delimiter - because of the ==
+    def t_operator(self, s):
+        r'\+|\-|\*|/|<|<=|>=|>|==|\!=|\&\&|\|\||\!'
+        t = Operator(s)
+        self.rv.append(t)
+
 
 def dump(tokens):
     for token in tokens:
