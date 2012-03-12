@@ -2,6 +2,7 @@
 
 import lexer
 import parser
+import codegen
 
 from fileutils import InputFile
 import argparse
@@ -42,6 +43,7 @@ def main():
             
             #Generate Code
             if args.phase == 'codegen':
+                codegen.codegen('a.pyc', tree)
                 break
 
 if __name__ == '__main__':
