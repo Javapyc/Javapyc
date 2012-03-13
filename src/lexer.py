@@ -87,7 +87,7 @@ class ExpressionScanner2(ExpressionScanner1):
 class ExpressionScanner(ExpressionScanner2):
     # Does this need to be checked before the / operator? Probably. 
     def t_comment(self, s):
-        r'(/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
+        r'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
         pass
 
     def t_operator_prec(self, s):
