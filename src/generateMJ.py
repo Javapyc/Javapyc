@@ -47,15 +47,25 @@ def getCommentString():
 		f += str(token()[1]) + " "
 	return f
 
+spaceSensitive  = ["ReservedWord", "ID", "Integer"]
+
 for j in range(100):
 	outcode = open("tests/fakecode" + str(j) + ".java", 'w')
 	outlabel = open("tests/fakecode" + str(j) + ".lexout", 'w')
+
+	# Just pick one that doesn't require a space
+	last = "Operator"
 
 	# We want 100 tokens
 	for i in range(100):
 		token = random.choice(allThings)
 		val = token()
-		outcode.write(str(val[1]) + " ")
+		sep = ""
+		if val[0] in spaceSensitive and last in spaceSensitive:
+			sep = " "
+
+		outcode.write(sep + str(val[1]))
+		last = val[0]
 
 		# Write comments in every now and again
 		if random.random() > 0.96:
