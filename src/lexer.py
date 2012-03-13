@@ -41,7 +41,7 @@ class Operator(Token):
     def typename(self):
         return self.op
 
-class ExpressionScanner2(GenericScanner):
+class ExpressionScanner1(GenericScanner):
     def __init__(self):
         GenericScanner.__init__(self)
         
@@ -52,11 +52,6 @@ class ExpressionScanner2(GenericScanner):
     
     def t_whitespace(self, s):
         r'\s+'
-        pass
-
-    # Does this need to be checked before the / operator? Probably. 
-    def t_comment(self, s):
-        r'(/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
         pass
 
     def t_integer(self, s):
@@ -74,21 +69,27 @@ class ExpressionScanner2(GenericScanner):
         t = ID(s)
         self.rv.append(t)
 
-class ExpressionScanner(ExpressionScanner2):
+class ExpressionScanner2(ExpressionScanner1):
     ''' Do this so that reserved words are checked first '''
 
     # Need to be checked first or will be considered an ID
     def t_reserved(self, s):
-        r'class|public|static|extends|void|int|boolean|if|else|while|return|null|true|false|this|new|String|main|System\.out\.println'
+        r'class\b|public\b|static\b|extends\b|void\b|int\b|boolean\b|if\b|else\b|while\b|return\b|null\b|true\b|false\b|this\b|new\b|String\b|main\b|System\.out\.println\b'
         t = ReservedWord(s)
         self.rv.append(t)
 
     # This needs to be checked before t_delimiter - because of the ==
     def t_operator(self, s):
-        r'\+|\-|\*|/|<|<=|>=|>|==|\!=|\&\&|\|\||\!'
+        r'\+|\-|\*|/|<=|<|>=|>|==|\!=|\&\&|\|\||\!'
         t = Operator(s)
         self.rv.append(t)
 
+class ExpressionScanner(ExpressionScanner2):
+    # Does this need to be checked before the / operator? Probably. 
+    def t_comment(self, s):
+        r'(/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
+        pass
+    
 
 def dump(tokens, outfile):
     for token in tokens:
