@@ -70,7 +70,7 @@ for j in range(100):
 		# Write comments in every now and again
 		if random.random() > 0.96:
 			if random.random() > 0.5:
-				outcode.write("/**")
+				outcode.write("/*")
 				for t in range(3):
 					outcode.write(getCommentString() + "\n")
 				outcode.write("*/")
