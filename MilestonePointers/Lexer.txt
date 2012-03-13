@@ -3,10 +3,13 @@ Lexer Pointers
 NOTE: all .py files are written in Python 3
 
 The sample input files are in:
-../LexerSamples/
+../src/tests/*.java
 
 The corresponding output files (named appropriately) are also in:
-../LexerSamples/
+../src/tests/*.lexout
 
 Our source code is in:
-../src/lexer.py
+../src/
+
+Sample invocation to generate lex output:
+./javapyc.py -p lex tests/sample.java
