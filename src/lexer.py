@@ -80,7 +80,7 @@ class ExpressionScanner2(ExpressionScanner1):
 
     # This needs to be checked before t_delimiter - because of the ==
     def t_operator(self, s):
-        r'\+|\-|\*|/|<=|<|>=|>|==|\!=|\&\&|\|\||\!'
+        r'\+|\-|\*|/|<|>|==|\&\&|\|\||\!'
         t = Operator(s)
         self.rv.append(t)
 
@@ -89,6 +89,11 @@ class ExpressionScanner(ExpressionScanner2):
     def t_comment(self, s):
         r'(/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
         pass
+
+    def t_operator_prec(self, s):
+        r'<=|>=|\!='
+        t = Operator(s)
+        self.rv.append(t)
     
 
 def dump(tokens, outfile):

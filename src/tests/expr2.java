@@ -3,7 +3,6 @@ public HashSet readInClustering(String clusterFilename)
 	// Hashset doesn't allow duplicates. Do we really want this?
 	HashSet ret = new HashSet();
 	BasicDiskTable clusters = new BasicDiskTable(new File(clusterFilename));
-	clusters.open();
 	String [] line = clusters.readLine();
 	HashSet cluster = new HashSet();
 	while(line!=null) {

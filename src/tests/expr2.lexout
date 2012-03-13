@@ -27,12 +27,6 @@ ID, clusterFilename
 Delimiter, )
 Delimiter, )
 Delimiter, ;
-ID, clusters
-Delimiter, .
-ID, open
-Delimiter, (
-Delimiter, )
-Delimiter, ;
 ReservedWord, String
 Delimiter, [
 Delimiter, ]
