@@ -7,3 +7,5 @@ Integer, 5
 Operator, -
 Integer, 1
 Delimiter, )
+Operator, /
+Integer, 10
