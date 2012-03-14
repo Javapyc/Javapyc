@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os.path
 import sys
@@ -15,7 +15,7 @@ class FileTest(unittest.TestCase):
         proc = subprocess.Popen(('diff', actual, expected))
         res = proc.wait()
         self.assertEqual(0, res)
-    
+
 class LexerTest(FileTest):
     for p in glob('tests/*.java'):
         expected = os.path.splitext(p)[0] + ".lexout"
@@ -34,6 +34,16 @@ class LexerTest(FileTest):
             return runTest
         name = 'test_' + p.split('.')[0].split('/')[1]
         locals()[name] = makeTest(p, expected)
+
+    def test_errors(self):
+        p = 'tests/errors.java'
+        expected = 'tests/errors.lexout'
+        scanner = lexer.ExpressionScanner()
+        with open(p) as f: s = f.read()
+
+        with self.assertRaises(LexerException):
+            tokens.scanner.tokenize(s)
+
 
 if __name__ == '__main__':
     unittest.main()

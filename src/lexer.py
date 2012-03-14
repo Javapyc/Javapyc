@@ -55,7 +55,7 @@ class ExpressionScanner1(GenericScanner):
         pass
 
     def t_integer(self, s):
-        r'[1-9]\d*|0'
+        r'[1-9]\d*\b|0\b'
         t = Integer(int(s))
         self.rv.append(t)
 
