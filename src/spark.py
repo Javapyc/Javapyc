@@ -36,6 +36,9 @@ def _namelist(instance):
 				namedict[name] = 1
 	return namelist
 
+class LexerException(Exception):
+    pass
+
 class GenericScanner:
 	def __init__(self, flags=0):
 		pattern = self.reflect()
@@ -61,7 +64,7 @@ class GenericScanner:
 
 	def error(self, s, pos):
 		print("Lexical error at position %s" % pos)
-		raise SystemExit
+		raise LexerException()
 
 	def position(self, newpos=None):
 		oldpos = self.pos
@@ -89,7 +92,7 @@ class GenericScanner:
 		r'( . | \n )+'
 		print(s)
 		print("Specification error: unmatched input")
-		raise SystemExit
+		raise LexerException()
 
 #
 #  Extracted from GenericParser and made global so that [un]picking works.
