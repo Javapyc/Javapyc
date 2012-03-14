@@ -6,6 +6,7 @@ import unittest
 import lexer
 import subprocess
 from glob import iglob as glob
+import spark
 
 from fileutils import TempFile
 
@@ -41,8 +42,8 @@ class LexerTest(FileTest):
         scanner = lexer.ExpressionScanner()
         with open(p) as f: s = f.read()
 
-        with self.assertRaises(LexerException):
-            tokens.scanner.tokenize(s)
+        with self.assertRaises(spark.LexerException):
+            scanner.tokenize(s)
 
 
 if __name__ == '__main__':
