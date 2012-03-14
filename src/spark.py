@@ -63,8 +63,7 @@ class GenericScanner:
         return '|'.join(rv)
 
     def error(self, s, pos):
-        print("Lexical error at position %s" % pos)
-        raise LexerException()
+        raise LexerException("Lexical error at position %s" % pos)
 
     def position(self, newpos=None):
         oldpos = self.pos
@@ -90,9 +89,7 @@ class GenericScanner:
 
     def t_default(self, s):
         r'( . | \n )+'
-        print(s)
-        print("Specification error: unmatched input")
-        raise LexerException()
+        raise LexerException("Specification error: unmatched input: " + s)
 
 #
 #  Extracted from GenericParser and made global so that [un]picking works.
