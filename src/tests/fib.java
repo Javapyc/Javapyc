@@ -7,7 +7,7 @@ class Program {
 		Fibonacci fib = new Fibonacci();
 
 		int n = 15;
-		while (n) {
+		while (n >= 0) {
 			System.out.println(fib.fibRecursive(n));
 			System.out.println(fib.fibIterative(n));
 			n = n - 5;
@@ -32,13 +32,13 @@ class Fibonacci {
 	public int fibIterative(int n) {
 		int i = 0;
 		int j = 1;
-		while (n)
+		while (n > 0)
 		{
 			j = j + i;
 			i = j - i;
 			n = n - 1;
 		}
-		return j;
+		return i;
 	}
 
 }

@@ -28,6 +28,8 @@ Delimiter, ;
 ReservedWord, while
 Delimiter, (
 ID, n
+Operator, >=
+Integer, 0
 Delimiter, )
 Delimiter, {
 ReservedWord, System.out.println
@@ -126,6 +128,8 @@ Delimiter, ;
 ReservedWord, while
 Delimiter, (
 ID, n
+Operator, >
+Integer, 0
 Delimiter, )
 Delimiter, {
 ID, j
@@ -148,7 +152,7 @@ Integer, 1
 Delimiter, ;
 Delimiter, }
 ReservedWord, return
-ID, j
+ID, i
 Delimiter, ;
 Delimiter, }
 Delimiter, }
