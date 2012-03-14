@@ -8,8 +8,8 @@ class Program {
 
 		int n = 15;
 		while (n) {
-			System.out.println(fib.fib_recursive(n));
-			System.out.println(fib.fib_iterative(n));
+			System.out.println(fib.fibRecursive(n));
+			System.out.println(fib.fibIterative(n));
 			n = n - 5;
 		}
 
@@ -22,14 +22,14 @@ class Program {
  */
 class Fibonacci {
 
-	public int fib_recursive(int n) {
+	public int fibRecursive(int n) {
 		int res = n;
 		if (n >= 2)
-			res = this.fib_recursive(n-1) + this.fib_recursive(n-2);
+			res = this.fibRecursive(n-1) + this.fibRecursive(n-2);
 		return res;
 	}
 
-	public int fib_iterative(int n) {
+	public int fibIterative(int n) {
 		int i = 0;
 		int j = 1;
 		while (n)

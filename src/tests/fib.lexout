@@ -34,7 +34,7 @@ ReservedWord, System.out.println
 Delimiter, (
 ID, fib
 Delimiter, .
-ID, fib_recursive
+ID, fibRecursive
 Delimiter, (
 ID, n
 Delimiter, )
@@ -44,7 +44,7 @@ ReservedWord, System.out.println
 Delimiter, (
 ID, fib
 Delimiter, .
-ID, fib_iterative
+ID, fibIterative
 Delimiter, (
 ID, n
 Delimiter, )
@@ -64,7 +64,7 @@ ID, Fibonacci
 Delimiter, {
 ReservedWord, public
 ReservedWord, int
-ID, fib_recursive
+ID, fibRecursive
 Delimiter, (
 ReservedWord, int
 ID, n
@@ -85,7 +85,7 @@ ID, res
 Delimiter, =
 ReservedWord, this
 Delimiter, .
-ID, fib_recursive
+ID, fibRecursive
 Delimiter, (
 ID, n
 Operator, -
@@ -94,7 +94,7 @@ Delimiter, )
 Operator, +
 ReservedWord, this
 Delimiter, .
-ID, fib_recursive
+ID, fibRecursive
 Delimiter, (
 ID, n
 Operator, -
@@ -107,7 +107,7 @@ Delimiter, ;
 Delimiter, }
 ReservedWord, public
 ReservedWord, int
-ID, fib_iterative
+ID, fibIterative
 Delimiter, (
 ReservedWord, int
 ID, n
