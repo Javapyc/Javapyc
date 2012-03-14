@@ -1,0 +1,6 @@
+BONUS FEATURES:
+
+ - Allow --, ++, +=, -=
+ - Allow return statements inside functions (instead of just one return)
+ - Allow statements in while loop headers.
+
