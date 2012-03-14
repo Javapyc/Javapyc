@@ -162,14 +162,14 @@ class CodeGen:
             self._lineno = line
             return
 
-        dLine = self._lineno - line
+        dLine = line - self._lineno
         dOfs = len(self.co_code) - self._codeofs
 
         #TODO handle larger cases
 
         if (dLine or dOfs) and dLine <= 255 and dOfs <= 255:
-            self.co_lnotab.append(dLine)
             self.co_lnotab.append(dOfs)
+            self.co_lnotab.append(dLine)
 
         self._lineno = line
         self._codeofs = len(self.co_code)
