@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
+import os
 import os.path
 import sys
+import re
 import unittest
 import lexer
 import subprocess
@@ -9,6 +11,18 @@ from glob import iglob as glob
 import spark
 
 from fileutils import TempFile
+
+def testFiles(ext):
+    data = list(os.walk('tests'))
+    data.sort(key=lambda l: l[0])
+    for subdir, subdirs, files in data:
+        prefix = subdir + '/'
+        for filepath in sorted(files):
+            pref, e = os.path.splitext(filepath)
+            expected = pref + '.' + ext 
+            if e == '.java' and expected in files:
+                name = 'test_' + re.sub('\W', '_', (prefix+pref)[6:])
+                yield name, prefix+filepath, prefix+expected
 
 class FileTest(unittest.TestCase):
 
@@ -18,11 +32,7 @@ class FileTest(unittest.TestCase):
         self.assertEqual(0, res)
 
 class LexerTest(FileTest):
-    for p in glob('tests/*.java'):
-        expected = os.path.splitext(p)[0] + ".lexout"
-        if not os.path.exists(expected):
-            continue
-
+    for name, p, expected in testFiles('lexout'):
         def makeTest(p, expected):
             def runTest(self):
                 scanner = lexer.ExpressionScanner()
@@ -33,12 +43,10 @@ class LexerTest(FileTest):
                     fout.flush()
                     self.diff(expected, fout.name)
             return runTest
-        name = 'test_' + p.split('.')[0].split('/')[1]
         locals()[name] = makeTest(p, expected)
 
     def test_errors(self):
         p = 'tests/errors.java'
-        expected = 'tests/errors.lexout'
         scanner = lexer.ExpressionScanner()
         with open(p) as f: s = f.read()
 
