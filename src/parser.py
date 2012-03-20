@@ -99,7 +99,7 @@ class Div(BinaryTerm):
 
 class Factor(Term):
     pass
-class UnaryFactor(Term):
+class UnaryFactor(Factor):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
         self.expr = expr
@@ -109,6 +109,14 @@ class Negate(UnaryFactor):
 class Not(UnaryFactor):
     def value(self):
         return not self.expr.value()
+class NewInstance(Factor):
+    def __init__(self, name):
+        AST.__init__(self, tuple())
+        self.name = name
+    def __repr__(self):
+        return "New({0})".format(self.name)
+    def value(self):
+        return None
 class Scalar(Factor):
     def __repr__(self):
         return "({0}){1}".format(self.typename(), self.val)
@@ -128,6 +136,37 @@ class Boolean(Scalar):
         return 'bool'
     def value(self):
         return self.val
+class Null(Factor):
+    def __init__(self):
+        AST.__init__(self, tuple())
+    def __repr__(self):
+        return 'null'
+    def value(self):
+        return None
+class This(Factor):
+    def __init__(self):
+        AST.__init__(self, tuple())
+    def __repr__(self):
+        return 'this'
+    def value(self):
+        return None
+class ID(Factor):
+    def __init__(self, name):
+        AST.__init__(self, tuple())
+        self.name = name
+    def __repr__(self):
+        return 'ID({0})'.format(self.name)
+    def value(self):
+        return None
+class Call(Factor):
+    def __init__(self, obj, func, args):
+        AST.__init__(self, (obj,) + tuple(args))
+        self.obj = obj
+        self.func = func
+    def __repr__(self):
+        return 'Call({0})'.format(self.func)
+    def value(self):
+        return None
 
 class ExprParser(GenericParser):
     def __init__(self, start='expr'):
@@ -208,9 +247,37 @@ class ExprParser(GenericParser):
     def p_factor_false(self, args):
         r'factor ::= false'
         return Boolean(False)
+    def p_factor_null(self, args):
+        r'factor ::= null'
+        return Null()
+    def p_factor_this(self, args):
+        r'factor ::= this'
+        return This()
+    def p_factor_new(self, args):
+        r'factor ::= new ID ( )'
+        return NewInstance(args[1].val)
+    def p_factor_id(self, args):
+        r'factor ::= ID'
+        return ID(args[0].val)
+    def p_factor_call(self, args):
+        r'factor ::= expr . ID ( paramlist )'
+        return Call(args[0], args[2].val, args[4])
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
         return args[1]
+
+    def p_paramlist_empty(self, args):
+        r'paramlist ::= '
+        return tuple()
+    def p_paramlist_param(self, args):
+        r'paramlist ::= param'
+        return tuple(args)
+    def p_paramlist_params(self, args):
+        r'paramlist ::= param , paramlist'
+        return (args[0],) + args[2]
+    def p_param_expr(self, args):
+        r'param ::= expr'
+        return args[0]
 
     def typestring(self, token):
         return token.typename()
