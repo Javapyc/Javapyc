@@ -7,28 +7,22 @@ from fileutils import InputFile
 import argparse
 import sys
 
-class Expr:
+class AST:
+    def __init__(self, children):
+        self.children = children
     def classname(self):
         return self.__class__.__name__
-
-class UnaryExpr(Expr):
-    def __init__(self, expr):
-        self.expr = expr
     def __repr__(self):
-        return "{0}('{1}')".format(self.classname(), self.expr)
+        return "{0}".format(self.classname())
 
-class Negate(UnaryExpr):
-    pass
-
-class Not(UnaryExpr):
+class Expr(AST):
     pass
 
 class BinaryExpr(Expr):
     def __init__(self, left, right):
+        AST.__init__(self, (left,right))
         self.left = left
         self.right = right
-    def __repr__(self):
-        return "{0}('{1}', '{2}')".format(self.classname(), self.left, self.right)
 
 class Plus(BinaryExpr):
     def value(self):
@@ -43,10 +37,9 @@ class Term(Expr):
 
 class BinaryTerm(Expr):
     def __init__(self, left, right):
+        AST.__init__(self, (left,right))
         self.left = left
         self.right = right
-    def __repr__(self):
-        return "{0}('{1}', '{2}')".format(self.classname(), self.left, self.right)
 
 class Mult(BinaryTerm):
     def value(self):
@@ -59,8 +52,21 @@ class Div(BinaryTerm):
 class Factor(Term):
     pass
 
+class UnaryFactor(Term):
+    def __init__(self, expr):
+        AST.__init__(self, (expr,))
+        self.expr = expr
+
+class Negate(UnaryFactor):
+    def value(self):
+        return -self.expr.value()
+
+class Not(UnaryFactor):
+    pass
+
 class Integer(Factor):
     def __init__(self, val):
+        AST.__init__(self, tuple())
         self.val = val
     def __repr__(self):
         return "Integer('{0}')".format(self.val)
@@ -71,14 +77,6 @@ class ExprParser(GenericParser):
     def __init__(self, start='expr'):
         GenericParser.__init__(self, start)
     
-    def p_neg_expr(self, args):
-        r'expr ::= - expr'
-        return Negate(args[0])
-    
-    def p_not_expr(self, args):
-        r'expr ::= ! expr'
-        return Not(args[0])
-
     def p_expr_plus(self, args):
         r'expr ::= expr + term'
         return Plus(args[0], args[2])
@@ -103,6 +101,14 @@ class ExprParser(GenericParser):
         r'term ::= factor'
         return args[0]
     
+    def p_neg_factor(self, args):
+        r'expr ::= - factor'
+        return Negate(args[1])
+    
+    def p_not_factor(self, args):
+        r'expr ::= ! factor'
+        return Not(args[1])
+
     def p_factor_int(self, args):
         r'factor ::= Integer'
         return Integer(args[0])
@@ -114,15 +120,14 @@ class ExprParser(GenericParser):
     def typestring(self, token):
         return token.typename()
 
-def dump(tree, indent=0):
-    print(tree)
-    #TODO support prettier printing
-    #def iprint(node):
-    #    print('  ' * indent, end='')
-    #    print(str(node))
-    #for node in tree:
-    #    iprint(node)
-    #    import pdb; pdb.set_trace()
+def dump(node, indent=0):
+    #print(tree)
+    def iprint(node):
+        print('  ' * indent, end='')
+        print(str(node))
+    iprint(node)
+    for child in node.children:
+        dump(child, indent+1)
 
 
 def main():
@@ -141,7 +146,7 @@ def main():
             parser = ExprParser()
             tree = parser.parse(tokens)
 
-            print(tree)
+            dump(tree)
             print("Value: ", tree.value())
 
 if __name__ == '__main__':
