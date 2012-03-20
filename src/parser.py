@@ -11,6 +11,18 @@ class Expr:
     def classname(self):
         return self.__class__.__name__
 
+class UnaryExpr(Expr):
+    def __init__(self, expr):
+        self.expr = expr
+    def __repr__(self):
+        return "{0}('{1}')".format(self.classname(), self.expr)
+
+class Negate(UnaryExpr):
+    pass
+
+class Not(UnaryExpr):
+    pass
+
 class BinaryExpr(Expr):
     def __init__(self, left, right):
         self.left = left
@@ -58,6 +70,14 @@ class Integer(Factor):
 class ExprParser(GenericParser):
     def __init__(self, start='expr'):
         GenericParser.__init__(self, start)
+    
+    def p_neg_expr(self, args):
+        r'expr ::= - expr'
+        return Negate(args[0])
+    
+    def p_not_expr(self, args):
+        r'expr ::= ! expr'
+        return Not(args[0])
 
     def p_expr_plus(self, args):
         r'expr ::= expr + term'
