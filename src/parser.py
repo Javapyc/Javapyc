@@ -102,11 +102,11 @@ class ExprParser(GenericParser):
         return args[0]
     
     def p_neg_factor(self, args):
-        r'expr ::= - factor'
+        r'factor ::= - factor'
         return Negate(args[1])
     
     def p_not_factor(self, args):
-        r'expr ::= ! factor'
+        r'factor ::= ! factor'
         return Not(args[1])
 
     def p_factor_int(self, args):
@@ -121,7 +121,6 @@ class ExprParser(GenericParser):
         return token.typename()
 
 def dump(node, indent=0):
-    #print(tree)
     def iprint(node):
         print('  ' * indent, end='')
         print(str(node))
