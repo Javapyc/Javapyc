@@ -17,57 +17,101 @@ class AST:
 
 class Expr(AST):
     pass
+class Or(Expr):
+    def __init__(self, left, right):
+        AST.__init__(self, (left,right))
+    def value(self):
+        left, right = self.children
+        return left.value() or right.value()
 
-class BinaryExpr(Expr):
+class AndExpr(Expr):
+    pass
+class And(AndExpr):
+    def __init__(self, left, right):
+        AST.__init__(self, (left,right))
+    def value(self):
+        left, right = self.children
+        return left.value() and right.value()
+
+class EqualExpr(AndExpr):
+    pass
+class BinaryEqualExpr(EqualExpr):
+    def __init__(self, left, right):
+        AST.__init__(self, (left,right))
+class Equal(BinaryEqualExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() == right.value()
+class NotEqual(BinaryEqualExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() != right.value()
+
+class CompExpr(EqualExpr):
+    pass
+class BinaryCompExpr(CompExpr):
+    def __init__(self, left, right):
+        AST.__init__(self, (left,right))
+class LessThan(BinaryCompExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() < right.value()
+class GreaterThan(BinaryCompExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() > right.value()
+class LessThanEqualTo(BinaryCompExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() <= right.value()
+class GreaterThanEqualTo(BinaryCompExpr):
+    def value(self):
+        left, right = self.children
+        return left.value() >= right.value()
+
+class AlgExpr(CompExpr):
+    pass
+class BinaryExpr(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
         self.left = left
         self.right = right
-
 class Plus(BinaryExpr):
     def value(self):
         return self.left.value() + self.right.value()
-
 class Minus(BinaryExpr):
     def value(self):
         return self.left.value() - self.right.value()
 
-class Term(Expr):
+class Term(AlgExpr):
     pass
-
-class BinaryTerm(Expr):
+class BinaryTerm(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
         self.left = left
         self.right = right
-
 class Mult(BinaryTerm):
     def value(self):
         return self.left.value() * self.right.value()
-
 class Div(BinaryTerm):
     def value(self):
         return int(self.left.value() / self.right.value())
 
 class Factor(Term):
     pass
-
 class UnaryFactor(Term):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
         self.expr = expr
-
 class Negate(UnaryFactor):
     def value(self):
         return -self.expr.value()
-
 class Not(UnaryFactor):
-    pass
-
+    def value(self):
+        return not self.expr.value()
 class Scalar(Factor):
     def __repr__(self):
         return "({0}){1}".format(self.typename(), self.val)
-
 class Integer(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
@@ -76,7 +120,6 @@ class Integer(Scalar):
         return 'int'
     def value(self):
         return int(self.val)
-
 class Boolean(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
@@ -90,50 +133,81 @@ class ExprParser(GenericParser):
     def __init__(self, start='expr'):
         GenericParser.__init__(self, start)
     
-    def p_expr_plus(self, args):
-        r'expr ::= expr + term'
+    def p_expr_or(self, args):
+        r'expr ::= expr || andexpr'
+        return Or(args[0], args[2])
+    def p_expr_andexpr(self, args):
+        r'expr ::= andexpr'
+        return args[0]
+
+    def p_andexpr_and(self, args):
+        r'andexpr ::= andexpr && equalexpr'
+        return And(args[0], args[2])
+    def p_andexpr_equalexpr(self, args):
+        r'andexpr ::= equalexpr'
+        return args[0]
+    
+    def p_equalexpr_equal(self, args):
+        r'equalexpr ::= equalexpr == compexpr'
+        return Equal(args[0], args[2])
+    def p_equalexpr_notequal(self, args):
+        r'equalexpr ::= equalexpr != compexpr'
+        return NotEqual(args[0], args[2])
+    def p_equalexpr_compexpr(self, args):
+        r'equalexpr ::= compexpr'
+        return args[0]
+    
+    def p_compexpr_lessthan(self, args):
+        r'compexpr ::= compexpr < algexpr'
+        return LessThan(args[0], args[2])
+    def p_compexpr_greaterthan(self, args):
+        r'compexpr ::= compexpr > algexpr'
+        return GreaterThan(args[0], args[2])
+    def p_compexpr_lessthanequalto(self, args):
+        r'compexpr ::= compexpr <= algexpr'
+        return LessThanEqualTo(args[0], args[2])
+    def p_compexpr_greaterthanequalto(self, args):
+        r'compexpr ::= compexpr >= algexpr'
+        return GreaterThanEqualTo(args[0], args[2])
+    def p_compexpr_algexpr(self, args):
+        r'compexpr ::= algexpr'
+        return args[0]
+    
+    def p_algexpr_plus(self, args):
+        r'algexpr ::= algexpr + term'
         return Plus(args[0], args[2])
-    
-    def p_expr_minus(self, args):
-        r'expr ::= expr - term'
+    def p_algexpr_minus(self, args):
+        r'algexpr ::= algexpr - term'
         return Minus(args[0], args[2])
-    
-    def p_expr_term(self, args):
-        r'expr ::= term'
+    def p_algexpr_term(self, args):
+        r'algexpr ::= term'
         return args[0]
     
     def p_term_mult(self, args):
         r'term ::= term * factor'
         return Mult(args[0], args[2])
-    
     def p_term_div(self, args):
         r'term ::= term / factor'
         return Div(args[0], args[2])
-    
     def p_term_factor(self, args):
         r'term ::= factor'
         return args[0]
     
-    def p_neg_factor(self, args):
+    def p_factor_neg(self, args):
         r'factor ::= - factor'
         return Negate(args[1])
-    
-    def p_not_factor(self, args):
+    def p_factor_not(self, args):
         r'factor ::= ! factor'
         return Not(args[1])
-
     def p_factor_int(self, args):
         r'factor ::= Integer'
         return Integer(args[0])
-    
     def p_factor_true(self, args):
         r'factor ::= true'
         return Boolean(True)
-    
     def p_factor_false(self, args):
         r'factor ::= false'
         return Boolean(False)
-
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
         return args[1]
