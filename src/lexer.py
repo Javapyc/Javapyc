@@ -31,7 +31,8 @@ class Delimiter(SimpleToken):
         return self.val
 
 class ReservedWord(SimpleToken):
-    pass
+    def typename(self):
+        return self.val
 
 class Operator(Token):
     def __init__(self, op):

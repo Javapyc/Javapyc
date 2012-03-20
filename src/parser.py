@@ -64,14 +64,27 @@ class Negate(UnaryFactor):
 class Not(UnaryFactor):
     pass
 
-class Integer(Factor):
+class Scalar(Factor):
+    def __repr__(self):
+        return "({0}){1}".format(self.typename(), self.val)
+
+class Integer(Scalar):
+    def __init__(self, val):
+        AST.__init__(self, tuple())
+        self.val = val.val
+    def typename(self):
+        return 'int'
+    def value(self):
+        return int(self.val)
+
+class Boolean(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
         self.val = val
-    def __repr__(self):
-        return "Integer('{0}')".format(self.val)
+    def typename(self):
+        return 'bool'
     def value(self):
-        return int(self.val.val)
+        return self.val
 
 class ExprParser(GenericParser):
     def __init__(self, start='expr'):
@@ -112,6 +125,14 @@ class ExprParser(GenericParser):
     def p_factor_int(self, args):
         r'factor ::= Integer'
         return Integer(args[0])
+    
+    def p_factor_true(self, args):
+        r'factor ::= true'
+        return Boolean(True)
+    
+    def p_factor_false(self, args):
+        r'factor ::= false'
+        return Boolean(False)
 
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
