@@ -282,13 +282,28 @@ class ExprParser(GenericParser):
     def typestring(self, token):
         return token.typename()
 
-def dump(node, indent=0):
-    def iprint(node):
-        print('  ' * indent, end='')
-        print(str(node))
-    iprint(node)
-    for child in node.children:
-        dump(child, indent+1)
+def dump(node):
+    def dumpNode(node, indent):
+        def iprint(node):
+            for b in indent[:-1]:
+                if b:
+                    print('| ', end='')
+                else:
+                    print('  ', end='')
+            if len(indent):
+                print('+-', end='')
+            print(str(node))
+
+        iprint(node)
+
+        if len(indent):
+            indent[-1] -= 1
+        indent.append(len(node.children))
+
+        for child in node.children:
+            dumpNode(child, indent)
+        indent.pop()
+    dumpNode(node, [])
 
 
 def main():
