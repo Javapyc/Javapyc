@@ -15,6 +15,17 @@ class AST:
     def __repr__(self):
         return "{0}".format(self.classname())
 
+
+class Program(AST):
+    def __init__(self, stmts):
+        AST.__init__(self, stmts)
+
+class Stmt(AST):
+    pass
+class Print(Stmt):
+    def __init__(self, expr):
+        AST.__init__(self, (expr,))
+
 class Expr(AST):
     pass
 class Or(Expr):
@@ -168,10 +179,12 @@ class Call(Factor):
     def value(self):
         return None
 
-class ExprParser(GenericParser):
-    def __init__(self, start='expr'):
-        GenericParser.__init__(self, start)
-    
+class StmtParser():
+    def p_stmt_print(self, args):
+        r'stmt ::= System.out.println ( expr ) ;'
+        return Print(args[2])
+
+class ExprParser():
     def p_expr_or(self, args):
         r'expr ::= expr || andexpr'
         return Or(args[0], args[2])
@@ -282,6 +295,31 @@ class ExprParser(GenericParser):
     def typestring(self, token):
         return token.typename()
 
+class ProgramParser(ExprParser, StmtParser, GenericParser):
+    def __init__(self):
+        GenericParser.__init__(self, 'program')
+    
+    def p_program_stmtlist(self, args):
+        r'program ::= stmtlist'
+        return args[0]
+
+    def p_stmtlist_empty(self, args):
+        r'stmtlist ::= '
+        return tuple()
+    def p_stmtlist_stmt(self, args):
+        r'stmtlist ::= stmt'
+        return tuple(args)
+    def p_stmtlist_stmts(self, args):
+        r'stmtlist ::= stmt stmtlist'
+        return (args[0],) + args[1]
+    
+    def typestring(self, token):
+        return token.typename()
+
+class SingleExprParser(ExprParser, GenericParser):
+    def __init__(self):
+        GenericParser.__init__(self, 'expr')
+
 def dump(node):
     def dumpNode(node, indent):
         def iprint(node):
@@ -319,7 +357,7 @@ def main():
             scanner = lexer.ExpressionScanner()
             tokens = scanner.tokenize(s)
 
-            parser = ExprParser()
+            parser = SingleExprParser()
             tree = parser.parse(tokens)
 
             dump(tree)
