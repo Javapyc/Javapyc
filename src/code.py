@@ -227,6 +227,18 @@ class CodeGen:
         self.write(Ops.BINARY_ADD)
         self.popStack(2)
         self.pushStack(1)
+    def BINARY_SUBTRACT(self):
+        self.write(Ops.BINARY_SUBTRACT)
+        self.popStack(2)
+        self.pushStack(1)
+    def BINARY_MULTIPLY(self):
+        self.write(Ops.BINARY_MULTIPLY)
+        self.popStack(2)
+        self.pushStack(1)
+    def BINARY_FLOOR_DIVIDE(self):
+        self.write(Ops.BINARY_FLOOR_DIVIDE)
+        self.popStack(2)
+        self.pushStack(1)
 
     def popStack(self, n=1):
         self._stacksize -= n

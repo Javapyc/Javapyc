@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import code
+from code import CodeGen
 import parser
 
 import imp
@@ -8,17 +8,14 @@ import marshal
 import time
 import struct
 
+from fileutils import InputFile
+import argparse
+import sys
+
 def wrapModule(path, code):
-    #FIXME name conflict: code
-    c = code.CodeGen(path)
-    def pr(s):
-        #prints a message
-        c.LOAD_NAME('print')
-        c.LOAD_CONST(s)
-        c.CALL_FUNCTION(1)
-        c.POP_TOP()
+    c = CodeGen(path)
     #make main function
-    c.LOAD_CONST(t)
+    c.LOAD_CONST(code)
     c.MAKE_FUNCTION()
     c.STORE_NAME('main')
 
@@ -36,15 +33,10 @@ def wrapModule(path, code):
     return c
 
 def codegen(path, tree):
-    c = code.CodeGen(path)
+    c = CodeGen(path)
     #actual generated code will go here
     c.setLine(1)
-    c.LOAD_NAME('print')
-    c.LOAD_CONST(5)
-    c.LOAD_CONST(42-5)
-    c.BINARY_ADD()
-    c.CALL_FUNCTION(1)
-    c.POP_TOP()
+    tree.codegen(c)
 
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
@@ -59,3 +51,33 @@ def codegen(path, tree):
         #code object
         marshal.dump(co, fout)
 
+def main():
+    parser = argparse.ArgumentParser(description='compile some MiniJava')
+    parser.add_argument('inputFile', nargs='?', type=InputFile)
+    args = parser.parse_args()
+    if not args:
+        return
+
+    inputFile = args.inputFile
+    if not inputFile:
+        inputFile = sys.stdin
+
+    import lexer
+    import parser
+
+    with inputFile as f:
+        s = f.read()
+        scanner = lexer.ExpressionScanner()
+        tokens = scanner.tokenize(s)
+
+        programParser = parser.ProgramParser()
+        tree = programParser.parse(tokens)
+
+        parser.dump(tree)
+
+        codegen('test', tree)
+
+    import testmod
+
+if __name__ == '__main__':
+    main()
