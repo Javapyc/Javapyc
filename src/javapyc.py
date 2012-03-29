@@ -2,6 +2,7 @@
 
 import lexer
 import parser
+import typechecker
 import codegen
 
 from fileutils import InputFile
@@ -37,14 +38,16 @@ def main():
                 break
 
             #Parsing
-            p = parser.ExprParser()
+            p = parser.ProgramParser()
             tree = p.parse(tokens)
             if args.phase == 'parse':
                 parser.dump(tree)
                 break
             
             #Typecheck Parse Tree
+            typechecker.typecheck(tree)
             if args.phase == 'typecheck':
+                print("Looks good")
                 break
             
             #Generate Code

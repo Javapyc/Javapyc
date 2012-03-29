@@ -6,7 +6,9 @@ class AST:
         return self.__class__.__name__
     def __repr__(self):
         return "{0}".format(self.classname())
-
+    def typecheck(self):
+        self.nodeType = self._typecheck()
+        return self.nodeType
 
 class Program(AST):
     def __init__(self, stmts):
