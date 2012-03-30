@@ -187,11 +187,17 @@ class CodeGen:
             self.co_code.append((value>>8) & 0xFF)
 
     def LOAD_CONST(self, value):
-        if value not in self.co_consts:
-            self.co_consts.append(value)
-        index = self.co_consts.index(value)
-        self.write(Ops.LOAD_CONST, index)
-        self.pushStack()
+        def loadConst(index):
+            self.write(Ops.LOAD_CONST, index)
+            self.pushStack()
+
+        for index, val in enumerate(self.co_consts):
+            if value == val and type(value) == type(val):
+                loadConst(index)
+                return
+
+        self.co_consts.append(value)
+        loadConst(len(self.co_consts)-1)
 
     def LOAD_NAME(self, value):
         index = self.getName(value)
@@ -223,6 +229,18 @@ class CodeGen:
         self.write(Ops.RETURN_VALUE)
         self.popStack()
 
+    def UNARY_INVERT(self):
+        self.write(Ops.UNARY_INVERT)
+        self.popStack(1)
+        self.pushStack(1)
+    def BINARY_OR(self):
+        self.write(Ops.BINARY_OR)
+        self.popStack(2)
+        self.pushStack(1)
+    def BINARY_AND(self):
+        self.write(Ops.BINARY_AND)
+        self.popStack(2)
+        self.pushStack(1)
     def BINARY_ADD(self):
         self.write(Ops.BINARY_ADD)
         self.popStack(2)

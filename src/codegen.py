@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from code import CodeGen
-import parser
+import ast
 
 import imp
 import marshal
@@ -11,6 +11,83 @@ import struct
 from fileutils import InputFile
 import argparse
 import sys
+
+def codegens(cls):
+    '''
+    Annotates a function that will be added to the given class
+    that can generate code for itself
+    '''
+    def wrap(func):
+        setattr(cls, 'codegen', func)
+        return func
+    return wrap
+
+@codegens(ast.Program)
+def codegen(self, c):
+    stmts = self.children
+    for stmt in stmts:
+        stmt.codegen(c)
+
+@codegens(ast.Print)
+def codegen(self, c):
+    (expr,) = self.children
+    c.LOAD_NAME('print')
+    expr.codegen(c)
+    c.CALL_FUNCTION(1)
+    c.POP_TOP()
+
+@codegens(ast.Or)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.BINARY_OR()
+
+@codegens(ast.And)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.BINARY_AND()
+
+@codegens(ast.Plus)
+def codegen(self, c):
+    self.left.codegen(c)
+    self.right.codegen(c)
+    c.BINARY_ADD()
+
+@codegens(ast.Minus)
+def codegen(self, c):
+    self.left.codegen(c)
+    self.right.codegen(c)
+    c.BINARY_SUBTRACT()
+
+@codegens(ast.Mult)
+def codegen(self, c):
+    self.left.codegen(c)
+    self.right.codegen(c)
+    c.BINARY_MULTIPLY()
+
+@codegens(ast.Div)
+def codegen(self, c):
+    self.left.codegen(c)
+    self.right.codegen(c)
+    c.BINARY_FLOOR_DIVIDE()
+
+@codegens(ast.Negate)
+def codegen(self, c):
+    (expr,) = self.children
+    expr.codegen(c)
+    c.UNARY_INVERT()
+
+@codegens(ast.Integer)
+@codegens(ast.Boolean)
+def codegen(self, c):
+    c.LOAD_CONST(self.value())
+
+@codegens(ast.Null)
+def codegen(self, c):
+    c.LOAD_CONST(None)
 
 def wrapModule(path, code):
     c = CodeGen(path)
@@ -52,9 +129,9 @@ def codegen(path, tree):
         marshal.dump(co, fout)
 
 def main():
-    parser = argparse.ArgumentParser(description='compile some MiniJava')
-    parser.add_argument('inputFile', nargs='?', type=InputFile)
-    args = parser.parse_args()
+    argParser = argparse.ArgumentParser(description='compile some MiniJava')
+    argParser.add_argument('inputFile', nargs='?', type=InputFile)
+    args = argParser.parse_args()
     if not args:
         return
 

@@ -10,22 +10,12 @@ class AST:
 class Program(AST):
     def __init__(self, stmts):
         AST.__init__(self, stmts)
-    def codegen(self, c):
-        stmts = self.children
-        for stmt in stmts:
-            stmt.codegen(c)
 
 class Stmt(AST):
     pass
 class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
-    def codegen(self, c):
-        (expr,) = self.children
-        c.LOAD_NAME('print')
-        expr.codegen(c)
-        c.CALL_FUNCTION(1)
-        c.POP_TOP()
 
 class Expr(AST):
     pass
@@ -71,15 +61,9 @@ class BinaryExpr(AlgExpr):
         self.left = left
         self.right = right
 class Plus(BinaryExpr):
-    def codegen(self, c):
-        self.left.codegen(c)
-        self.right.codegen(c)
-        c.BINARY_ADD()
+    pass
 class Minus(BinaryExpr):
-    def codegen(self, c):
-        self.left.codegen(c)
-        self.right.codegen(c)
-        c.BINARY_SUBTRACT()
+    pass
 
 class Term(AlgExpr):
     pass
@@ -89,15 +73,9 @@ class BinaryTerm(AlgExpr):
         self.left = left
         self.right = right
 class Mult(BinaryTerm):
-    def codegen(self, c):
-        self.left.codegen(c)
-        self.right.codegen(c)
-        c.BINARY_MULTIPLY()
+    pass
 class Div(BinaryTerm):
-    def codegen(self, c):
-        self.left.codegen(c)
-        self.right.codegen(c)
-        c.BINARY_FLOOR_DIVIDE()
+    pass
 
 class Factor(Term):
     pass
@@ -126,8 +104,6 @@ class Integer(Scalar):
         return 'int'
     def value(self):
         return int(self.val)
-    def codegen(self, c):
-        c.LOAD_CONST(self.val)
 class Boolean(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
@@ -136,8 +112,6 @@ class Boolean(Scalar):
         return 'bool'
     def value(self):
         return self.val
-    def codegen(self, c):
-        c.LOAD_CONST(self.val)
 class Null(Factor):
     def __init__(self):
         AST.__init__(self, tuple())
@@ -145,8 +119,6 @@ class Null(Factor):
         return 'null'
     def value(self):
         return None
-    def codegen(self, c):
-        c.LOAD_CONST(None)
 class This(Factor):
     def __init__(self):
         AST.__init__(self, tuple())
