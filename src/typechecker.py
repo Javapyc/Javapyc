@@ -1,6 +1,13 @@
 
 import ast
 
+def injectTypecheck():
+    def typecheck(self):
+        self.nodeType = self._typecheck()
+        return self.nodeType
+    setattr(ast.AST, 'typecheck', typecheck)
+injectTypecheck()
+
 def typechecks(cls):
     def wrap(func):
         setattr(cls, '_typecheck', func)
@@ -74,9 +81,11 @@ def typecheck(self):
 @typechecks(ast.Integer)
 def typecheck(self):
     #TODO check size of integer
+    self.val = int(self.val)
     return int
 
-def typecheck(tree):
-    tree.typecheck()
-
+@typechecks(ast.ID)
+def typecheck(self):
+    #FIXME lookup type of id
+    return int
 

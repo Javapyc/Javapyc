@@ -3,6 +3,7 @@
 import lexer
 import parser
 import typechecker
+import optimizer
 import codegen
 
 from fileutils import InputFile
@@ -11,8 +12,9 @@ import sys
 
 def getArguments():
     parser = argparse.ArgumentParser(description='MiniJava Compiler')
-    parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'codegen'), default='codegen')
+    parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'optimize', 'codegen'), default='codegen')
     parser.add_argument('--out-file', '-o', type=str, default='a')
+    parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
     parser.add_argument('files', nargs='+', type=InputFile)
     return parser.parse_args()
 
@@ -23,6 +25,9 @@ def main():
     if len(args.files) > 1:
         print("Only one input file is supported")
         sys.exit(1)
+
+    if args.phase == 'optimize':
+        args.optimize = True
 
     outfile = args.out_file + '.pyc'
 
@@ -45,9 +50,19 @@ def main():
                 break
             
             #Typecheck Parse Tree
-            typechecker.typecheck(tree)
+            tree.typecheck()
             if args.phase == 'typecheck':
                 print("Looks good")
+                break
+            
+            #Optimization
+            if args.phase == 'optimize':
+                parser.dump(tree)
+                print()
+            if args.optimize:
+                tree.optimize()
+            if args.phase == 'optimize':
+                parser.dump(tree)
                 break
             
             #Generate Code

@@ -83,7 +83,7 @@ class ExprParser():
         return ast.Not(args[1])
     def p_factor_int(self, args):
         r'factor ::= Integer'
-        return ast.Integer(args[0])
+        return ast.Integer(args[0].val)
     def p_factor_true(self, args):
         r'factor ::= true'
         return ast.Boolean(True)
@@ -196,7 +196,6 @@ def main():
         tree = parser.parse(tokens)
 
         dump(tree)
-        print("Value: ", tree.value())
 
 if __name__ == '__main__':
     main()
