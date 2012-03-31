@@ -122,6 +122,12 @@ def codegen(self, c):
     expr.codegen(c)
     c.UNARY_INVERT()
 
+@codegens(ast.Not)
+def codegen(self, c):
+    (expr,) = self.children
+    expr.codegen(c)
+    c.UNARY_NOT()
+
 @codegens(ast.Integer)
 @codegens(ast.Boolean)
 def codegen(self, c):

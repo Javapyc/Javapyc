@@ -243,6 +243,11 @@ class CodeGen:
     def RETURN_VALUE(self):
         self.write(Ops.RETURN_VALUE)
         self.popStack()
+    
+    def UNARY_NOT(self):
+        self.write(Ops.UNARY_NOT)
+        self.popStack(1)
+        self.pushStack(1)
 
     def UNARY_INVERT(self):
         self.write(Ops.UNARY_INVERT)
