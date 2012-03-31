@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from code import CodeGen
+from code import CodeGen, CmpOp
 import ast
 
 import imp
@@ -50,6 +50,48 @@ def codegen(self, c):
     right.codegen(c)
     c.BINARY_AND()
 
+@codegens(ast.Equal)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.EQUAL)
+
+@codegens(ast.NotEqual)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.NOT_EQUAL)
+
+@codegens(ast.LessThan)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.LESS_THAN)
+
+@codegens(ast.GreaterThan)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.GREATER_THAN)
+
+@codegens(ast.LessThanEqualTo)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.LESS_THAN_EQUAL_TO)
+
+@codegens(ast.GreaterThanEqualTo)
+def codegen(self, c):
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
+    c.COMPARE_OP(CmpOp.GREATER_THAN_EQUAL_TO)
+
 @codegens(ast.Plus)
 def codegen(self, c):
     self.left.codegen(c)
@@ -97,8 +139,11 @@ def wrapModule(path, code):
     c.STORE_NAME('main')
 
     #ifmain
-    #c.LOAD_NAME('__name__')
-    #c.LOAD_CONST('__main__')
+    c.LOAD_NAME('__name__')
+    c.LOAD_CONST('__main__')
+    c.COMPARE_OP(CmpOp.EQUAL)
+    #c.POP_JUMP_IF_FALSE()
+    c.POP_TOP()
     c.LOAD_NAME('main')
     c.CALL_FUNCTION()
     c.POP_TOP()
@@ -120,7 +165,7 @@ def codegen(path, tree):
 
     mod = wrapModule(path, c)
     co = mod.code()
-    with open('testmod.pyc', 'wb') as fout:
+    with open(path, 'wb') as fout:
         #magic header
         fout.write(imp.get_magic())
         #timestamp
@@ -152,9 +197,10 @@ def main():
 
         parser.dump(tree)
 
-        codegen('test', tree)
+        codegen('testmod.pyc', tree)
 
     import testmod
 
 if __name__ == '__main__':
     main()
+

@@ -117,6 +117,21 @@ class Flags:
     GENERATOR   = 0x0020
     NOFREE      = 0x0040
 
+class CmpOp:
+    cmpopmap = {
+        '<': 'LESS_THAN',
+        '<=': 'LESS_THAN_EQUAL_TO',
+        '>': 'GREATER_THAN',
+        '>=': 'GREATER_THAN_EQUAL_TO',
+        '==': 'EQUAL',
+        '!=': 'NOT_EQUAL',
+        'in': 'IN',
+        'not in': 'NOT_IN'
+    }
+    for i, op in enumerate(dis.cmp_op):
+        if op in cmpopmap.keys():
+            locals()[cmpopmap[op]] = i
+
 class Ops:
     for op in dis.opmap:
         locals()[op] = dis.opmap[op]
@@ -233,6 +248,12 @@ class CodeGen:
         self.write(Ops.UNARY_INVERT)
         self.popStack(1)
         self.pushStack(1)
+
+    def COMPARE_OP(self, op):
+        self.write(Ops.COMPARE_OP, op)
+        self.popStack(2)
+        self.pushStack(1)
+
     def BINARY_OR(self):
         self.write(Ops.BINARY_OR)
         self.popStack(2)
@@ -257,6 +278,10 @@ class CodeGen:
         self.write(Ops.BINARY_FLOOR_DIVIDE)
         self.popStack(2)
         self.pushStack(1)
+    
+    #def POP_JUMP_IF_FALSE(self):
+    #    self.write(Ops.POP_JUMP_IF_FALSE, 0)
+    #    self.popStack(1)
 
     def popStack(self, n=1):
         self._stacksize -= n
@@ -285,7 +310,6 @@ def main():
 
     t.LOAD_CONST(None)
     t.RETURN_VALUE()
-
 
     c = CodeGen("testmod.java")
     def pr(s):
