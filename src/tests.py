@@ -8,6 +8,7 @@ import unittest
 import lexer
 import subprocess
 from glob import iglob as glob
+from util import staticinit
 import spark
 
 from fileutils import TempFile
@@ -31,19 +32,23 @@ class FileTest(unittest.TestCase):
         res = proc.wait()
         self.assertEqual(0, res)
 
+@staticinit
 class LexerTest(FileTest):
-    for name, p, expected in testFiles('lexout'):
-        def makeTest(p, expected):
-            def runTest(self):
-                scanner = lexer.ExpressionScanner()
-                with open(p) as f: s = f.read()
-                tokens = scanner.tokenize(s)
-                with TempFile() as fout:
-                    lexer.dump(tokens, fout.f)
-                    fout.flush()
-                    self.diff(expected, fout.name)
-            return runTest
-        locals()[name] = makeTest(p, expected)
+
+    @classmethod
+    def __static__(cls):
+        for name, p, expected in testFiles('lexout'):
+            def makeTest(p, expected):
+                def runTest(self):
+                    scanner = lexer.ExpressionScanner()
+                    with open(p) as f: s = f.read()
+                    tokens = scanner.tokenize(s)
+                    with TempFile() as fout:
+                        lexer.dump(tokens, fout.f)
+                        fout.flush()
+                        self.diff(expected, fout.name)
+                return runTest
+            setattr(cls, name, makeTest(p, expected))
 
     def test_errors(self):
         p = 'tests/errors.java'

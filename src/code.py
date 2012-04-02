@@ -3,6 +3,7 @@
 from array import array
 from types import CodeType as Code
 import dis
+from util import staticinit
 
 '''
 BINARY_ADD:     23
@@ -117,24 +118,30 @@ class Flags:
     GENERATOR   = 0x0020
     NOFREE      = 0x0040
 
+@staticinit
 class CmpOp:
-    cmpopmap = {
-        '<': 'LESS_THAN',
-        '<=': 'LESS_THAN_EQUAL_TO',
-        '>': 'GREATER_THAN',
-        '>=': 'GREATER_THAN_EQUAL_TO',
-        '==': 'EQUAL',
-        '!=': 'NOT_EQUAL',
-        'in': 'IN',
-        'not in': 'NOT_IN'
-    }
-    for i, op in enumerate(dis.cmp_op):
-        if op in cmpopmap.keys():
-            locals()[cmpopmap[op]] = i
+    @classmethod
+    def __static__(cls):
+        cmpopmap = {
+            '<': 'LESS_THAN',
+            '<=': 'LESS_THAN_EQUAL_TO',
+            '>': 'GREATER_THAN',
+            '>=': 'GREATER_THAN_EQUAL_TO',
+            '==': 'EQUAL',
+            '!=': 'NOT_EQUAL',
+            'in': 'IN',
+            'not in': 'NOT_IN'
+        }
+        for i, op in enumerate(dis.cmp_op):
+            if op in cmpopmap.keys():
+                setattr(cls, cmpopmap[op], i)
 
+@staticinit
 class Ops:
-    for op in dis.opmap:
-        locals()[op] = dis.opmap[op]
+    @classmethod
+    def __static__(cls):
+        for op in dis.opmap:
+            setattr(cls, op, dis.opmap[op])
 
 class CodeGen:
     co_name='<javapyc>'
