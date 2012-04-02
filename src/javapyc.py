@@ -36,7 +36,7 @@ def main():
             s = f.read()
 
             #Lexical Analysis
-            scanner = lexer.ExpressionScanner()
+            scanner = lexer.MiniJavaScanner()
             tokens = scanner.tokenize(s)
             if args.phase == 'lex':
                 lexer.dump(tokens, sys.stdout)

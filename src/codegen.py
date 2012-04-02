@@ -195,7 +195,7 @@ def main():
 
     with inputFile as f:
         s = f.read()
-        scanner = lexer.ExpressionScanner()
+        scanner = lexer.MiniJavaScanner()
         tokens = scanner.tokenize(s)
 
         programParser = parser.ProgramParser()

@@ -40,7 +40,7 @@ class LexerTest(FileTest):
         for name, p, expected in testFiles('lexout'):
             def makeTest(p, expected):
                 def runTest(self):
-                    scanner = lexer.ExpressionScanner()
+                    scanner = lexer.MiniJavaScanner()
                     with open(p) as f: s = f.read()
                     tokens = scanner.tokenize(s)
                     with TempFile() as fout:
@@ -52,7 +52,7 @@ class LexerTest(FileTest):
 
     def test_errors(self):
         p = 'tests/errors.java'
-        scanner = lexer.ExpressionScanner()
+        scanner = lexer.MiniJavaScanner()
         with open(p) as f: s = f.read()
 
         with self.assertRaises(spark.LexerException):

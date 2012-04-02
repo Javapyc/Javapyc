@@ -85,7 +85,7 @@ class ExpressionScanner2(ExpressionScanner1):
         t = Operator(s)
         self.rv.append(t)
 
-class ExpressionScanner(ExpressionScanner2):
+class MiniJavaScanner(ExpressionScanner2):
     # Does this need to be checked before the / operator? Probably. 
     def t_comment(self, s):
         r'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)'
@@ -111,7 +111,7 @@ def main():
     for inputFile in args.files:
         with inputFile as f:
             s = f.read()
-            scanner = ExpressionScanner()
+            scanner = MiniJavaScanner()
             for token in scanner.tokenize(s):
                 print(token)
 
