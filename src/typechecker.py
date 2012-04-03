@@ -62,6 +62,13 @@ def typecheck(self):
         raise TypecheckException()
     return left.nodeType
 
+@typechecks(ast.Pow)
+def typecheck(self):
+    a, b = self.children
+    if a.typecheck() != int or b.typecheck() != int:
+        raise TypecheckException()
+    return a.nodeType
+
 @typechecks(ast.Negate)
 def typecheck(self):
     if self.expr.typecheck() != int:

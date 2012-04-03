@@ -102,6 +102,11 @@ def optimize(self):
 def optimize(self):
     return collapseInt(self, lambda a,b: int(a/b))
 
+@optimizes(ast.Pow)
+def optimize(self):
+    #TODO bound check
+    return collapseInt(self, lambda a,b: int(a**b))
+
 @optimizes(ast.Negate)
 def optimize(self):
     (expr,) = self.children

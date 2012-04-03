@@ -108,6 +108,9 @@ class ExprParser():
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
         return args[1]
+    def p_factor_pow(self, args):
+        r'factor ::= Math.pow ( expr , expr )'
+        return ast.Pow(args[2], args[4])
 
     def p_paramlist_empty(self, args):
         r'paramlist ::= '

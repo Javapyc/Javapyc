@@ -130,6 +130,11 @@ class ID(Factor):
         self.name = name
     def __repr__(self):
         return 'ID({0})'.format(self.name)
+class Pow(Factor):
+    def __init__(self, a, b):
+        AST.__init__(self, (a,b))
+    def __repr__(self):
+        return 'Pow'
 class Call(Factor):
     def __init__(self, obj, func, args):
         AST.__init__(self, (obj,) + tuple(args))

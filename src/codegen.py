@@ -116,6 +116,13 @@ def codegen(self, c):
     self.right.codegen(c)
     c.BINARY_FLOOR_DIVIDE()
 
+@codegens(ast.Pow)
+def codegen(self, c):
+    a, b = self.children
+    a.codegen(c)
+    b.codegen(c)
+    c.BINARY_POWER()
+
 @codegens(ast.Negate)
 def codegen(self, c):
     (expr,) = self.children
