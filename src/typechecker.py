@@ -87,8 +87,9 @@ def typecheck(self):
 
 @typechecks(ast.Integer)
 def typecheck(self):
-    #TODO check size of integer
     self.val = int(self.val)
+    if self.val < ast.Integer.MIN_VALUE or self.val > ast.Integer.MAX_VALUE:
+        raise TypecheckException()
     return int
 
 @typechecks(ast.ID)
