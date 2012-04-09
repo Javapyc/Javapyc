@@ -2,6 +2,7 @@
 class AST:
     def __init__(self, children):
         self.children = children
+        self.nodeType = None
     def classname(self):
         return self.__class__.__name__
     def __repr__(self):
@@ -28,6 +29,13 @@ class AndExpr(Expr):
 class And(AndExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def typecheck(self):
+        if (left.typecheck() == bool and right.typecheck() == bool):
+            self.nodeType = bool
+            return bool
+        else:
+            # error
+            pass
 
 class EqualExpr(AndExpr):
     pass
