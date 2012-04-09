@@ -37,7 +37,7 @@ class LexerTest(FileTest):
 
     @classmethod
     def __static__(cls):
-        for name, p, expected in testFiles('lexout'):
+        for name, p, expected in testFiles('out'):
             def makeTest(p, expected):
                 def runTest(self):
                     scanner = lexer.MiniJavaScanner()
