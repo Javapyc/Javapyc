@@ -12,6 +12,14 @@ class Program(AST):
     def __init__(self, stmts):
         AST.__init__(self, stmts)
 
+class IDList(AST):
+    def __init__(self, left, right):
+        AST.__init__(self, (left, right))
+
+class IntegerList(AST):
+    def __init__(self, left, right):
+        AST.__init__(self, (left, right))
+
 class Stmt(AST):
     pass
 class Print(Stmt):

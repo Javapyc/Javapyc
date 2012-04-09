@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import lexer
 from spark import *
@@ -149,6 +149,34 @@ class ProgramParser(ExprParser, StmtParser, GenericParser):
     def typestring(self, token):
         return token.typename()
 
+class BasicParser():
+    def __init__(self):
+        GenericParser.__init__(self, 'program')
+    
+    def p_program_idlist(self, args):
+        r'program ::= idlist'
+        return ast.Program(args)
+    def p_program_integerlist(self,args):
+        r'program ::= integerlist'
+        return ast.Program(args)
+    
+    def p_idlist_lists(self, args):
+        r'idlist ::= ID idlist'
+        return ast.IDList(ast.ID(args[0].val), args[1])
+    def p_idlist_id(self,args):
+        r'idlist ::= ID'
+        return ast.ID(args[0].val)
+    
+    def p_integerlist_lists(self,args):
+        r'integerlist ::= Integer integerlist'
+        return ast.IntegerList(ast.Integer(args[0].val), args[1])
+    def p_integerlist_integer(self,args):
+        r'integerlist ::= Integer'
+        return ast.Integer(args[0].val)
+
+    def typestring(self, token):
+        return token.typename()
+
 class SingleExprParser(ExprParser, GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'expr')
@@ -195,7 +223,7 @@ def main():
         scanner = lexer.MiniJavaScanner()
         tokens = scanner.tokenize(s)
 
-        parser = SingleExprParser()
+        parser = BasicParser()
         tree = parser.parse(tokens)
 
         dump(tree)
