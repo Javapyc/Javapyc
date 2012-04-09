@@ -10,6 +10,16 @@ import sys
 import ast
 
 class StmtParser():
+    def p_stmt_declaration(self, args):
+        r'''
+          stmt ::= int ID = expr ;
+          stmt ::= bool ID = expr ;
+          stmt ::= ID ID = expr ;
+        '''
+        return ast.Declaration(args[0], args[1], args[3])
+    def p_stmt_assignment(self, args):
+        r'stmt ::= ID = expr ;'
+        return ast.Assignment(args[0], args[2])
     def p_stmt_print(self, args):
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])

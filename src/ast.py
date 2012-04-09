@@ -22,6 +22,19 @@ class IntegerList(AST):
 
 class Stmt(AST):
     pass
+class Declaration(Stmt):
+    def __init__(self, typename, name, expr):
+        AST.__init__(self, (expr,))
+        self.typename = typename
+        self.name = name
+    def __repr__(self):
+        return "{0}({1}, {2})".format(self.classname(), self.typename, self.name)
+class Assignment(Stmt):
+    def __init__(self, name, expr):
+        AST.__init__(self, (expr,))
+        self.name = name
+    def __repr__(self):
+        return "{0}({1})".format(self.classname(), self.name)
 class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
