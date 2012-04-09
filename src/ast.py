@@ -22,13 +22,22 @@ class IntegerList(AST):
 
 class Stmt(AST):
     pass
-class Declaration(Stmt):
+class Decl(Stmt):
     def __init__(self, typename, name, expr):
         AST.__init__(self, (expr,))
         self.typename = typename
         self.name = name
     def __repr__(self):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.name)
+class IntDecl(Decl):
+    def __init__(self, name, expr):
+        Decl.__init__(self, int, name, expr)
+class BoolDecl(Decl):
+    def __init__(self, name, expr):
+        Decl.__init__(self, bool, name, expr)
+class TypeDecl(Decl):
+    def __init__(self, typename, name, expr):
+        Decl.__init__(self, typename, name, expr)
 class Assignment(Stmt):
     def __init__(self, name, expr):
         AST.__init__(self, (expr,))

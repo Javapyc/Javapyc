@@ -10,13 +10,15 @@ import sys
 import ast
 
 class StmtParser():
-    def p_stmt_declaration(self, args):
-        r'''
-          stmt ::= int ID = expr ;
-          stmt ::= bool ID = expr ;
-          stmt ::= ID ID = expr ;
-        '''
-        return ast.Declaration(args[0], args[1], args[3])
+    def p_stmt_decl_int(self, args):
+        r'stmt ::= int ID = expr ;'
+        return ast.IntDecl(args[1], args[3])
+    def p_stmt_decl_bool(self, args):
+        r'stmt ::= bool ID = expr ;'
+        return ast.BoolDecl(args[1], args[3])
+    def p_stmt_decl_type(self, args):
+        r'stmt ::= ID ID = expr ;'
+        return ast.TypeDecl(args[0], args[1], args[3])
     def p_stmt_assignment(self, args):
         r'stmt ::= ID = expr ;'
         return ast.Assignment(args[0], args[2])
