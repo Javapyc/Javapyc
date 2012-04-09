@@ -1,1 +1,0 @@
-System.out(System.out.println(System.out.println, system.out.println))

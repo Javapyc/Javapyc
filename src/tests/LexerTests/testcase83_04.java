@@ -1,3 +1,0 @@
-while asdf764JKL; extends void && main.{boolean >= false] return simple0class 
-if !static System.out.println(/* commenting stuff here ...
-*/// this should stay commented
