@@ -22,6 +22,9 @@ class IntegerList(AST):
 
 class Stmt(AST):
     pass
+class StmtList(Stmt):
+    def __init__(self, stmts):
+        AST.__init__(self, stmts)
 class Decl(Stmt):
     def __init__(self, typename, name, expr):
         AST.__init__(self, (expr,))
@@ -47,6 +50,13 @@ class Assignment(Stmt):
 class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
+class If(Stmt):
+    def __init__(self, cond, ifstmt, elsestmt):
+        AST.__init__(self, (cond, ifstmt, elsestmt))
+class While(Stmt):
+    def __init__(self, cond, stmt):
+        AST.__init__(self, (cond, stmt))
+
 
 class Expr(AST):
     pass

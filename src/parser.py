@@ -10,11 +10,14 @@ import sys
 import ast
 
 class StmtParser():
+    def p_stmt_stmtlist(self, args):
+        r'stmt ::= { stmtlist }'
+        return ast.StmtList(args[1])
     def p_stmt_decl_int(self, args):
         r'stmt ::= int ID = expr ;'
         return ast.IntDecl(args[1], args[3])
     def p_stmt_decl_bool(self, args):
-        r'stmt ::= bool ID = expr ;'
+        r'stmt ::= boolean ID = expr ;'
         return ast.BoolDecl(args[1], args[3])
     def p_stmt_decl_type(self, args):
         r'stmt ::= ID ID = expr ;'
@@ -25,6 +28,24 @@ class StmtParser():
     def p_stmt_print(self, args):
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])
+    def p_stmt_if(self, args):
+        r'stmt ::= if ( expr ) stmt else stmt'
+        return ast.If(args[2], args[4], args[6])
+    def p_stmt_while(self, args):
+        r'stmt ::= while ( expr ) stmt'
+        return ast.While(args[2], args[4])
+
+    def p_stmtlist_empty(self, args):
+        r'stmtlist ::= '
+        return tuple()
+    def p_stmtlist_stmt(self, args):
+        r'stmtlist ::= stmt'
+        return tuple(args)
+    def p_stmtlist_stmts(self, args):
+        r'stmtlist ::= stmt stmtlist'
+        return (args[0],) + args[1]
+
+
 
 class ExprParser():
     def p_expr_or(self, args):
@@ -161,7 +182,7 @@ class ProgramParser(ExprParser, StmtParser, GenericParser):
     def typestring(self, token):
         return token.typename()
 
-class BasicParser():
+class BasicParser(GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'program')
     
