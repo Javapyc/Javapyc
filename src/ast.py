@@ -20,6 +20,13 @@ class IntegerList(AST):
     def __init__(self, left, right):
         AST.__init__(self, (left, right))
 
+class Type(AST):
+    def __init__(self, typename):
+        AST.__init__(self, tuple())
+        self.typename = typename
+    def __repr__(self):
+        return "{0}({1})".format(self.classname(), self.typename)
+
 class Stmt(AST):
     pass
 class StmtList(Stmt):
