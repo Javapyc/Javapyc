@@ -20,6 +20,23 @@ class IntegerList(AST):
     def __init__(self, left, right):
         AST.__init__(self, (left, right))
 
+class MethodDecl(AST):
+    def __init__(self, typename, ID, formallist, stmtlist, expr):
+        AST.__init__(self, stmtlist + (expr,))
+        self.formallist = formallist
+        self.typename = typename
+        self.ID = ID
+    def __repr__(self):
+        return "{0}({1}, {2}, {3})".format(self.classname(), self.typename, self.ID, self.formallist)
+
+class Formal(AST):
+    def __init__(self, typename, ID):
+        AST.__init__(self, tuple())
+        self.typename = typename
+        self.ID = ID
+    def __repr__(self):
+        return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
+
 class Type(AST):
     def __init__(self, typename):
         AST.__init__(self, tuple())
@@ -39,15 +56,6 @@ class Decl(Stmt):
         self.name = name
     def __repr__(self):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.name)
-class IntDecl(Decl):
-    def __init__(self, name, expr):
-        Decl.__init__(self, int, name, expr)
-class BoolDecl(Decl):
-    def __init__(self, name, expr):
-        Decl.__init__(self, bool, name, expr)
-class TypeDecl(Decl):
-    def __init__(self, typename, name, expr):
-        Decl.__init__(self, typename, name, expr)
 class Assignment(Stmt):
     def __init__(self, name, expr):
         AST.__init__(self, (expr,))
@@ -63,7 +71,6 @@ class If(Stmt):
 class While(Stmt):
     def __init__(self, cond, stmt):
         AST.__init__(self, (cond, stmt))
-
 
 class Expr(AST):
     pass

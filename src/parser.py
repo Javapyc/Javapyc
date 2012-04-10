@@ -50,6 +50,25 @@ class StmtParser():
         return (args[0],) + args[1]
 
 
+class MethodDeclParser():
+    def p_methoddecl_all(self, args):
+        r'methoddecl ::= public type ID ( formallist ) { stmtlist return expr ; }'
+        return ast.MethodDecl(args[1], args[2], args[4], args[7], args[9])
+
+    def p_formal_typeID(self, args):
+        r'formal ::= type ID'
+        return ast.Formal(args[0], args[1].val)
+
+    def p_formallist_empty(self, args):
+        r'formallist ::= '
+        return tuple()
+    def p_formallist_formal(self, args):
+        r'formallist ::= formal'
+        return tuple(args)
+    def p_formallist_formals(self, args):
+        r'formallist ::= formal , formallist'
+        return (args[0],) + args[2]
+
 
 class ExprParser():
     def p_expr_or(self, args):
