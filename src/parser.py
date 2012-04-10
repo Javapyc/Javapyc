@@ -13,15 +13,9 @@ class StmtParser():
     def p_stmt_stmtlist(self, args):
         r'stmt ::= { stmtlist }'
         return ast.StmtList(args[1])
-    def p_stmt_decl_int(self, args):
-        r'stmt ::= int ID = expr ;'
-        return ast.IntDecl(args[1], args[3])
-    def p_stmt_decl_bool(self, args):
-        r'stmt ::= boolean ID = expr ;'
-        return ast.BoolDecl(args[1], args[3])
     def p_stmt_decl_type(self, args):
-        r'stmt ::= ID ID = expr ;'
-        return ast.TypeDecl(args[0], args[1], args[3])
+        r'stmt ::= type ID = expr ;'
+        return ast.Decl(args[0], args[1], args[3])
     def p_stmt_assignment(self, args):
         r'stmt ::= ID = expr ;'
         return ast.Assignment(args[0], args[2])
@@ -34,6 +28,16 @@ class StmtParser():
     def p_stmt_while(self, args):
         r'stmt ::= while ( expr ) stmt'
         return ast.While(args[2], args[4])
+
+    def p_type_int(self, args):
+        r'type ::= int'
+        return ast.Type(int)
+    def p_type_boolean(self, args):
+        r'type ::= boolean'
+        return ast.Type(bool)
+    def p_type_ID(self, args):
+        r'type ::= ID'
+        return ast.Type(args[0].val)
 
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
