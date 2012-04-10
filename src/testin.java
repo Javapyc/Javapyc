@@ -36,6 +36,9 @@ if (true) {
     System.out.println(5);
 }else{}
 
-
+public int kevin(boolean r){ 
+    System.out.println(4); 
+    return 5; 
+}
 
 
