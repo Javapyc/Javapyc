@@ -208,7 +208,7 @@ class ExprGrammar:
         r'factor ::= ID'
         return ast.ID(args[0].val)
     def p_factor_call(self, args):
-        r'factor ::= expr . ID ( paramlist )'
+        r'factor ::= factor . ID ( paramlist )'
         return ast.Call(args[0], args[2].val, args[4])
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
@@ -297,7 +297,7 @@ def main():
         parser = ExprParser()
         tree = parser.parse(tokens)
 
-        dump(tree)
+        dump(tree, sys.stdout)
 
 if __name__ == '__main__':
     main()

@@ -103,6 +103,9 @@ Operator, -
 Integer, 2
 Delimiter, )
 Delimiter, ;
+ReservedWord, else
+Delimiter, {
+Delimiter, }
 ReservedWord, return
 ID, res
 Delimiter, ;

@@ -1,0 +1,68 @@
+Program
++-MainClass Program
+| +-Decl(Fibonacci, fib)
+| | +-New(Fibonacci)
+| +-Decl(<int>, n)
+| | +-(int)15
+| +-While
+|   +-GreaterThanEqualTo
+|   | +-ID(n)
+|   | +-(int)0
+|   +-StmtList
+|     +-Print
+|     | +-Call(fibRecursive)
+|     |   +-ID(fib)
+|     |   +-ID(n)
+|     +-Print
+|     | +-Call(fibIterative)
+|     |   +-ID(fib)
+|     |   +-ID(n)
+|     +-Assignment(n)
+|       +-Minus
+|         +-ID(n)
+|         +-(int)5
++-Class Fibonacci
+  +-<int> fibRecursive(<int> n)
+  | +-Decl(<int>, res)
+  | | +-ID(n)
+  | +-If
+  | | +-GreaterThanEqualTo
+  | | | +-ID(n)
+  | | | +-(int)2
+  | | +-Assignment(res)
+  | | | +-Plus
+  | | |   +-Call(fibRecursive)
+  | | |   | +-this
+  | | |   | +-Minus
+  | | |   |   +-ID(n)
+  | | |   |   +-(int)1
+  | | |   +-Call(fibRecursive)
+  | | |     +-this
+  | | |     +-Minus
+  | | |       +-ID(n)
+  | | |       +-(int)2
+  | | +-StmtList
+  | +-ID(res)
+  +-<int> fibIterative(<int> n)
+    +-Decl(<int>, i)
+    | +-(int)0
+    +-Decl(<int>, j)
+    | +-(int)1
+    +-While
+    | +-GreaterThan
+    | | +-ID(n)
+    | | +-(int)0
+    | +-StmtList
+    |   +-Assignment(j)
+    |   | +-Plus
+    |   |   +-ID(j)
+    |   |   +-ID(i)
+    |   +-Assignment(i)
+    |   | +-Minus
+    |   |   +-ID(j)
+    |   |   +-ID(i)
+    |   +-Assignment(n)
+    |     +-Minus
+    |       +-ID(n)
+    |       +-(int)1
+    +-ID(i)
