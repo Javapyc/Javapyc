@@ -9,8 +9,32 @@ class AST:
         return "{0}".format(self.classname())
 
 class Program(AST):
-    def __init__(self, stmts):
+    def __init__(self, mainclass, classlist):
+        AST.__init__(self, (mainclass,) + classlist)
+
+class MainClassDecl(AST):
+    def __init__(self, ID, argvName, stmts):
         AST.__init__(self, stmts)
+        self.name = ID
+        self.argvName = argvName
+    def __repr__(self):
+        return 'MainClass {0}'.format(self.name)
+
+class ClassDecl(AST):
+    def __init__(self, ID, classvars):
+        AST.__init__(self, classvars)
+        self.name = ID
+    def __repr__(self):
+        return 'Class {0}'.format(self.name)
+
+class ClassVar(AST):
+    def __init__(self, typename, ID):
+        AST.__init__(self, tuple())
+        self.typename = typename
+        self.ID = ID
+    def __repr__(self):
+        return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
+
 
 class IDList(AST):
     def __init__(self, left, right):

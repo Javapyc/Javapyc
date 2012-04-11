@@ -187,10 +187,52 @@ class ExprParser():
 class ProgramParser(ExprParser, StmtParser, GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'program')
-    
-    def p_program_stmtlist(self, args):
-        r'program ::= stmtlist'
-        return ast.Program(args[0])
+
+    def p_program_program(self, args):
+        r'program ::= mainclass classlist'
+        return ast.Program( args[0], args[1] )
+
+    def p_classlist_empty(self, args):
+        r'classlist ::= '
+        return tuple()
+    def p_classlist_class(self, args):
+        r'classlist ::= classdecl'
+        return tuple(args)
+    def p_classlist_classes(self, args):
+        r'classlist ::= classdecl classlist'
+        return (args[0],) + args[1]
+
+    def p_program_mainclass(self, args):
+        r'mainclass ::= class ID { public static void main ( String [ ] ID ) { stmtlist } }'
+        return ast.MainClassDecl(args[1].val, args[11].val, args[14])
+
+    def p_class_class(self,args):
+        r'classdecl ::= class ID { classvarlist }'
+        return ast.ClassDecl(args[1].val, args[3])
+
+    def p_classvarlist_empty(self, args):
+        r'classvarlist ::= '
+        return tuple()
+    def p_classvarlist_var(self, args):
+        r'classvarlist ::= classvar'
+        return tuple(args)
+    def p_classvarlist_vars(self, args):
+        r'classvarlist ::= classvar classvarlist'
+        return (args[0],) + args[1]
+
+    def p_classvar(self, args):
+        r'classvar ::= type ID ;'
+        return ast.ClassVar(args[0], args[1].val)
+
+    def p_methoddecllist_empty(self, args):
+        r'tester :: = '
+        return tuple()
+#    def p_methoddecllist_methoddecl(self, args):
+#        r'methoddecllist :: = methoddecl'
+#        return tuple(args)
+#    def p_methoddecllist_methoddecls(self, args):
+#        r'methoddecllist :: = methoddecl methoddecllist'
+#        return tuple(args)
 
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
