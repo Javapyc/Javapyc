@@ -26,6 +26,8 @@ class Fibonacci {
 		int res = n;
 		if (n >= 2)
 			res = this.fibRecursive(n-1) + this.fibRecursive(n-2);
+		else
+		{ }
 		return res;
 	}
 

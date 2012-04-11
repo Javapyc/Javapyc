@@ -21,8 +21,8 @@ class MainClassDecl(AST):
         return 'MainClass {0}'.format(self.name)
 
 class ClassDecl(AST):
-    def __init__(self, ID, classvars):
-        AST.__init__(self, classvars)
+    def __init__(self, ID, classvars, methods):
+        AST.__init__(self, methods)
         self.name = ID
     def __repr__(self):
         return 'Class {0}'.format(self.name)
@@ -46,7 +46,7 @@ class IntegerList(AST):
 
 class MethodDecl(AST):
     def __init__(self, typename, ID, formallist, stmtlist, expr):
-        AST.__init__(self, stmtlist + (expr,))
+        AST.__init__(self, formallist + stmtlist + (expr,))
         self.formallist = formallist
         self.typename = typename
         self.ID = ID

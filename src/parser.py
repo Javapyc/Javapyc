@@ -184,7 +184,7 @@ class ExprParser():
     def typestring(self, token):
         return token.typename()
 
-class ProgramParser(ExprParser, StmtParser, GenericParser):
+class ProgramParser(ExprParser, StmtParser, MethodDeclParser, GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'program')
 
@@ -207,8 +207,8 @@ class ProgramParser(ExprParser, StmtParser, GenericParser):
         return ast.MainClassDecl(args[1].val, args[11].val, args[14])
 
     def p_class_class(self,args):
-        r'classdecl ::= class ID { classvarlist }'
-        return ast.ClassDecl(args[1].val, args[3])
+        r'classdecl ::= class ID { classvarlist methoddecllist }'
+        return ast.ClassDecl(args[1].val, args[3], args[4])
 
     def p_classvarlist_empty(self, args):
         r'classvarlist ::= '
@@ -225,14 +225,14 @@ class ProgramParser(ExprParser, StmtParser, GenericParser):
         return ast.ClassVar(args[0], args[1].val)
 
     def p_methoddecllist_empty(self, args):
-        r'tester :: = '
+        r'methoddecllist ::= '
         return tuple()
-#    def p_methoddecllist_methoddecl(self, args):
-#        r'methoddecllist :: = methoddecl'
-#        return tuple(args)
-#    def p_methoddecllist_methoddecls(self, args):
-#        r'methoddecllist :: = methoddecl methoddecllist'
-#        return tuple(args)
+    def p_methoddecllist_methoddecl(self, args):
+        r'methoddecllist ::= methoddecl'
+        return tuple(args)
+    def p_methoddecllist_methoddecls(self, args):
+        r'methoddecllist ::= methoddecl methoddecllist'
+        return (args[0],) + args[1]
 
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
