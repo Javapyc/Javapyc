@@ -45,7 +45,7 @@ class Program {
 class Null {
 }
 
-class ParamTest {
+class ParamTest extends Null {
 
 	int calls;
 	public int kevin(boolean r) {

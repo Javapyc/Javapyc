@@ -21,11 +21,16 @@ class MainClassDecl(AST):
         return 'MainClass {0}'.format(self.name)
 
 class ClassDecl(AST):
-    def __init__(self, ID, classvars, methods):
+    def __init__(self, name, parent, classvars, methods):
         AST.__init__(self, methods)
-        self.name = ID
+        self.name = name
+        self.parent = parent
+class BaseClassDecl(ClassDecl):
     def __repr__(self):
         return 'Class {0}'.format(self.name)
+class DerivedClassDecl(ClassDecl):
+    def __repr__(self):
+        return 'Class {0} extends {1}'.format(self.name, self.parent)
 
 class ClassVarDecl(AST):
     def __init__(self, typename, ID):

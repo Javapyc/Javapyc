@@ -30,9 +30,13 @@ class MainClassDeclGrammar:
         return ast.MainClassDecl(args[1].val, args[11].val, args[14])
 
 class ClassDeclGrammar:
-    def p_classdecl(self,args):
+    def p_classdecl_object(self,args):
         r'classdecl ::= class ID { classvarlist methoddecllist }'
-        return ast.ClassDecl(args[1].val, args[3], args[4])
+        return ast.BaseClassDecl(args[1].val, None, args[3], args[4])
+    
+    def p_classdecl_extends(self,args):
+        r'classdecl ::= class ID extends ID { classvarlist methoddecllist }'
+        return ast.DerivedClassDecl(args[1].val, args[3].val, args[5], args[6])
     
     def p_classvarlist_empty(self, args):
         r'classvarlist ::= '
