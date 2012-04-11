@@ -33,7 +33,7 @@ class FileTest(unittest.TestCase):
         self.assertEqual(0, res)
 
 @staticinit
-class LexerTest(FileTest):
+class LexerTests(FileTest):
 
     @classmethod
     def __static__(cls):
@@ -57,6 +57,24 @@ class LexerTest(FileTest):
 
         with self.assertRaises(spark.LexerException):
             scanner.tokenize(s)
+
+@staticinit
+class ParserTests(FileTest):
+
+    @classmethod
+    def __static__(cls):
+        for name, p, expected in testFiles('parseout'):
+            def makeTest(p, expected):
+                def runTest(self):
+                    scanner = lexer.MiniJavaScanner()
+                    with open(p) as f: s = f.read()
+                    tokens = scanner.tokenize(s)
+                    with TempFile() as fout:
+                        lexer.dump(tokens, fout.f)
+                        fout.flush()
+                        self.diff(expected, fout.name)
+                return runTest
+            setattr(cls, name, makeTest(p, expected))
 
 
 if __name__ == '__main__':
