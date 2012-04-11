@@ -46,7 +46,7 @@ def main():
             p = parser.ProgramParser()
             tree = p.parse(tokens)
             if args.phase == 'parse':
-                parser.dump(tree)
+                parser.dump(tree, sys.stdout)
                 break
             
             #Typecheck Parse Tree

@@ -27,7 +27,7 @@ class ClassDecl(AST):
     def __repr__(self):
         return 'Class {0}'.format(self.name)
 
-class ClassVar(AST):
+class ClassVarDecl(AST):
     def __init__(self, typename, ID):
         AST.__init__(self, tuple())
         self.typename = typename
@@ -35,23 +35,14 @@ class ClassVar(AST):
     def __repr__(self):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
 
-
-class IDList(AST):
-    def __init__(self, left, right):
-        AST.__init__(self, (left, right))
-
-class IntegerList(AST):
-    def __init__(self, left, right):
-        AST.__init__(self, (left, right))
-
 class MethodDecl(AST):
     def __init__(self, typename, ID, formallist, stmtlist, expr):
-        AST.__init__(self, formallist + stmtlist + (expr,))
-        self.formallist = formallist
+        AST.__init__(self, stmtlist + (expr,))
         self.typename = typename
         self.ID = ID
+        self.formallist = formallist
     def __repr__(self):
-        return "{0}({1}, {2}, {3})".format(self.classname(), self.typename, self.ID, self.formallist)
+        return "{0} {1}({2})".format(self.typename, self.ID, ', '.join(map(repr, self.formallist)))
 
 class Formal(AST):
     def __init__(self, typename, ID):
@@ -59,14 +50,23 @@ class Formal(AST):
         self.typename = typename
         self.ID = ID
     def __repr__(self):
-        return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
+        return "{1} {2}".format(self.classname(), self.typename, self.ID)
 
 class Type(AST):
-    def __init__(self, typename):
+    def __init__(self):
         AST.__init__(self, tuple())
-        self.typename = typename
+class BasicType(Type):
     def __repr__(self):
-        return "{0}({1})".format(self.classname(), self.typename)
+        return "<{0}>".format(self.basicType.__name__)
+class IntType(BasicType):
+    basicType = int
+class BoolType(BasicType):
+    basicType = bool
+class ObjectType(Type):
+    def __init__(self, name):
+        self.name = name
+    def __repr__(self):
+        return self.name
 
 class Stmt(AST):
     pass

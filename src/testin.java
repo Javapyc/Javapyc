@@ -1,7 +1,8 @@
-//public class Program {
-//	public static void main(String[] args) {
+
+class Program {
+
+	public static void main(String[] args) {
 		System.out.println(1+2);
-		/*System.out.println( (3+4)*4 + (2-1)/1/1/1/1/1*1*1*2/2 - ((4*4-1)+1)/16);*/
 		System.out.println(10/5);
 		System.out.println(Math.pow(2, 4*2) - 1);
 		System.out.println(1+2-1);
@@ -38,15 +39,29 @@
 		    while (false) int a = 3;
 		    System.out.println(5);
 		}else{}
-//	}
-//}
-
-/*
-public class TestClass {
-	public int kevin(boolean r) {
-
-	    System.out.println(4); 
-	    return 5; 
 	}
 }
-*/
+
+class Null {
+}
+
+class ParamTest {
+
+	int calls;
+	public int kevin(boolean r) {
+		calls = calls + 1;
+		System.out.println(calls); 
+		return calls+1; 
+	}
+	
+	public int random() {
+		//chosen by fair dice roll, guaranteed to be random
+		return 4;
+	}
+
+	public int add(int a, int b) {
+		int res = a + b;
+		return res;
+	}
+}
+

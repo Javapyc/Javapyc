@@ -9,52 +9,61 @@ import sys
 
 import ast
 
-class StmtParser():
-    def p_stmt_stmtlist(self, args):
-        r'stmt ::= { stmtlist }'
-        return ast.StmtList(args[1])
-    def p_stmt_decl_type(self, args):
-        r'stmt ::= type ID = expr ;'
-        return ast.Decl(args[0], args[1], args[3])
-    def p_stmt_assignment(self, args):
-        r'stmt ::= ID = expr ;'
-        return ast.Assignment(args[0], args[2])
-    def p_stmt_print(self, args):
-        r'stmt ::= System.out.println ( expr ) ;'
-        return ast.Print(args[2])
-    def p_stmt_if(self, args):
-        r'stmt ::= if ( expr ) stmt else stmt'
-        return ast.If(args[2], args[4], args[6])
-    def p_stmt_while(self, args):
-        r'stmt ::= while ( expr ) stmt'
-        return ast.While(args[2], args[4])
-
-    def p_type_int(self, args):
-        r'type ::= int'
-        return ast.Type(int)
-    def p_type_boolean(self, args):
-        r'type ::= boolean'
-        return ast.Type(bool)
-    def p_type_ID(self, args):
-        r'type ::= ID'
-        return ast.Type(args[0].val)
-
-    def p_stmtlist_empty(self, args):
-        r'stmtlist ::= '
+class ProgramGrammar:
+    def p_program_program(self, args):
+        r'program ::= mainclass classlist'
+        return ast.Program( args[0], args[1] )
+    
+    def p_classlist_empty(self, args):
+        r'classlist ::= '
         return tuple()
-    def p_stmtlist_stmt(self, args):
-        r'stmtlist ::= stmt'
+    def p_classlist_class(self, args):
+        r'classlist ::= classdecl'
         return tuple(args)
-    def p_stmtlist_stmts(self, args):
-        r'stmtlist ::= stmt stmtlist'
+    def p_classlist_classes(self, args):
+        r'classlist ::= classdecl classlist'
         return (args[0],) + args[1]
 
+class MainClassDeclGrammar:
+    def p_mainclass(self, args):
+        r'mainclass ::= class ID { public static void main ( String [ ] ID ) { stmtlist } }'
+        return ast.MainClassDecl(args[1].val, args[11].val, args[14])
 
-class MethodDeclParser():
+class ClassDeclGrammar:
+    def p_classdecl(self,args):
+        r'classdecl ::= class ID { classvarlist methoddecllist }'
+        return ast.ClassDecl(args[1].val, args[3], args[4])
+    
+    def p_classvarlist_empty(self, args):
+        r'classvarlist ::= '
+        return tuple()
+    def p_classvarlist_var(self, args):
+        r'classvarlist ::= classvar'
+        return tuple(args)
+    def p_classvarlist_vars(self, args):
+        r'classvarlist ::= classvar classvarlist'
+        return (args[0],) + args[1]
+
+    def p_classvar(self, args):
+        r'classvar ::= type ID ;'
+        return ast.ClassVarDecl(args[0], args[1].val)
+    
+    def p_methoddecllist_empty(self, args):
+        r'methoddecllist ::= '
+        return tuple()
+    def p_methoddecllist_methoddecl(self, args):
+        r'methoddecllist ::= methoddecl'
+        return tuple(args)
+    def p_methoddecllist_methoddecls(self, args):
+        r'methoddecllist ::= methoddecl methoddecllist'
+        return (args[0],) + args[1]
+
+class MethodDeclGrammar:
     def p_methoddecl_all(self, args):
         r'methoddecl ::= public type ID ( formallist ) { stmtlist return expr ; }'
-        return ast.MethodDecl(args[1], args[2], args[4], args[7], args[9])
+        return ast.MethodDecl(args[1], args[2].val, args[4], args[7], args[9])
 
+class FormalGrammar:
     def p_formal_typeID(self, args):
         r'formal ::= type ID'
         return ast.Formal(args[0], args[1].val)
@@ -69,8 +78,48 @@ class MethodDeclParser():
         r'formallist ::= formal , formallist'
         return (args[0],) + args[2]
 
+class TypeGrammar:
+    def p_type_int(self, args):
+        r'type ::= int'
+        return ast.IntType()
+    def p_type_boolean(self, args):
+        r'type ::= boolean'
+        return ast.BoolType()
+    def p_type_object(self, args):
+        r'type ::= ID'
+        return ast.ObjectType(args[0].val)
 
-class ExprParser():
+class StmtGrammar:
+    def p_stmt_stmtlist(self, args):
+        r'stmt ::= { stmtlist }'
+        return ast.StmtList(args[1])
+    def p_stmt_decl_type(self, args):
+        r'stmt ::= type ID = expr ;'
+        return ast.Decl(args[0], args[1].val, args[3])
+    def p_stmt_assignment(self, args):
+        r'stmt ::= ID = expr ;'
+        return ast.Assignment(args[0].val, args[2])
+    def p_stmt_print(self, args):
+        r'stmt ::= System.out.println ( expr ) ;'
+        return ast.Print(args[2])
+    def p_stmt_if(self, args):
+        r'stmt ::= if ( expr ) stmt else stmt'
+        return ast.If(args[2], args[4], args[6])
+    def p_stmt_while(self, args):
+        r'stmt ::= while ( expr ) stmt'
+        return ast.While(args[2], args[4])
+
+    def p_stmtlist_empty(self, args):
+        r'stmtlist ::= '
+        return tuple()
+    def p_stmtlist_stmt(self, args):
+        r'stmtlist ::= stmt'
+        return tuple(args)
+    def p_stmtlist_stmts(self, args):
+        r'stmtlist ::= stmt stmtlist'
+        return (args[0],) + args[1]
+
+class ExprGrammar:
     def p_expr_or(self, args):
         r'expr ::= expr || andexpr'
         return ast.Or(args[0], args[2])
@@ -184,112 +233,36 @@ class ExprParser():
     def typestring(self, token):
         return token.typename()
 
-class ProgramParser(ExprParser, StmtParser, MethodDeclParser, GenericParser):
+class ProgramParser(ProgramGrammar, 
+                    MainClassDeclGrammar, 
+                    ClassDeclGrammar, 
+                    MethodDeclGrammar, 
+                    FormalGrammar, 
+                    TypeGrammar, 
+                    StmtGrammar, 
+                    ExprGrammar, 
+                    GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'program')
-
-    def p_program_program(self, args):
-        r'program ::= mainclass classlist'
-        return ast.Program( args[0], args[1] )
-
-    def p_classlist_empty(self, args):
-        r'classlist ::= '
-        return tuple()
-    def p_classlist_class(self, args):
-        r'classlist ::= classdecl'
-        return tuple(args)
-    def p_classlist_classes(self, args):
-        r'classlist ::= classdecl classlist'
-        return (args[0],) + args[1]
-
-    def p_program_mainclass(self, args):
-        r'mainclass ::= class ID { public static void main ( String [ ] ID ) { stmtlist } }'
-        return ast.MainClassDecl(args[1].val, args[11].val, args[14])
-
-    def p_class_class(self,args):
-        r'classdecl ::= class ID { classvarlist methoddecllist }'
-        return ast.ClassDecl(args[1].val, args[3], args[4])
-
-    def p_classvarlist_empty(self, args):
-        r'classvarlist ::= '
-        return tuple()
-    def p_classvarlist_var(self, args):
-        r'classvarlist ::= classvar'
-        return tuple(args)
-    def p_classvarlist_vars(self, args):
-        r'classvarlist ::= classvar classvarlist'
-        return (args[0],) + args[1]
-
-    def p_classvar(self, args):
-        r'classvar ::= type ID ;'
-        return ast.ClassVar(args[0], args[1].val)
-
-    def p_methoddecllist_empty(self, args):
-        r'methoddecllist ::= '
-        return tuple()
-    def p_methoddecllist_methoddecl(self, args):
-        r'methoddecllist ::= methoddecl'
-        return tuple(args)
-    def p_methoddecllist_methoddecls(self, args):
-        r'methoddecllist ::= methoddecl methoddecllist'
-        return (args[0],) + args[1]
-
-    def p_stmtlist_empty(self, args):
-        r'stmtlist ::= '
-        return tuple()
-    def p_stmtlist_stmt(self, args):
-        r'stmtlist ::= stmt'
-        return tuple(args)
-    def p_stmtlist_stmts(self, args):
-        r'stmtlist ::= stmt stmtlist'
-        return (args[0],) + args[1]
-    
-    def typestring(self, token):
-        return token.typename()
-
-class BasicParser(GenericParser):
-    def __init__(self):
-        GenericParser.__init__(self, 'program')
-    
-    def p_program_idlist(self, args):
-        r'program ::= idlist'
-        return ast.Program(args)
-    def p_program_integerlist(self,args):
-        r'program ::= integerlist'
-        return ast.Program(args)
-    
-    def p_idlist_lists(self, args):
-        r'idlist ::= ID idlist'
-        return ast.IDList(ast.ID(args[0].val), args[1])
-    def p_idlist_id(self,args):
-        r'idlist ::= ID'
-        return ast.ID(args[0].val)
-    
-    def p_integerlist_lists(self,args):
-        r'integerlist ::= Integer integerlist'
-        return ast.IntegerList(ast.Integer(args[0].val), args[1])
-    def p_integerlist_integer(self,args):
-        r'integerlist ::= Integer'
-        return ast.Integer(args[0].val)
 
     def typestring(self, token):
         return token.typename()
 
-class SingleExprParser(ExprParser, GenericParser):
+class ExprParser(ExprGrammar, GenericParser):
     def __init__(self):
         GenericParser.__init__(self, 'expr')
 
-def dump(node):
+def dump(node, fout):
     def dumpNode(node, indent):
         def iprint(node):
             for b in indent[:-1]:
                 if b:
-                    print('| ', end='')
+                    print('| ', end='', file=fout)
                 else:
-                    print('  ', end='')
+                    print('  ', end='', file=fout)
             if len(indent):
-                print('+-', end='')
-            print(str(node))
+                print('+-', end='', file=fout)
+            print(str(node), file=fout)
 
         iprint(node)
 
@@ -321,7 +294,7 @@ def main():
         scanner = lexer.MiniJavaScanner()
         tokens = scanner.tokenize(s)
 
-        parser = BasicParser()
+        parser = ExprParser()
         tree = parser.parse(tokens)
 
         dump(tree)

@@ -6,6 +6,7 @@ import sys
 import re
 import unittest
 import lexer
+import parser
 import subprocess
 from glob import iglob as glob
 from util import staticinit
@@ -69,8 +70,10 @@ class ParserTests(FileTest):
                     scanner = lexer.MiniJavaScanner()
                     with open(p) as f: s = f.read()
                     tokens = scanner.tokenize(s)
+                    javaParser = parser.ProgramParser()
+                    tree = javaParser.parse(tokens)
                     with TempFile() as fout:
-                        lexer.dump(tokens, fout.f)
+                        parser.dump(tree, fout.f)
                         fout.flush()
                         self.diff(expected, fout.name)
                 return runTest
