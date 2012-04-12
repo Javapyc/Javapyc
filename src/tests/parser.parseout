@@ -1,0 +1,30 @@
+Program
++-MainClass Program
+| +-Decl(<int>, n)
+| | +-Call(d)
+| |   +-Call(c)
+| |   | +-Call(b)
+| |   | | +-Call(a)
+| |   | | | +-New(Null)
+| |   | | +-(int)1
+| |   | +-(bool)True
+| |   | +-(bool)False
+| |   | +-this
+| |   | +-null
+| |   +-Call(e)
+| |     +-New(Null)
+| +-Assignment(n)
+|   +-Plus
+|     +-Mult
+|     | +-Negate
+|     | | +-Call(y)
+|     | |   +-ID(x)
+|     | +-Call(b)
+|     |   +-ID(a)
+|     +-Call(g)
+|       +-Call(f)
+|         +-Call(e)
+|           +-Call(d)
+|             +-ID(c)
++-Class Null
++-Class Field
