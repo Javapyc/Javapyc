@@ -1,0 +1,126 @@
+Program
++-MainClass Main
+| +-Decl(DoubleMultiplier, mult)
+| | +-New(DoubleMultiplier)
+| +-Decl(<int>, i)
+| | +-(int)0
+| +-Decl(<bool>, b)
+| | +-(bool)False
+| +-Assignment(b)
+| | +-Call(setValue)
+| |   +-ID(mult)
+| |   +-(int)1
+| +-Print
+| | +-Call(scale)
+| |   +-ID(mult)
+| |   +-(int)10
+| +-Print
+| | +-Call(doublescale)
+| |   +-ID(mult)
+| |   +-(int)1
+| +-Decl(Collatz, c)
+| | +-New(Collatz)
+| +-Print
+| | +-Call(steps)
+| |   +-ID(c)
+| |   +-(int)21
+| +-Decl(Params, p)
+| | +-New(Params)
+| +-Print
+| | +-Call(random)
+| |   +-ID(p)
+| +-Print
+| | +-Call(add1)
+| |   +-ID(p)
+| |   +-(int)10
+| +-Print
+| | +-Call(addX)
+| |   +-ID(p)
+| |   +-(int)10
+| |   +-(int)5
+| +-Print
+|   +-Call(sum)
+|     +-ID(p)
+|     +-(int)1
+|     +-(int)2
+|     +-(int)3
++-Class Multiplier
+| +-<bool> setValue(<int> val)
+| | +-Assignment(value)
+| | | +-ID(val)
+| | +-(bool)True
+| +-<int> scale(<int> n)
+|   +-Assignment(value)
+|   | +-Mult
+|   |   +-ID(value)
+|   |   +-ID(n)
+|   +-ID(value)
++-Class DoubleMultiplier extends Multiplier
+| +-<int> doublescale(<int> n)
+|   +-Assignment(value)
+|   | +-Mult
+|   |   +-Mult
+|   |   | +-ID(value)
+|   |   | +-(int)2
+|   |   +-ID(n)
+|   +-ID(value)
++-Class Collatz
+| +-<int> steps(<int> n)
+|   +-Decl(<int>, res)
+|   | +-(int)0
+|   +-If
+|   | +-GreaterThan
+|   | | +-ID(n)
+|   | | +-(int)1
+|   | +-StmtList
+|   | | +-While
+|   | |   +-NotEqual
+|   | |   | +-ID(n)
+|   | |   | +-(int)1
+|   | |   +-StmtList
+|   | |     +-If
+|   | |     | +-Equal
+|   | |     | | +-Mult
+|   | |     | | | +-Div
+|   | |     | | | | +-ID(n)
+|   | |     | | | | +-(int)2
+|   | |     | | | +-(int)2
+|   | |     | | +-ID(n)
+|   | |     | +-StmtList
+|   | |     | | +-Assignment(n)
+|   | |     | |   +-Div
+|   | |     | |     +-ID(n)
+|   | |     | |     +-(int)2
+|   | |     | +-StmtList
+|   | |     |   +-Assignment(n)
+|   | |     |     +-Plus
+|   | |     |       +-Mult
+|   | |     |       | +-(int)3
+|   | |     |       | +-ID(n)
+|   | |     |       +-(int)1
+|   | |     +-Assignment(res)
+|   | |       +-Plus
+|   | |         +-ID(res)
+|   | |         +-(int)1
+|   | +-StmtList
+|   |   +-Assignment(res)
+|   |     +-Negate
+|   |       +-(int)1
+|   +-ID(res)
++-Class Params
+  +-<int> random()
+  | +-(int)4
+  +-<int> add1(<int> n)
+  | +-Plus
+  |   +-ID(n)
+  |   +-(int)1
+  +-<int> addX(<int> n, <int> x)
+  | +-Plus
+  |   +-ID(n)
+  |   +-ID(x)
+  +-<int> sum(<int> a, <int> b, <int> c)
+    +-Plus
+      +-Plus
+      | +-ID(a)
+      | +-ID(b)
+      +-ID(c)

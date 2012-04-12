@@ -1,0 +1,25 @@
+
+# Parser Pointers
+
+## Source Code
+
+All source code is located under the `src` directory.
+
+`javapyc.py` is the main entry point into the compiler.  To only parse MiniJava,
+instruct javapyc to stop at the parse phase with the `-p parse` switch.  For
+example, to parse our fibonacci test case, run the following from the `src`
+directory:
+
+    $ ./javapyc.py -p parse tests/fib.java
+
+Code relevant to our parser can be found in `ast.py` and `parser.py`.  The
+former is used solely to represent our abstract syntax tree, while the latter
+will inject any needed parsing functionality into the ast nodes.
+
+## Sample Output
+
+The sample input and output for the parser can be found under `output/parser`.
+Any `.java` file that has an associated `.out` file should generate that output
+if ran through javapyc, and any file that does not have an associated output
+file should fail due to the java input file being invalid.
+

@@ -39,6 +39,9 @@ def _namelist(instance):
 class LexerException(Exception):
     pass
 
+class ParserException(Exception):
+    pass
+
 class GenericScanner:
     def __init__(self, flags=0):
         pattern = self.reflect()
@@ -305,8 +308,7 @@ class GenericParser:
         return None
 
     def error(self, token):
-        print("Syntax error at or near `%s' token" % token)
-        raise SystemExit
+        raise ParserException("Syntax error at or near `%s' token" % token)
 
     def parse(self, tokens):
         sets = [ [(1,0), (2,0)] ]

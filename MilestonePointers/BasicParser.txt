@@ -1,0 +1,7 @@
+
+# Basic Parser
+
+For this milestone, we have implemented the full parser, which is not compatible
+with the basic parser specification.  Please see the associated `Parser.txt` for
+details about Javapyc's parser implementation.
+

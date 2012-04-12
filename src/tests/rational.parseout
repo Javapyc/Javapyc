@@ -1,0 +1,126 @@
+Program
++-MainClass Main
+| +-Decl(Rational, frac)
+| | +-New(Rational)
+| +-Decl(Scalar, s)
+| | +-New(Scalar)
+| +-Decl(<int>, i)
+| | +-(int)0
+| +-Decl(<bool>, b)
+| | +-(bool)False
+| +-Assignment(b)
+| | +-Call(setNumerator)
+| |   +-ID(frac)
+| |   +-(int)1
+| +-Assignment(b)
+| | +-Call(setDenominator)
+| |   +-ID(frac)
+| |   +-(int)2
+| +-Assignment(i)
+| | +-Call(setValue)
+| |   +-ID(s)
+| |   +-(int)2
+| +-Decl(Rational, scaled)
+| | +-Call(scale)
+| |   +-ID(frac)
+| |   +-ID(s)
+| +-Print
+| | +-Call(getNumerator)
+| |   +-ID(scaled)
+| +-Print
+| | +-Call(getDenominator)
+| |   +-ID(scaled)
+| +-Assignment(frac)
+| | +-Call(multiply)
+| |   +-Call(scale)
+| |   | +-ID(frac)
+| |   | +-ID(s)
+| |   +-ID(frac)
+| +-Print
+| | +-Call(getNumerator)
+| |   +-ID(frac)
+| +-Print
+|   +-Call(getDenominator)
+|     +-ID(frac)
++-Class Object
+| +-<int> hashCode()
+|   +-Negate
+|     +-(int)1
++-Class Scalar extends Object
+| +-<int> setValue(<int> val)
+| | +-Assignment(value)
+| | | +-ID(val)
+| | +-ID(value)
+| +-<int> getValue()
+| | +-ID(value)
+| +-<int> hashCode()
+|   +-Call(getValue)
+|     +-this
++-Class Rational extends Object
+  +-<bool> reduce()
+  | +-(bool)False
+  +-<int> getNumerator()
+  | +-ID(numerator)
+  +-<int> getDenominator()
+  | +-ID(denominator)
+  +-<bool> setNumerator(<int> val)
+  | +-Assignment(numerator)
+  | | +-ID(val)
+  | +-Call(reduce)
+  |   +-this
+  +-<bool> setDenominator(<int> val)
+  | +-Assignment(denominator)
+  | | +-ID(val)
+  | +-Call(reduce)
+  |   +-this
+  +-<int> round()
+  | +-Div
+  |   +-ID(numerator)
+  |   +-ID(denominator)
+  +-<bool> isFractional()
+  | +-LessThan
+  |   +-ID(numerator)
+  |   +-ID(denominator)
+  +-Rational multiply(Rational o)
+  | +-Decl(Rational, res)
+  | | +-New(Rational)
+  | +-Decl(<bool>, b)
+  | | +-(bool)False
+  | +-Assignment(b)
+  | | +-Call(setNumerator)
+  | |   +-ID(res)
+  | |   +-Mult
+  | |     +-Call(getNumerator)
+  | |     | +-this
+  | |     +-Call(getNumerator)
+  | |       +-ID(o)
+  | +-Assignment(b)
+  | | +-Call(setDenominator)
+  | |   +-ID(res)
+  | |   +-Mult
+  | |     +-Call(getDenominator)
+  | |     | +-this
+  | |     +-Call(getDenominator)
+  | |       +-ID(o)
+  | +-ID(res)
+  +-Rational scale(Scalar scalar)
+    +-Decl(Rational, res)
+    | +-New(Rational)
+    +-Decl(<int>, scale)
+    | +-Call(getValue)
+    |   +-ID(scalar)
+    +-Decl(<bool>, b)
+    | +-(bool)False
+    +-Assignment(b)
+    | +-Call(setNumerator)
+    |   +-ID(res)
+    |   +-Mult
+    |     +-ID(numerator)
+    |     +-ID(scale)
+    +-Assignment(b)
+    | +-Call(setDenominator)
+    |   +-ID(res)
+    |   +-Mult
+    |     +-ID(denominator)
+    |     +-ID(scale)
+    +-ID(res)

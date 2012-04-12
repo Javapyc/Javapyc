@@ -80,6 +80,18 @@ class ParserTests(FileTest):
             setattr(cls, name, makeTest(p, expected))
 
 
+    def checkError(self, p):
+        scanner = lexer.MiniJavaScanner()
+        with open(p) as f: s = f.read()
+        tokens = scanner.tokenize(s)
+        javaParser = parser.ProgramParser()
+        with self.assertRaises(spark.ParserException):
+            javaParser.parse(tokens)
+
+    def test_errors(self):
+        p = 'tests/simple_parseerror.java'
+        self.checkError(p)
+
 if __name__ == '__main__':
     unittest.main()
 
