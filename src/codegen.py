@@ -2,6 +2,7 @@
 
 from code import CodeGen, CmpOp
 import ast
+import typechecker
 
 import imp
 import marshal
@@ -27,6 +28,18 @@ def codegen(self, c):
     stmts = self.children
     for stmt in stmts:
         stmt.codegen(c)
+
+@codegens(ast.IntDecl)
+def codegen(self, c):
+    (expr,) = self.children
+    expr.codegen(c)
+    c.STORE_FAST(self.name)
+
+@codegens(ast.Assignment)
+def codegen(self, c):
+    (expr,) = self.children
+    expr.codegen(c)
+    c.STORE_FAST(self.name)
 
 @codegens(ast.Print)
 def codegen(self, c):
@@ -135,6 +148,10 @@ def codegen(self, c):
     expr.codegen(c)
     c.UNARY_NOT()
 
+@codegens(ast.ID)
+def codegen(self, c):
+    c.LOAD_FAST(self.name)
+
 @codegens(ast.Integer)
 @codegens(ast.Boolean)
 def codegen(self, c):
@@ -145,7 +162,7 @@ def codegen(self, c):
     c.LOAD_CONST(None)
 
 def wrapModule(path, code):
-    c = CodeGen(path)
+    c = CodeGen(path, 'module')
     #make main function
     c.LOAD_CONST(code)
     c.MAKE_FUNCTION()
@@ -168,7 +185,7 @@ def wrapModule(path, code):
     return c
 
 def codegen(path, tree):
-    c = CodeGen(path)
+    c = CodeGen(path, 'main')
     #actual generated code will go here
     c.setLine(1)
     tree.codegen(c)

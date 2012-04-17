@@ -144,19 +144,20 @@ class Ops:
             setattr(cls, op, dis.opmap[op])
 
 class CodeGen:
-    co_name='<javapyc>'
     co_freevars = ()
     co_cellvars = ()
-    co_argcount = 0
 
-    def __init__(self, filename):
+    def __init__(self, filename, name):
         self.co_names = []
+
+        self.co_argcount = 0
         self.co_varnames = []
-        self.co_nlocals = 0
+
         self.co_consts = [None]
         self.co_code = array('B')
         self.co_lnotab = array('B')
         self.co_firstlineno = 0
+        self.co_name = name
         self.co_filename = filename
         self.co_flags = Flags.OPTIMIZED | Flags.NOFREE
         self.co_stacksize = 0
@@ -169,8 +170,9 @@ class CodeGen:
         for i, const in enumerate(co_consts):
             if isinstance(const, CodeGen):
                 co_consts[i] = const.code()
-        return Code(self.co_argcount, len(self.co_varnames),
-                    self.co_nlocals, self.co_stacksize, 
+        co_nlocals = len(self.co_varnames)
+        return Code(self.co_argcount, 0,
+                    co_nlocals, self.co_stacksize, 
                     self.co_flags, self.co_code.tostring(), 
                     tuple(co_consts), tuple(self.co_names),
                     tuple(self.co_varnames), self.co_filename,
@@ -201,6 +203,12 @@ class CodeGen:
             self.co_names.append(name)
         index = self.co_names.index(name)
         return index
+    
+    def getFast(self, name):
+        if name not in self.co_varnames:
+            self.co_varnames.append(name)
+        index = self.co_varnames.index(name)
+        return index
 
     def write(self, op, value=None):
         self.co_code.append(op)
@@ -229,6 +237,16 @@ class CodeGen:
     def STORE_NAME(self, value):
         index = self.getName(value)
         self.write(Ops.STORE_NAME, index)
+        self.popStack()
+    
+    def LOAD_FAST(self, value):
+        index = self.getFast(value)
+        self.write(Ops.LOAD_FAST, index)
+        self.pushStack()
+    
+    def STORE_FAST(self, value):
+        index = self.getFast(value)
+        self.write(Ops.STORE_FAST, index)
         self.popStack()
     
     def POP_TOP(self):
@@ -314,7 +332,7 @@ def main():
     import time
     import struct
 
-    t = CodeGen("testmod.java")
+    t = CodeGen('testmod.java', 'main')
     #actual generated code will go here
     t.setLine(1)
     t.LOAD_NAME('print')
@@ -327,7 +345,7 @@ def main():
     t.LOAD_CONST(None)
     t.RETURN_VALUE()
 
-    c = CodeGen("testmod.java")
+    c = CodeGen('testmod.java', 'module')
     def pr(s):
         #prints a message
         c.LOAD_NAME('print')
