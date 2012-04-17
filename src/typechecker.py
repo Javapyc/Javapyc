@@ -39,17 +39,18 @@ def typecheck(self, context):
         stmt.typecheck(context)
     return 'Program'
 
-@typechecks(ast.IntDecl)
+@typechecks(ast.Decl)
 def typecheck(self, context):
+    #TODO handle bool and custom types
     (expr,) = self.children
-    if expr.typecheck(context) != int:
+    if expr.typecheck(context) != self.typename.typename:
         raise TypecheckException()
     #ensure not already declared
     if context.varType(self.name):
         raise TypecheckException()
     #record the declaration
-    context.declareVar(self.typename, self.name)
-    return ast.IntDecl
+    context.declareVar(self.typename.typename, self.name)
+    return ast.Decl
 
 @typechecks(ast.Assignment)
 def typecheck(self, context):
@@ -64,7 +65,9 @@ def typecheck(self, context):
     expr.typecheck(context)
     return 'Stmt'
 
-
+@typechecks(ast.Printf)
+def typecheck(self, context):
+    return 'Stmt'
 
 @typechecks(ast.Or)
 @typechecks(ast.And)

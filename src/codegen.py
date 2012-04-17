@@ -29,8 +29,9 @@ def codegen(self, c):
     for stmt in stmts:
         stmt.codegen(c)
 
-@codegens(ast.IntDecl)
+@codegens(ast.Decl)
 def codegen(self, c):
+    #TODO handle bool and custom types
     (expr,) = self.children
     expr.codegen(c)
     c.STORE_FAST(self.name)
@@ -46,6 +47,13 @@ def codegen(self, c):
     (expr,) = self.children
     c.LOAD_NAME('print')
     expr.codegen(c)
+    c.CALL_FUNCTION(1)
+    c.POP_TOP()
+
+@codegens(ast.Printf)
+def codegen(self, c):
+    c.LOAD_NAME('print')
+    c.LOAD_CONST(self.string)
     c.CALL_FUNCTION(1)
     c.POP_TOP()
 

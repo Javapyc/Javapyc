@@ -94,18 +94,18 @@ class Assignment(Stmt):
 class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
+class Printf(Stmt):
+    def __init__(self, string):
+        AST.__init__(self, tuple())
+        self.string = string.val[1:-1]
+    def __repr__(self):
+        return "{0}({1})".format(self.classname(), self.string)
 class If(Stmt):
     def __init__(self, cond, ifstmt, elsestmt):
         AST.__init__(self, (cond, ifstmt, elsestmt))
 class While(Stmt):
     def __init__(self, cond, stmt):
         AST.__init__(self, (cond, stmt))
-class Printf(Stmt):
-    def __init__(self, string):
-        AST.__init__(self, tuple())
-        self.string = string.val
-    def __repr__(self):
-        return "{0}({1})".format(self.classname(), self.string)
 
 class Expr(AST):
     pass
