@@ -263,10 +263,10 @@ class CodeGen:
         self.popStack(1+defaults)
         self.pushStack()
 
-    def CALL_FUNCTION(self, argc=0):
+    def CALL_FUNCTION(self, argc=0, kwargs=0):
         self.write(Ops.CALL_FUNCTION)
         self.co_code.append(argc)
-        self.co_code.append(0)
+        self.co_code.append(kwargs)
         self.popStack(argc+1)
         self.pushStack()
 

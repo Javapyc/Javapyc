@@ -107,8 +107,14 @@ class StmtGrammar:
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])
     def p_stmt_printf(self, args):
-        r'stmt ::= System.out.printf ( String printfarglist ) ;'
+        r'stmt ::= System.out.printf ( string printfarglist ) ;'
         return ast.Printf(args[2], args[3])
+    def p_string_single(self, args):
+        r'string ::= StringLiteral'
+        return args[0].val
+    def p_string_list(self, args):
+        r'string ::= StringLiteral string'
+        return args[0].val + args[1]
     def p_printfarglist_empty(self, args):
         r'printfarglist ::= '
         return tuple()

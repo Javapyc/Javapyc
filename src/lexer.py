@@ -24,7 +24,16 @@ class Integer(SimpleToken):
     pass
 
 class String(SimpleToken):
-    pass
+    def __init__(self, val):
+        val = val[1:-1]
+        def unescape(s):
+            s = s.replace('\\n', '\n')
+            s = s.replace('\\\\', '\\')
+            s = s.replace('\\"', '"')
+            return s
+        self.val = unescape(val)
+    def typename(self):
+        return 'StringLiteral'
 
 class ID(SimpleToken):
     pass
@@ -83,7 +92,7 @@ class ExpressionScanner2(ExpressionScanner1):
         self.rv.append(t)
 
     def t_string(self, s):
-        r'".*"'
+        r'"(\\.|.)*?"'
         t = String(s)
         self.rv.append(t)
 

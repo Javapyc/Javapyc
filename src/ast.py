@@ -106,9 +106,15 @@ class Print(Stmt):
 class Printf(Stmt):
     def __init__(self, string, args):
         AST.__init__(self, tuple(args))
-        self.string = string.val[1:-1]
+        self.string = string
+        def escape(s):
+            s = s.replace('\n', '\\n')
+            s = s.replace('\\', '\\\\')
+            s = s.replace('\"', '\"')
+            return s
+        self.displaystring = escape(string)
     def __repr__(self):
-        return "{0}({1})".format(self.classname(), self.string)
+        return "{0}({1})".format(self.classname(), str(self.displaystring))
 class If(Stmt):
     def __init__(self, cond, ifstmt, elsestmt):
         AST.__init__(self, (cond, ifstmt, elsestmt))

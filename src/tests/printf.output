@@ -1,0 +1,17 @@
+Printf test cases
+
+a = 40
+a + 2 = 42
+40 + 2 = 42
+
+b = 80
+a < b = True
+40 < 80 = True
+
+a > b = False
+40 > 80 = False
+
+Other tests:
+[1;34mBlue Text[0m
+Backslash: \
+Quote:     "

@@ -64,7 +64,9 @@ def codegen(self, c):
         arg.codegen(c)
     c.BUILD_TUPLE(len(args))
     c.BINARY_MODULO()
-    c.CALL_FUNCTION(1)
+    c.LOAD_CONST('end')
+    c.LOAD_CONST('')
+    c.CALL_FUNCTION(1, 1)
     c.POP_TOP()
 
 @codegens(ast.Or)
