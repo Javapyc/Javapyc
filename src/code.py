@@ -249,6 +249,11 @@ class CodeGen:
         self.write(Ops.STORE_FAST, index)
         self.popStack()
     
+    def BUILD_TUPLE(self, n=1):
+        self.write(Ops.BUILD_TUPLE, n)
+        self.popStack(n)
+        self.pushStack()
+
     def POP_TOP(self):
         self.write(Ops.POP_TOP)
         self.popStack()
@@ -310,6 +315,10 @@ class CodeGen:
         self.pushStack(1)
     def BINARY_POWER(self):
         self.write(Ops.BINARY_POWER)
+        self.popStack(2)
+        self.pushStack(1)
+    def BINARY_MODULO(self):
+        self.write(Ops.BINARY_MODULO)
         self.popStack(2)
         self.pushStack(1)
     

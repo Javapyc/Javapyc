@@ -85,10 +85,10 @@ class FormalGrammar:
 class TypeGrammar:
     def p_type_int(self, args):
         r'type ::= int'
-        return ast.IntType()
+        return ast.IntType
     def p_type_boolean(self, args):
         r'type ::= boolean'
-        return ast.BoolType()
+        return ast.BoolType
     def p_type_object(self, args):
         r'type ::= ID'
         return ast.ObjectType(args[0].val)
@@ -107,8 +107,24 @@ class StmtGrammar:
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])
     def p_stmt_printf(self, args):
-        r'stmt ::= System.out.printf ( String ) ;'
-        return ast.Printf(args[2])
+        r'stmt ::= System.out.printf ( String printfarglist ) ;'
+        return ast.Printf(args[2], args[3])
+    def p_printfarglist_empty(self, args):
+        r'printfarglist ::= '
+        return tuple()
+    def p_printfarglist_args(self, args):
+        r'printfarglist ::= , printfargs'
+        return args[1]
+    def p_printfargs_empty(self, args):
+        r'printfargs ::= '
+        return tuple()
+    def p_printfargs_expr(self, args):
+        r'printfargs ::= expr'
+        return tuple(args)
+    def p_printfargs_exprs(self, args):
+        r'printfargs ::= expr , printfargs'
+        return (args[0],) + args[2]
+
     def p_stmt_if(self, args):
         r'stmt ::= if ( expr ) stmt else stmt'
         return ast.If(args[2], args[4], args[6])

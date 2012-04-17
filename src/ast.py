@@ -61,15 +61,24 @@ class Type(AST):
     def __init__(self):
         AST.__init__(self, tuple())
 class BasicType(Type):
+    def __init__(self, basicType):
+        Type.__init__(self)
+        self.basicType = basicType
+    def __eq__(self, o):
+        if not isinstance(o, BasicType):
+            return False
+        return self.basicType == o.basicType
     def __repr__(self):
         return "<{0}>".format(self.basicType.__name__)
-class IntType(BasicType):
-    basicType = int
-class BoolType(BasicType):
-    basicType = bool
+IntType = BasicType(int)
+BoolType = BasicType(bool)
 class ObjectType(Type):
     def __init__(self, name):
         self.name = name
+    def __eq__(self, o):
+        if not isinstance(o, ObjectType):
+            return False
+        return self.name == o.name
     def __repr__(self):
         return self.name
 
@@ -82,21 +91,21 @@ class Decl(Stmt):
     def __init__(self, typename, name, expr):
         AST.__init__(self, (expr,))
         self.typename = typename
-        self.name = name.val
+        self.name = name
     def __repr__(self):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.name)
 class Assignment(Stmt):
     def __init__(self, name, expr):
         AST.__init__(self, (expr,))
-        self.name = name.val
+        self.name = name
     def __repr__(self):
         return "{0}({1})".format(self.classname(), self.name)
 class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
 class Printf(Stmt):
-    def __init__(self, string):
-        AST.__init__(self, tuple())
+    def __init__(self, string, args):
+        AST.__init__(self, tuple(args))
         self.string = string.val[1:-1]
     def __repr__(self):
         return "{0}({1})".format(self.classname(), self.string)

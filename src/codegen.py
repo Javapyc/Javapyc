@@ -25,6 +25,11 @@ def codegens(cls):
 
 @codegens(ast.Program)
 def codegen(self, c):
+    mainclass, *classes = self.children
+    mainclass.codegen(c)
+
+@codegens(ast.MainClassDecl)
+def codegen(self, c):
     stmts = self.children
     for stmt in stmts:
         stmt.codegen(c)
@@ -52,8 +57,13 @@ def codegen(self, c):
 
 @codegens(ast.Printf)
 def codegen(self, c):
+    args = self.children
     c.LOAD_NAME('print')
     c.LOAD_CONST(self.string)
+    for arg in args:
+        arg.codegen(c)
+    c.BUILD_TUPLE(len(args))
+    c.BINARY_MODULO()
     c.CALL_FUNCTION(1)
     c.POP_TOP()
 

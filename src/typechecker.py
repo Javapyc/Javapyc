@@ -34,22 +34,33 @@ class Context:
 
 @typechecks(ast.Program)
 def typecheck(self, context):
+    mainclass, *classes = self.children
+    mainclass.typecheck(context)
+    #for classType in classes:
+    #    classType.typecheck(context)
+    return 'Program'
+
+@typechecks(ast.MainClassDecl)
+def typecheck(self, context):
     stmts = self.children
+    #TODO add argvName to context
+    #TODO register main class name
     for stmt in stmts:
         stmt.typecheck(context)
-    return 'Program'
+
+    return 'MainClassDecl'
 
 @typechecks(ast.Decl)
 def typecheck(self, context):
     #TODO handle bool and custom types
     (expr,) = self.children
-    if expr.typecheck(context) != self.typename.typename:
+    if expr.typecheck(context) != self.typename:
         raise TypecheckException()
     #ensure not already declared
     if context.varType(self.name):
         raise TypecheckException()
     #record the declaration
-    context.declareVar(self.typename.typename, self.name)
+    context.declareVar(self.typename, self.name)
     return ast.Decl
 
 @typechecks(ast.Assignment)
@@ -67,15 +78,44 @@ def typecheck(self, context):
 
 @typechecks(ast.Printf)
 def typecheck(self, context):
+    args = self.children
+    for arg in args:
+        arg.typecheck(context)
+
+    def types(s):
+        ls = s.split("%")
+        if len(ls) == 1:
+            return
+        for sub in ls[1:]:
+            if len(sub) == 0:
+                raise TypecheckException()
+            c = sub[0]
+            if c == 'd':
+                yield ast.IntType
+            elif c == 'b':
+                yield ast.BoolType
+            else:
+                raise TypecheckException()
+    argTypes = list(types(self.string))
+
+    if len(argTypes) != len(args):
+        raise TypecheckException()
+
+    for arg, t in zip(args, argTypes):
+        if arg.nodeType != t:
+            raise TypecheckException()
+
+    self.string = self.string.replace('%b', '%s')
+
     return 'Stmt'
 
 @typechecks(ast.Or)
 @typechecks(ast.And)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != bool or right.typecheck(context) != bool:
+    if left.typecheck(context) != ast.BoolType or right.typecheck(context) != ast.BoolType:
         raise TypecheckException()
-    return bool
+    return ast.BoolType
 
 @typechecks(ast.BinaryEqualExpr)
 def typecheck(self, context):
@@ -87,9 +127,9 @@ def typecheck(self, context):
 @typechecks(ast.BinaryCompExpr)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != int or right.typecheck(context) != int:
+    if left.typecheck(context) != ast.IntType or right.typecheck(context) != ast.IntType:
         raise TypecheckException()
-    return bool
+    return ast.BoolType
 
 @typechecks(ast.Plus)
 @typechecks(ast.Minus)
@@ -97,39 +137,39 @@ def typecheck(self, context):
 @typechecks(ast.Div)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != int or right.typecheck(context) != int:
+    if left.typecheck(context) != ast.IntType or right.typecheck(context) != ast.IntType:
         raise TypecheckException()
     return left.nodeType
 
 @typechecks(ast.Pow)
 def typecheck(self, context):
     a, b = self.children
-    if a.typecheck(context) != int or b.typecheck(context) != int:
+    if a.typecheck(context) != ast.IntType or b.typecheck(context) != ast.IntType:
         raise TypecheckException()
     return a.nodeType
 
 @typechecks(ast.Negate)
 def typecheck(self, context):
-    if self.expr.typecheck(context) != int:
+    if self.expr.typecheck(context) != ast.IntType:
         raise TypecheckException()
     return self.expr.nodeType
 
 @typechecks(ast.Not)
 def typecheck(self, context):
-    if self.expr.typecheck(context) != bool:
+    if self.expr.typecheck(context) != ast.BoolType:
         raise TypecheckException()
     return self.expr.nodeType
 
 @typechecks(ast.Boolean)
 def typecheck(self, context):
-    return bool
+    return ast.BoolType
 
 @typechecks(ast.Integer)
 def typecheck(self, context):
     self.val = int(self.val)
     if self.val < ast.Integer.MIN_VALUE or self.val > ast.Integer.MAX_VALUE:
         raise TypecheckException()
-    return int
+    return ast.IntType
 
 @typechecks(ast.ID)
 def typecheck(self, context):
