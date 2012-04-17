@@ -1,28 +1,31 @@
 
 class Program {
 	public static void main(String[] args) {
-		System.out.printf("Printf test cases\n"
-				  "\n");
 
-		int a = 40;
-		System.out.printf("a = %d\n", a);
-		System.out.printf("a + 2 = %d\n", a + 2);
-		System.out.printf("%d + 2 = %d\n\n", a, a + 2);
+		Bob b = new Bob();
 
-		int b = 80;
-		System.out.printf("b = %d\n", b);
-		System.out.printf("a < b = %b\n", a < b);
-		System.out.printf("%d < %d = %b\n\n", a, b, a < b);
-		
-		System.out.printf("a > b = %b\n"
-		                  "%d > %d = %b\n"
-				  "\n", a > b, a, b, a > b);
+		int res = b.add(4,5);
 
+		boolean cond = res > 5;
 
-		System.out.printf("Other tests:\n");
-		System.out.printf("[1;34mBlue Text[0m\n");
-		System.out.printf("Backslash: \\\n");
-		System.out.printf("Quote:     \"\n");
+		if (cond && true) {
+			int a = 5;
+			System.out.printf("4 + 5 = %d\n", res);
+			System.out.println(a + 1);
+		} else {
+			System.out.println(42);
+		}
 	}
 }
 
+class Bob {
+
+	public int add(int a, int b) {
+		return a + b;
+	}
+	
+	public int add5(int a) {
+		return a + 5;
+	}
+
+}

@@ -22,9 +22,10 @@ class MainClassDecl(AST):
 
 class ClassDecl(AST):
     def __init__(self, name, parent, classvars, methods):
-        AST.__init__(self, methods)
+        AST.__init__(self, tuple(methods))
         self.name = name
         self.parent = parent
+        self.classvars = classvars
 class BaseClassDecl(ClassDecl):
     def __repr__(self):
         return 'Class {0}'.format(self.name)
@@ -60,6 +61,8 @@ class Formal(AST):
 class Type(AST):
     def __init__(self):
         AST.__init__(self, tuple())
+    def isObject(self):
+        return False
 class BasicType(Type):
     def __init__(self, basicType):
         Type.__init__(self)
@@ -68,6 +71,8 @@ class BasicType(Type):
         if not isinstance(o, BasicType):
             return False
         return self.basicType == o.basicType
+    def __hash__(self):
+        return hash(self.basicType)
     def __repr__(self):
         return "<{0}>".format(self.basicType.__name__)
 IntType = BasicType(int)
@@ -79,8 +84,12 @@ class ObjectType(Type):
         if not isinstance(o, ObjectType):
             return False
         return self.name == o.name
+    def __hash__(self):
+        return hash(self.name)
     def __repr__(self):
         return self.name
+    def isObject(self):
+        return True
 
 class Stmt(AST):
     pass
