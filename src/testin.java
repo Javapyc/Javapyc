@@ -39,6 +39,7 @@ class Program {
 		    while (false) int a = 3;
 		    System.out.println(5);
 		}else{}
+		System.out.printf("Hello world");
 	}
 }
 

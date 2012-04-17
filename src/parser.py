@@ -106,6 +106,9 @@ class StmtGrammar:
     def p_stmt_print(self, args):
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])
+    def p_stmt_printf(self, args):
+        r'stmt ::= System.out.printf ( String ) ;'
+        return ast.Printf(args[2])
     def p_stmt_if(self, args):
         r'stmt ::= if ( expr ) stmt else stmt'
         return ast.If(args[2], args[4], args[6])
