@@ -2,7 +2,9 @@
 class Program {
 	public static void main(String[] args) {
 
-		Bob b = new Bob();
+		Base b = new Bob();
+
+		b = new Bob();
 
 		int res = b.add(4,5);
 
@@ -18,14 +20,16 @@ class Program {
 	}
 }
 
-class Bob {
+class Base {
 
 	public int add(int a, int b) {
 		return a + b;
 	}
-	
+}
+
+class Bob extends Base{
+
 	public int add5(int a) {
 		return a + 5;
 	}
-
 }
