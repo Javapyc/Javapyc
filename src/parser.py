@@ -94,6 +94,9 @@ class TypeGrammar:
         return ast.ObjectType(args[0].val)
 
 class StmtGrammar:
+    def p_stmt_call(self, args):
+        r'stmt ::= methodcall ;'
+        return ast.MethodCall(args[0])
     def p_stmt_stmtlist(self, args):
         r'stmt ::= { stmtlist }'
         return ast.StmtList(args[1])
@@ -206,15 +209,19 @@ class ExprGrammar:
         r'term ::= term / factor'
         return ast.Div(args[0], args[2])
     def p_term_factor(self, args):
-        r'term ::= factor'
+        r'term ::= unaryfactor'
         return args[0]
     
-    def p_factor_neg(self, args):
-        r'factor ::= - factor'
+    def p_unaryfactor_neg(self, args):
+        r'unaryfactor ::= - unaryfactor'
         return ast.Negate(args[1])
-    def p_factor_not(self, args):
-        r'factor ::= ! factor'
+    def p_unaryfactor_not(self, args):
+        r'unaryfactor ::= ! unaryfactor'
         return ast.Not(args[1])
+    def p_unaryfactor_factor(self, args):
+        r'unaryfactor ::= factor'
+        return args[0]
+
     def p_factor_int(self, args):
         r'factor ::= Integer'
         return ast.Integer(args[0].val)
@@ -236,9 +243,9 @@ class ExprGrammar:
     def p_factor_id(self, args):
         r'factor ::= ID'
         return ast.ID(args[0].val)
-    def p_factor_call(self, args):
-        r'factor ::= factor . ID ( paramlist )'
-        return ast.Call(args[0], args[2].val, args[4])
+    def p_factor_methodcall(self, args):
+        r'factor ::= methodcall'
+        return args[0]
     def p_factor_expr(self, args):
         r'factor ::= ( expr )'
         return args[1]
@@ -246,6 +253,9 @@ class ExprGrammar:
         r'factor ::= Math.pow ( expr , expr )'
         return ast.Pow(args[2], args[4])
 
+    def p_methodcall_call(self, args):
+        r'methodcall ::= factor . ID ( paramlist )'
+        return ast.Call(args[0], args[2].val, args[4])
     def p_paramlist_empty(self, args):
         r'paramlist ::= '
         return tuple()

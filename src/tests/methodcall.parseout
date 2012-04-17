@@ -1,0 +1,21 @@
+Program
++-MainClass Program
+| +-Decl(Test, test)
+| | +-New(Test)
+| +-Decl(<int>, n)
+| | +-Call(throwaway)
+| |   +-ID(test)
+| |   +-(int)10
+| +-Assignment(n)
+| | +-Call(throwaway)
+| |   +-ID(test)
+| |   +-ID(n)
+| +-MethodCall
+|   +-Call(throwaway)
+|     +-ID(test)
+|     +-ID(n)
++-Class Test
+  +-<int> throwaway(<int> n)
+    +-Mult
+      +-ID(n)
+      +-ID(n)

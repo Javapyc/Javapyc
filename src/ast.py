@@ -84,6 +84,9 @@ class ObjectType(Type):
 
 class Stmt(AST):
     pass
+class MethodCall(Stmt):
+    def __init__(self, expr):
+        AST.__init__(self, (expr,))
 class StmtList(Stmt):
     def __init__(self, stmts):
         AST.__init__(self, stmts)
