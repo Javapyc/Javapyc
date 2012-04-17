@@ -82,13 +82,13 @@ class Decl(Stmt):
     def __init__(self, typename, name, expr):
         AST.__init__(self, (expr,))
         self.typename = typename
-        self.name = name
+        self.name = name.val
     def __repr__(self):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.name)
 class Assignment(Stmt):
     def __init__(self, name, expr):
         AST.__init__(self, (expr,))
-        self.name = name
+        self.name = name.val
     def __repr__(self):
         return "{0}({1})".format(self.classname(), self.name)
 class Print(Stmt):

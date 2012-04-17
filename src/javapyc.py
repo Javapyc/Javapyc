@@ -50,7 +50,7 @@ def main():
                 break
             
             #Typecheck Parse Tree
-            tree.typecheck()
+            typechecker.typecheck(tree)
             if args.phase == 'typecheck':
                 print("Looks good")
                 break
