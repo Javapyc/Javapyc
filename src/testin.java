@@ -1,5 +1,7 @@
 
 class Program {
+    
+
 	public static void main(String[] args) {
 
 		Base b = new Bob();
@@ -18,9 +20,13 @@ class Program {
 			System.out.println(42);
 		}
 	}
+
 }
 
 class Base {
+
+    boolean classvar;
+    boolean classvar;
 
 	public int add(int a, int b) {
 		return a + b;

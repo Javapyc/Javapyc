@@ -95,7 +95,7 @@ def typecheck(self, context):
         if cls.parent:
             parentClass = context.lookupClass(cls.parent)
             if not parentClass:
-                raise TypecheckException()
+                raise TypecheckException("'{0}' does not have a parent".format(cls))
         
         classContext = ClassContext(cls.name, varMap, methodMap, parent=parentClass)
         context.registerClass(cls.name, classContext)
@@ -125,7 +125,15 @@ def typecheck(self, context):
 #TODO ClassVarDecl
 #TODO MethodDecl
 #TODO Formal
-#TODO Type
+
+#TODO Type (should be object type?)
+# int and boolean are already caught by the parser
+# need to see if ID is a class that already exists. 
+@typechecks(ast.ObjectType)
+def typecheck(self, context):
+    #context.lookupClass(ID)
+    pass
+
 
 #TODO MethodCall
 
@@ -155,10 +163,10 @@ def typecheck(self, context):
 def typecheck(self, context):
     (expr,) = self.children
     if not isCompatible(context.program, expr.typecheck(context), self.typename):
-        raise TypecheckException()
+        raise TypecheckException("Cannot assign {0} to {1}".format(expr, self.typename))
     #ensure not already declared
     if context.varType(self.name):
-        raise TypecheckException()
+        raise TypecheckException("Illegal redeclaration of variable '{0}'".format(self.name))
     #record the declaration
     context.declareVar(self.typename, self.name)
     return ast.Decl
@@ -168,14 +176,14 @@ def typecheck(self, context):
     (expr,) = self.children
     varType = context.varType(self.name)
     if not isCompatible(context.program, expr.typecheck(context), varType):
-        raise TypecheckException()
+        raise TypecheckException("Cannot assign {0} to {1}".format(expr, varType))
     return expr.nodeType
 
 @typechecks(ast.Print)
 def typecheck(self, context):
     (expr,) = self.children
     if expr.typecheck(context) != ast.IntType:
-        raise TypecheckException()
+        raise TypecheckException("Error with println: can only print Integers (I know, I know...)")
     return ast.Print
 
 @typechecks(ast.Printf)
@@ -197,7 +205,7 @@ def typecheck(self, context):
             elif c == 'b':
                 yield ast.BoolType
             else:
-                raise TypecheckException()
+                raise TypecheckException("Error with printf: format type does not match argument")
     argTypes = list(types(self.string))
 
     if len(argTypes) != len(args):
@@ -205,7 +213,7 @@ def typecheck(self, context):
 
     for arg, t in zip(args, argTypes):
         if arg.nodeType != t:
-            raise TypecheckException()
+            raise TypecheckException("Printf problem")
 
     self.string = self.string.replace('%b', '%s')
 
@@ -216,13 +224,13 @@ def typecheck(self, context):
     cond, ifstmt, elsestmt = self.children
     
     if cond.typecheck(context) != ast.BoolType:
-        raise TypecheckException()
+        raise TypecheckException("Error with If: condition must be boolean")
 
     if ifstmt.typecheck(context) == ast.Decl:
-        raise TypecheckException()
+        raise TypecheckException("Error with If: cannot have single declaration in if")
 
     if elsestmt.typecheck(context) == ast.Decl:
-        raise TypecheckException()
+        raise TypecheckException("Error with If: cannot have single declaration in else block")
 
     return ast.If
 
@@ -232,22 +240,27 @@ def typecheck(self, context):
 @typechecks(ast.And)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != ast.BoolType or right.typecheck(context) != ast.BoolType:
-        raise TypecheckException()
+    if left.typecheck(context) != ast.BoolType:
+        raise TypecheckException("Left side of && must be boolean, is {0}".format(left))
+    if right.typecheck(context) != ast.BoolType:
+        raise TypecheckException("Right side of && must be boolean, is {0}".format(right))
+    
     return ast.BoolType
 
 @typechecks(ast.BinaryEqualExpr)
 def typecheck(self, context):
     left, right = self.children
     if left.typecheck(context) != right.typecheck(context):
-        raise TypecheckException()
+        raise TypecheckException("Types of left and right sides of == must agree")
     return ast.BoolType
 
 @typechecks(ast.BinaryCompExpr)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != ast.IntType or right.typecheck(context) != ast.IntType:
-        raise TypecheckException()
+    if left.typecheck(context) != ast.IntType:
+        raise TypecheckException("Left side of comparison must be int, is {0}".format(left))
+    if right.typecheck(context) != ast.IntType:
+        raise TypecheckException("Right side of comparison must be int, is {0}".format(right))
     return ast.BoolType
 
 @typechecks(ast.Plus)
@@ -256,20 +269,22 @@ def typecheck(self, context):
 @typechecks(ast.Div)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != ast.IntType or right.typecheck(context) != ast.IntType:
-        raise TypecheckException()
+    if left.typecheck(context) != ast.IntType:
+        raise TypecheckException("Left side of / must be int, is {0}".format(left))
+    if right.typecheck(context) != ast.IntType:
+        raise TypecheckException("Right side of / must be int, is {0}".format(right))
     return left.nodeType
 
 @typechecks(ast.Negate)
 def typecheck(self, context):
     if self.expr.typecheck(context) != ast.IntType:
-        raise TypecheckException()
+        raise TypecheckException("Cannot negate a non-integer: {0}".format(self.expr))
     return self.expr.nodeType
 
 @typechecks(ast.Not)
 def typecheck(self, context):
     if self.expr.typecheck(context) != ast.BoolType:
-        raise TypecheckException()
+        raise TypecheckException("Cannot take logical Not of non-boolean: {0}".format(self.expr))
     return self.expr.nodeType
 
 @typechecks(ast.NewInstance)
@@ -277,7 +292,7 @@ def typecheck(self, context):
     newClass = context.lookupClass(self.name)
 
     if not newClass:
-        raise TypecheckException()
+        raise TypecheckException("Cannot create new instance of undeclared class '{0}'".format(self.name))
 
     return ast.ObjectType(self.name)
 
@@ -289,7 +304,7 @@ def typecheck(self, context):
 def typecheck(self, context):
     self.val = int(self.val)
     if self.val < ast.Integer.MIN_VALUE or self.val > ast.Integer.MAX_VALUE:
-        raise TypecheckException()
+        raise TypecheckException("Integer {0} is out of bounds".format(self.val))
     return ast.IntType
 
 @typechecks(ast.Null)
@@ -304,14 +319,14 @@ def typecheck(self, context):
 def typecheck(self, context):
     res = context.varType(self.name)
     if not res:
-        raise TypecheckException()
+        raise TypecheckException("Variable {0} has not been declared".format(self.name))
     return res
 
 @typechecks(ast.Pow)
 def typecheck(self, context):
     a, b = self.children
     if a.typecheck(context) != ast.IntType or b.typecheck(context) != ast.IntType:
-        raise TypecheckException()
+        raise TypecheckException("Arguments to Math.pow must be integers, are {0}, {1}".format(a, b))
     return a.nodeType
 
 @typechecks(ast.Call)
@@ -322,17 +337,19 @@ def typecheck(self, context):
     argTypes = tuple(map(lambda arg: arg.typecheck(context), args))
 
     if not objType.isObject():
-        raise TypecheckException()
+        raise TypecheckException("Cannot call methods from non-object '{0}'".format(objType))
 
     classContext = context.lookupClass(objType.name)
 
+    # Not sure if this can ever happen - checks if variable exists first.
     if not classContext:
-        raise TypecheckException()
+        raise TypecheckException("Class {0} does not exist".format(objType))
 
     retType = classContext.lookupMethod(self.func, argTypes)
-    
+
+    # Not sure this can happen either - gets caught earlier
     if not retType:
-        raise TypecheckException()
+        raise TypecheckException("Return type does not match")
 
     return retType
 
