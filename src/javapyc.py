@@ -12,7 +12,7 @@ import sys
 
 def getArguments():
     parser = argparse.ArgumentParser(description='MiniJava Compiler')
-    parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'optimize', 'codegen'), default='codegen')
+    parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'optimize', 'codegen', 'run'), default='run')
     parser.add_argument('--out-file', '-o', type=str, default='a')
     parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
     parser.add_argument('files', nargs='+', type=InputFile)
@@ -66,9 +66,13 @@ def main():
                 break
             
             #Generate Code
+            codegen.codegen(outfile, tree)
             if args.phase == 'codegen':
-                codegen.codegen(outfile, tree)
                 break
+
+            if args.phase == 'run':
+                import importlib
+                importlib.import_module(args.out_file)
 
 if __name__ == '__main__':
     main()
