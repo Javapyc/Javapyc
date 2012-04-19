@@ -8,9 +8,16 @@ class Program {
 
 		b = new Bob();
 
-        gg t = null;
+        Bob t = new Bob();
+
+        int res = 89;
         
 		boolean cond = res > 5;
+
+        while(cond){
+            int f = 45;
+            f = f - 9;
+        }
 
 		if (cond && true) {
 			int a = 5;

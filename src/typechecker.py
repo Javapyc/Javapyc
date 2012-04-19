@@ -128,12 +128,14 @@ def typecheck(self, context):
 
 #TODO Type (should be object type?)
 # int and boolean are already caught by the parser
-# need to see if ID is a class that already exists. 
+# need to see if ID is a class that already exists.
+# Not sure if this can ever be reached...
 @typechecks(ast.ObjectType)
 def typecheck(self, context):
-    #context.lookupClass(self.name)
-    pass
-
+    res =context.lookupClass(self.name)
+    if res is None:
+        raise TypecheckException("Type {0} does not exist".format(self.name))
+    return ast.ObjectType
 
 #TODO MethodCall
 
@@ -235,8 +237,19 @@ def typecheck(self, context):
 
     return ast.If
 
-#TODO While
+@typechecks(ast.While)
+def typecheck(self, context):
+    cond, stmt = self.children
+    
+    if cond.typecheck(context) != ast.BoolType:
+        raise TypecheckException("Error with While: condition must be boolean")
 
+    if stmt.typecheck(context) == ast.Decl:
+        raise TypecheckException("Error with While: cannot have single declaration in while")
+
+    return ast.While
+
+    
 @typechecks(ast.Or)
 @typechecks(ast.And)
 def typecheck(self, context):
