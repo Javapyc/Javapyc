@@ -8,8 +8,8 @@ class Program {
 
 		b = new Bob();
 
-		int res = b.add(4,5);
-
+        gg t = null;
+        
 		boolean cond = res > 5;
 
 		if (cond && true) {

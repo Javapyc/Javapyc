@@ -131,13 +131,14 @@ def typecheck(self, context):
 # need to see if ID is a class that already exists. 
 @typechecks(ast.ObjectType)
 def typecheck(self, context):
-    #context.lookupClass(ID)
+    #context.lookupClass(self.name)
     pass
 
 
 #TODO MethodCall
 
 def isCompatible(program, src, dest):
+    # if src is None, then return true
     if src.isObject() and dest.isObject():
         src = program.lookupClass(src.name)
         dest = program.lookupClass(dest.name)
