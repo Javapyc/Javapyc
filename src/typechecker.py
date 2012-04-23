@@ -119,6 +119,7 @@ def typecheck(self, context):
 def typecheck(self, context):
     stmts = self.children
     local = LocalContext(context)
+    #FIXME declareFormal?
     local.declareVar('String[]', self.argvName)
 
     for stmt in stmts:
@@ -153,16 +154,9 @@ def typecheck(self, context):
 
     return ast.MethodDecl
 
-#TODO Type (should be object type?)
-# int and boolean are already caught by the parser
-# need to see if ID is a class that already exists.
-# Not sure if this can ever be reached...
-@typechecks(ast.ObjectType)
+@typechecks(ast.Type)
 def typecheck(self, context):
-    res = context.lookupClass(self.name)
-    if res is None:
-        raise TypecheckException("Type {0} does not exist".format(self.name))
-    return ast.ObjectType
+    raise TypecheckException("Can't typecheck a type")
 
 @typechecks(ast.MethodCall)
 def typecheck(self, context):
