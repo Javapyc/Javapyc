@@ -42,6 +42,8 @@ class ClassContext:
         self.methods = methods
         self.parent = parent
         self.program = None
+    def varType(self, name):
+        return self.variables.get(name, None)
     def lookupMethod(self, name, argTypes):
         res = self.methods.get(MethodPrototype(name, argTypes), None)
         if not res and self.parent:
@@ -64,8 +66,11 @@ class LocalContext:
         return self.classContext.program
     def varType(self, name):
         res = self.scope.get(name, None)
-        if not res and self.parent:
-            return self.parent.varType(name)
+        if not res:
+            if self.parent:
+                return self.parent.varType(name)
+            else:
+                return self.classContext.varType(name)
         return res
     def declareVar(self, typename, name):
         self.scope[name] = typename
@@ -84,12 +89,14 @@ def typecheck(self, context):
         
         varMap = {}
         for var in cls.classvars:
+            if var.ID in varMap:
+                raise TypecheckException("Duplicate definition of field: {0}".format(var.ID))
             varMap[var.ID] = var.typename
 
         methodMap = {}
         for method in methods:
-            types = tuple(map(lambda formal: formal.typename, method.formallist))
-            methodMap[MethodPrototype(method.ID, types)] = method.typename
+            method.types = tuple(map(lambda formal: formal.typename, method.formallist))
+            methodMap[MethodPrototype(method.ID, method.types)] = method.typename
 
         parentClass = None
         if cls.parent:
@@ -100,13 +107,12 @@ def typecheck(self, context):
         classContext = ClassContext(cls.name, varMap, methodMap, parent=parentClass)
         context.registerClass(cls.name, classContext)
 
-    mainClassContext = ClassContext(mainclass.name, tuple(), tuple())
+    mainClassContext = ClassContext(mainclass.name, dict(), dict())
     context.registerClass(mainclass.name, mainClassContext)
     mainclass.typecheck(mainClassContext)
 
-    #TODO classes
-    #for classType in classes:
-    #    classType.typecheck(context)
+    for classType in classes:
+        classType.typecheck(context.lookupClass(classType.name))
     return ast.Program
 
 @typechecks(ast.MainClassDecl)
@@ -114,17 +120,38 @@ def typecheck(self, context):
     stmts = self.children
     local = LocalContext(context)
     local.declareVar('String[]', self.argvName)
-    
+
     for stmt in stmts:
         stmt.typecheck(local)
 
     return ast.MainClassDecl
 
-#TODO ClassDecl
+@typechecks(ast.ClassDecl)
+def typecheck(self, context):
+    methods = self.children
 
-#TODO ClassVarDecl
-#TODO MethodDecl
-#TODO Formal
+    for method in methods:
+        method.typecheck(context)
+
+    return type(self)
+
+@typechecks(ast.MethodDecl)
+def typecheck(self, context):
+    *stmts, expr = self.children
+    local = LocalContext(context)
+
+    for formal in self.formallist:
+        #FIXME declareFormal?
+        local.declareVar(formal.typename, formal.ID)
+
+    for stmt in stmts:
+        stmt.typecheck(local)
+
+    retType = context.lookupMethod(self.ID, self.types)
+    if expr.typecheck(local) != retType:
+        raise TypecheckException("Invalid return type")
+
+    return ast.MethodDecl
 
 #TODO Type (should be object type?)
 # int and boolean are already caught by the parser

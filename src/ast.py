@@ -47,6 +47,7 @@ class MethodDecl(AST):
         self.typename = typename
         self.ID = ID
         self.formallist = formallist
+        self.types = None
     def __repr__(self):
         return "{0} {1}({2})".format(self.typename, self.ID, ', '.join(map(repr, self.formallist)))
 
