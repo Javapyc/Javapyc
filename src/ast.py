@@ -78,7 +78,22 @@ class BasicType(Type):
         return "<{0}>".format(self.basicType.__name__)
 IntType = BasicType(int)
 BoolType = BasicType(bool)
-class ObjectType(Type):
+class BaseObjectType(Type):
+    def isObject(self):
+        return True
+    def isNull(self):
+        return False
+class NullTypeClass(BaseObjectType):
+    def __eq__(self, o):
+        return isinstance(o, NullType)
+    def __hash__(self):
+        return hash(None)
+    def __repr__(self):
+        return "<null>"
+    def isNull(self):
+        return True
+NullType = NullTypeClass()
+class ObjectType(BaseObjectType):
     def __init__(self, name):
         self.name = name
     def __eq__(self, o):
@@ -95,8 +110,8 @@ class ObjectType(Type):
 class Stmt(AST):
     pass
 class MethodCall(Stmt):
-    def __init__(self, expr):
-        AST.__init__(self, (expr,))
+    def __init__(self, call):
+        AST.__init__(self, (call,))
 class StmtList(Stmt):
     def __init__(self, stmts):
         AST.__init__(self, stmts)

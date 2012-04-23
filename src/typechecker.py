@@ -159,16 +159,27 @@ def typecheck(self, context):
 # Not sure if this can ever be reached...
 @typechecks(ast.ObjectType)
 def typecheck(self, context):
-    res =context.lookupClass(self.name)
+    res = context.lookupClass(self.name)
     if res is None:
         raise TypecheckException("Type {0} does not exist".format(self.name))
     return ast.ObjectType
 
-#TODO MethodCall
+@typechecks(ast.MethodCall)
+def typecheck(self, context):
+    (call,) = self.children
+
+    call.typecheck(context)
+
+    return ast.MethodCall
 
 def isCompatible(program, src, dest):
     # if src is None, then return true
     if src.isObject() and dest.isObject():
+        if dest.isNull():
+            return False
+        if src.isNull():
+            return True
+
         src = program.lookupClass(src.name)
         dest = program.lookupClass(dest.name)
 
@@ -350,7 +361,7 @@ def typecheck(self, context):
 
 @typechecks(ast.Null)
 def typecheck(self, context):
-    return type(None)
+    return ast.NullType
 
 @typechecks(ast.This)
 def typecheck(self, context):
@@ -377,20 +388,20 @@ def typecheck(self, context):
     objType = obj.typecheck(context)
     argTypes = tuple(map(lambda arg: arg.typecheck(context), args))
 
-    if not objType.isObject():
+    if not objType.isObject() or objType.isNull():
         raise TypecheckException("Cannot call methods from non-object '{0}'".format(objType))
 
     classContext = context.lookupClass(objType.name)
 
-    # Not sure if this can ever happen - checks if variable exists first.
+    #Ensure class exists
     if not classContext:
         raise TypecheckException("Class {0} does not exist".format(objType))
 
     retType = classContext.lookupMethod(self.func, argTypes)
 
-    # Not sure this can happen either - gets caught earlier
     if not retType:
-        raise TypecheckException("Return type does not match")
+        raise TypecheckException("Method not found: {0}({1})".format(
+            self.func, ', '.join(map(str,argTypes))))
 
     return retType
 
