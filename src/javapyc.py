@@ -14,6 +14,7 @@ def getArguments():
     parser = argparse.ArgumentParser(description='MiniJava Compiler')
     parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'optimize', 'codegen', 'run'), default='run')
     parser.add_argument('--out-file', '-o', type=str, default='a')
+    parser.add_argument('--verbose', '-v', action='count')
     parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
     parser.add_argument('files', nargs='+', type=InputFile)
     return parser.parse_args()
@@ -30,6 +31,7 @@ def main():
         args.optimize = True
 
     outfile = args.out_file + '.pyc'
+    verbose = args.verbose
 
     for inputFile in args.files:
         with inputFile as f:
@@ -50,9 +52,17 @@ def main():
                 break
             
             #Typecheck Parse Tree
-            typechecker.typecheck(tree)
+            try:
+                typechecker.typecheck(tree)
+            except typechecker.TypecheckException as ex:
+                print('Nope', file=sys.stderr)
+                if verbose:
+                    print(ex, file=sys.stderr)
+                    if verbose > 1:
+                        raise ex
+                sys.exit(1)
             if args.phase == 'typecheck':
-                print("Looks good")
+                print('Looks good')
                 break
             
             #Optimization
