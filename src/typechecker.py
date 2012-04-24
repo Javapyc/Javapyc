@@ -50,6 +50,17 @@ class ClassContext:
             return self.parent.lookupMethod(name, argTypes)
         return res
 
+class MethodContext:
+    def __init__(self, classContext):
+        self.classContext = classContext
+        self.formals = {}
+    def declareFormal(self, typename, name):
+        self.formals[name] = typename
+    def formalType(self, name):
+        if name not in self.formals:
+            return None
+        return self.formals[name]
+
 class LocalContext:
     '''
     Local Scope (nested)
@@ -57,19 +68,27 @@ class LocalContext:
     - Variables
     - Methods
     '''
-    def __init__(self, classContext, parent=None):
-        self.scope = {}
-        self.classContext = classContext
+    def __init__(self, method, parent=None):
+        self.method = method
         self.parent = parent
+        self.scope = {}
     @property
     def program(self):
-        return self.classContext.program
+        return self.method.classContext.program
+    @property
+    def classContext(self):
+        return self.method.classContext
     def varType(self, name):
+        ''' Determines the type of name, regardless of whether name is
+        a local variable, formal parameter, or class field'''
         res = self.scope.get(name, None)
         if not res:
             if self.parent:
                 return self.parent.varType(name)
             else:
+                res = self.method.formalType(name)
+                if res:
+                    return res
                 return self.classContext.varType(name)
         return res
     def declareVar(self, typename, name):
@@ -78,7 +97,7 @@ class LocalContext:
         return self.classContext.program.lookupClass(name)
     def enterInnerScope(self):
         ''' Enter a new scope, using this scope as the parent '''
-        return LocalContext(self.classContext, parent=self)
+        return LocalContext(self.method, parent=self)
 
 @typechecks(ast.Program)
 def typecheck(self, context):
@@ -118,12 +137,12 @@ def typecheck(self, context):
 @typechecks(ast.MainClassDecl)
 def typecheck(self, context):
     stmts = self.children
-    local = LocalContext(context)
-    #FIXME declareFormal?
-    local.declareVar('String[]', self.argvName)
+    methodContext = MethodContext(context)
+    methodContext.declareFormal('String[]', self.argvName)
 
+    localContext = LocalContext(methodContext) 
     for stmt in stmts:
-        stmt.typecheck(local)
+        stmt.typecheck(localContext)
 
     return ast.MainClassDecl
 
@@ -139,17 +158,17 @@ def typecheck(self, context):
 @typechecks(ast.MethodDecl)
 def typecheck(self, context):
     *stmts, expr = self.children
-    local = LocalContext(context)
+    methodContext = MethodContext(context)
 
     for formal in self.formallist:
-        #FIXME declareFormal?
-        local.declareVar(formal.typename, formal.ID)
+        methodContext.declareFormal(formal.typename, formal.ID)
 
+    localContext = LocalContext(methodContext)
     for stmt in stmts:
-        stmt.typecheck(local)
+        stmt.typecheck(localContext)
 
     retType = context.lookupMethod(self.ID, self.types)
-    if expr.typecheck(local) != retType:
+    if expr.typecheck(localContext) != retType:
         raise TypecheckException("Invalid return type")
 
     return ast.MethodDecl
