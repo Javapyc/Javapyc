@@ -359,7 +359,7 @@ def typecheck(self, context):
 
 @typechecks(ast.This)
 def typecheck(self, context):
-    return ObjectType(self.classContext.name)
+    return ast.ObjectType(context.classContext.name)
 
 @typechecks(ast.ID)
 def typecheck(self, context):
