@@ -86,10 +86,22 @@ def codegen(self, c):
 def codegen(self, c):
     cond, ifstmt, elsestmt = self.children
     cond.codegen(c)
-    c.POP_JUMP_IF_FALSE(603) # dummy value that will be recognizable
+
+    jumpLoc = len(c.co_code) # binary array
+    print(jumpLoc)
+    c.POP_JUMP_IF_FALSE(0) # dummy value. Set to beginning of else block
+
     ifstmt.codegen(c)
-    c.JUMP_FORWARD(0) # to get past the elsestmt (dummy again)
+
+    endOfIf = len(c.co_code)
+    c.JUMP_FORWARD(0) # dummy: jump to end of else block
+
+    print(len(c.co_code))
+    c.co_code[jumpLoc+1] = len(c.co_code)
     elsestmt.codegen(c)
+
+    c.co_code[endOfIf+1] = len(c.co_code) - endOfIf - 3
+    
 
 #TODO: While
 
