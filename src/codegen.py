@@ -34,6 +34,19 @@ def codegen(self, c):
     for stmt in stmts:
         stmt.codegen(c)
 
+#TODO: ClassDecl
+#TODO: MethodDecl
+#TODO: Type
+#TODO: MethodCall
+#TODO: Stmtlist
+
+@codegens(ast.StmtList)
+def codegen(self, c):
+    stmts = self.children
+    for s in stmts:
+        s.codegen(c)
+
+
 @codegens(ast.Decl)
 def codegen(self, c):
     #TODO handle bool and custom types
@@ -68,6 +81,17 @@ def codegen(self, c):
     c.LOAD_CONST('')
     c.CALL_FUNCTION(1, 1)
     c.POP_TOP()
+
+@codegens(ast.If)
+def codegen(self, c):
+    cond, ifstmt, elsestmt = self.children
+    cond.codegen(c)
+    c.POP_JUMP_IF_FALSE(603) # dummy value that will be recognizable
+    ifstmt.codegen(c)
+    c.JUMP_FORWARD(0) # to get past the elsestmt (dummy again)
+    elsestmt.codegen(c)
+
+#TODO: While
 
 @codegens(ast.Or)
 def codegen(self, c):
@@ -149,13 +173,6 @@ def codegen(self, c):
     self.right.codegen(c)
     c.BINARY_FLOOR_DIVIDE()
 
-@codegens(ast.Pow)
-def codegen(self, c):
-    a, b = self.children
-    a.codegen(c)
-    b.codegen(c)
-    c.BINARY_POWER()
-
 @codegens(ast.Negate)
 def codegen(self, c):
     (expr,) = self.children
@@ -168,18 +185,31 @@ def codegen(self, c):
     expr.codegen(c)
     c.UNARY_NOT()
 
-@codegens(ast.ID)
-def codegen(self, c):
-    c.LOAD_FAST(self.name)
+#TODO: NewInstance
 
-@codegens(ast.Integer)
 @codegens(ast.Boolean)
+@codegens(ast.Integer)
 def codegen(self, c):
     c.LOAD_CONST(self.value())
 
 @codegens(ast.Null)
 def codegen(self, c):
     c.LOAD_CONST(None)
+
+#TODO: This
+
+@codegens(ast.ID)
+def codegen(self, c):
+    c.LOAD_FAST(self.name)
+
+@codegens(ast.Pow)
+def codegen(self, c):
+    a, b = self.children
+    a.codegen(c)
+    b.codegen(c)
+    c.BINARY_POWER()
+
+#TODO: Call
 
 def wrapModule(path, code):
     c = CodeGen(path, 'module')
@@ -204,11 +234,12 @@ def wrapModule(path, code):
 
     return c
 
-def codegen(path, tree):
+def codegen(path, tree, dumpbin = False):
     c = CodeGen(path, 'main')
     #actual generated code will go here
     c.setLine(1)
     tree.codegen(c)
+
 
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
@@ -222,6 +253,11 @@ def codegen(path, tree):
         fout.write(struct.pack('I', int(time.time())))
         #code object
         marshal.dump(co, fout)
+
+    if dumpbin:
+        import dis
+        dis.disco(c)
+
 
 def main():
     argParser = argparse.ArgumentParser(description='compile some MiniJava')
@@ -250,6 +286,8 @@ def main():
         codegen('testmod.pyc', tree)
 
     import testmod
+    import dis
+    dis.dis(testmod.main)
 
 if __name__ == '__main__':
     main()

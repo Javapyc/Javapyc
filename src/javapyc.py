@@ -16,6 +16,7 @@ def getArguments():
     parser.add_argument('--out-file', '-o', type=str, default='a')
     parser.add_argument('--verbose', '-v', action='count')
     parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
+    parser.add_argument('--dump-binary', '-d', action='store_true', help='dump codegen binary')
     parser.add_argument('files', nargs='+', type=InputFile)
     return parser.parse_args()
 
@@ -32,6 +33,8 @@ def main():
 
     outfile = args.out_file + '.pyc'
     verbose = args.verbose
+
+    dumpbin =  args.dump_binary
 
     for inputFile in args.files:
         with inputFile as f:
@@ -76,7 +79,7 @@ def main():
                 break
             
             #Generate Code
-            codegen.codegen(outfile, tree)
+            codegen.codegen(outfile, tree, dumpbin)
             if args.phase == 'codegen':
                 break
 

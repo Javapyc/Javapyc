@@ -27,6 +27,7 @@ class ProgramGrammar:
 class MainClassDeclGrammar:
     def p_mainclass(self, args):
         r'mainclass ::= class ID { public static void main ( String [ ] ID ) { stmtlist } }'
+        # args[1] is ID, args[11] is ID, args[14] is stmtlist
         return ast.MainClassDecl(args[1].val, args[11].val, args[14])
 
 class ClassDeclGrammar:

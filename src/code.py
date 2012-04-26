@@ -321,10 +321,16 @@ class CodeGen:
         self.write(Ops.BINARY_MODULO)
         self.popStack(2)
         self.pushStack(1)
+
+    def JUMP_FORWARD(self, bytes):
+        self.write(Ops.JUMP_FORWARD, bytes)
+        #self.popStack(1)
+        #self.pushStack(1)
     
-    #def POP_JUMP_IF_FALSE(self):
-    #    self.write(Ops.POP_JUMP_IF_FALSE, 0)
-    #    self.popStack(1)
+    def POP_JUMP_IF_FALSE(self, target):
+        self.write(Ops.POP_JUMP_IF_FALSE, target)
+        #self.popStack(1)
+        
 
     def popStack(self, n=1):
         self._stacksize -= n
