@@ -329,7 +329,7 @@ class CodeGen:
     
     def POP_JUMP_IF_FALSE(self, target):
         self.write(Ops.POP_JUMP_IF_FALSE, target)
-        #self.popStack(1)
+        self.popStack(1)
 
     def JUMP_ABSOLUTE(self, target):
         self.write(Ops.JUMP_ABSOLUTE, target)
