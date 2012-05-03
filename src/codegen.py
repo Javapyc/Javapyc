@@ -314,7 +314,9 @@ def codegen(self, c):
 def codegen(self, c):
     c.LOAD_CONST(None)
 
-#TODO: This
+@codegens(ast.This)
+def codegen(self, c):
+    c.LOAD_FAST('self')
 
 @codegens(ast.ID)
 def codegen(self, c):
