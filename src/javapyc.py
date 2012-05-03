@@ -85,7 +85,8 @@ def main():
 
             if args.phase == 'run':
                 import importlib
-                importlib.import_module(args.out_file)
+                mod = importlib.import_module(args.out_file)
+                mod.main()
 
 if __name__ == '__main__':
     main()

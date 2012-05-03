@@ -272,13 +272,13 @@ def wrapModule(path, code):
     c.LOAD_NAME('__name__')
     c.LOAD_CONST('__main__')
     c.COMPARE_OP(CmpOp.EQUAL)
-    #c.POP_JUMP_IF_FALSE()
-    c.POP_TOP()
+    dest = c.POP_JUMP_IF_FALSE()
     c.LOAD_NAME('main')
     c.CALL_FUNCTION()
     c.POP_TOP()
 
     #module return
+    dest()
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
 
