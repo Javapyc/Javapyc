@@ -267,6 +267,11 @@ class CodeGen:
         self.write(Ops.LOAD_ATTR, index)
         self.popStack()
         self.pushStack()
+    
+    def STORE_ATTR(self, name):
+        index = self.getName(name)
+        self.write(Ops.STORE_ATTR, index)
+        self.popStack(2)
 
     def STORE_NAME(self, value):
         index = self.getName(value)

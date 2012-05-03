@@ -103,6 +103,7 @@ class LocalContext:
 def typecheck(self, context):
     mainclass, *classes = self.children
 
+    self.context = context
     for cls in classes:
         methods = cls.children
         
@@ -139,6 +140,7 @@ def typecheck(self, context):
     stmts = self.children
     methodContext = MethodContext(context)
     methodContext.declareFormal('String[]', self.argvName)
+    self.context = methodContext
 
     localContext = LocalContext(methodContext) 
     for stmt in stmts:
@@ -159,6 +161,7 @@ def typecheck(self, context):
 def typecheck(self, context):
     *stmts, expr = self.children
     methodContext = MethodContext(context)
+    self.context = methodContext
 
     for formal in self.formallist:
         methodContext.declareFormal(formal.typename, formal.ID)

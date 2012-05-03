@@ -35,6 +35,7 @@ def codegen(self, c):
 
     #make main function
     main = CodeGen(c.filename, 'main')
+    main.context = mainclass.context
     main.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
     mainclass.codegen(main)
     c.LOAD_CONST(main)
@@ -79,10 +80,38 @@ def codegen(self, c):
     cls.LOAD_NAME('__name__')
     cls.STORE_NAME('__module__')
 
-    #TODO build constructor that initializes fields to initial values
+    #define constructor to initialize class variables
+    init = CodeGen(cls.filename, '__init__')
+    init.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
+    init.argcount = 1
+    init.varnames = ['self']
+    if self.parent:
+        init.LOAD_GLOBAL(self.parent)
+        init.LOAD_ATTR('__init__')
+        init.LOAD_FAST('self')
+        init.CALL_FUNCTION(1)
+        init.POP_TOP()
 
+    for var in self.classvars:
+        vartype = var.typename
+        if vartype == ast.IntType:
+            init.LOAD_CONST(0)
+        elif vartype == ast.BoolType:
+            init.LOAD_CONST(False)
+        else:
+            init.LOAD_CONST(None)
+        init.LOAD_FAST('self')
+        init.STORE_ATTR(var.ID)
+    init.LOAD_CONST(None)
+    init.RETURN_VALUE()
+    cls.LOAD_CONST(init)
+    cls.MAKE_FUNCTION()
+    cls.STORE_NAME('__init__')
+
+    #generate methods
     for method in self.children:
         func = CodeGen(cls.filename, method.ID)
+        func.context = method.context
         func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
         func.argcount = len(method.formallist) + 1
         func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
@@ -98,8 +127,11 @@ def codegen(self, c):
     c.MAKE_FUNCTION()
 
     c.LOAD_CONST(self.name)
-    #TODO parent class
-    c.CALL_FUNCTION(2)
+    if self.parent:
+        c.LOAD_GLOBAL(self.parent)
+        c.CALL_FUNCTION(3)
+    else:
+        c.CALL_FUNCTION(2)
     c.STORE_NAME(self.name)
 
 @codegens(ast.MethodDecl)
@@ -118,26 +150,39 @@ def codegen(self, c):
     call.codegen(c)
     c.POP_TOP()
 
-#TODO: Stmtlist
-
 @codegens(ast.StmtList)
 def codegen(self, c):
     stmts = self.children
     for s in stmts:
         s.codegen(c)
 
-
 @codegens(ast.Decl)
 def codegen(self, c):
     (expr,) = self.children
     expr.codegen(c)
-    c.STORE_FAST(self.name)
+    
+    context = c.context
+    classContext = context.classContext
+    typename = classContext.varType(self.name)
+    if typename:
+        c.LOAD_FAST('self')
+        c.STORE_ATTR(self.name)
+    else:
+        c.STORE_FAST(self.name)
 
 @codegens(ast.Assignment)
 def codegen(self, c):
     (expr,) = self.children
     expr.codegen(c)
-    c.STORE_FAST(self.name)
+    
+    context = c.context
+    classContext = context.classContext
+    typename = classContext.varType(self.name)
+    if typename:
+        c.LOAD_FAST('self')
+        c.STORE_ATTR(self.name)
+    else:
+        c.STORE_FAST(self.name)
 
 @codegens(ast.Print)
 def codegen(self, c):
@@ -320,7 +365,14 @@ def codegen(self, c):
 
 @codegens(ast.ID)
 def codegen(self, c):
-    c.LOAD_FAST(self.name)
+    context = c.context
+    classContext = context.classContext
+    typename = classContext.varType(self.name)
+    if typename:
+        c.LOAD_FAST('self')
+        c.LOAD_ATTR(self.name)
+    else:
+        c.LOAD_FAST(self.name)
 
 @codegens(ast.Pow)
 def codegen(self, c):
