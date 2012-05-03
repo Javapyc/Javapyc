@@ -12,7 +12,7 @@ def getArguments():
     parser.add_argument('--out-file', '-o', type=str, default='a')
     parser.add_argument('--verbose', '-v', action='count')
     parser.add_argument('--no-fastgen', '-s', action='store_true', help='disable fast executing code generation')
-    parser.add_argument('--pedantic', '-x', action='store_true', help='disable all language enhancements (implies --no-fastgen)')
+    parser.add_argument('--pedantic', '-x', action='store_true', help='disable all language enhancements')
     parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
     parser.add_argument('--dump-binary', '-d', action='store_true', help='dump codegen binary')
     parser.add_argument('files', nargs='+', type=InputFile)
@@ -36,8 +36,8 @@ def main():
 
     if args.pedantic:
         settings.MODE_PEDANTIC = True
-        settings.MODE_FASTGEN = False
-    elif args.no_fastgen:
+
+    if args.no_fastgen:
         settings.MODE_FASTGEN = False
 
     import lexer

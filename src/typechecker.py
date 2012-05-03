@@ -1,5 +1,6 @@
 
 import ast
+import settings
 
 def injectTypecheck():
     def typecheck(self, *args):
@@ -192,6 +193,8 @@ def typecheck(self, context):
 
 @typechecks(ast.MethodCall)
 def typecheck(self, context):
+    settings.requireExtended();
+
     (call,) = self.children
 
     call.typecheck(context)
@@ -255,6 +258,8 @@ def typecheck(self, context):
 
 @typechecks(ast.Printf)
 def typecheck(self, context):
+    settings.requireExtended();
+
     args = self.children
     for arg in args:
         arg.typecheck(context)
@@ -402,6 +407,8 @@ def typecheck(self, context):
 
 @typechecks(ast.Pow)
 def typecheck(self, context):
+    settings.requireExtended();
+
     a, b = self.children
     if a.typecheck(context) != ast.IntType or b.typecheck(context) != ast.IntType:
         raise TypecheckException("Arguments to Math.pow must be integers, are {0}, {1}".format(a, b))
