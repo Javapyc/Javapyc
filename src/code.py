@@ -165,6 +165,10 @@ class CodeGen:
         self._lineno = None
         self._codeofs = 0
 
+    @property
+    def filename(self):
+        return self.co_filename
+
     def code(self):
         co_consts = list(self.co_consts)
         for i, const in enumerate(co_consts):
