@@ -70,12 +70,12 @@ def main():
             
             #Optimization
             if args.phase == 'optimize':
-                parser.dump(tree)
+                parser.dump(tree, sys.stdout)
                 print()
             if args.optimize:
                 tree.optimize()
             if args.phase == 'optimize':
-                parser.dump(tree)
+                parser.dump(tree, sys.stdout)
                 break
             
             #Generate Code
