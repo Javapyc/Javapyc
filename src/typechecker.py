@@ -22,7 +22,7 @@ class MethodPrototype:
         self.name = name
         self.params = params
     def __eq__(self, o):
-        return self.name == o.name and o.params == o.params
+        return self.name == o.name and self.params == o.params
     def __hash__(self):
         return hash(self.name) + 683 * hash(self.params)
 
@@ -45,7 +45,17 @@ class ClassContext:
     def varType(self, name):
         return self.variables.get(name, None)
     def lookupMethod(self, name, argTypes):
-        res = self.methods.get(MethodPrototype(name, argTypes), None)
+        def findMethod():
+            for method in self.methods:
+                if name != method.name:
+                    continue
+                for p1, p2 in zip(method.params, argTypes):
+                    if not isCompatible(self.program, p1, p2):
+                        continue
+                return method
+            return None
+
+        res = self.methods.get(findMethod(), None)
         if not res and self.parent:
             return self.parent.lookupMethod(name, argTypes)
         return res
