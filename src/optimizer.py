@@ -121,3 +121,22 @@ def optimize(self):
         return ast.Integer(not expr.value())
     return self
 
+
+@optimizes(ast.If)
+def optimie(self):
+	(cond, ifstmt, elsestmt) = self.children
+	if isinstance(cond, ast.Boolean):
+		if cond.val:
+			return ifstmt
+		else:
+			return elsestmt
+	return self
+
+@optimizes(ast.While)
+def optimize(self):
+	(cond, stmt) = self.children
+	if isinstance(cond, ast.Boolean) and not cond.val:
+		return ast.StmtList(tuple())
+	return self
+
+
