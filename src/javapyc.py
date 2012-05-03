@@ -1,10 +1,6 @@
 #!/usr/bin/python
 
-import lexer
-import parser
-import typechecker
-import optimizer
-import codegen
+import settings
 
 from fileutils import InputFile
 import argparse
@@ -15,6 +11,8 @@ def getArguments():
     parser.add_argument('--phase', '-p', choices=('lex', 'parse', 'typecheck', 'optimize', 'codegen', 'run'), default='run')
     parser.add_argument('--out-file', '-o', type=str, default='a')
     parser.add_argument('--verbose', '-v', action='count')
+    parser.add_argument('--no-fastgen', '-s', action='store_true', help='disable fast executing code generation')
+    parser.add_argument('--pedantic', '-x', action='store_true', help='disable all language enhancements (implies --no-fastgen)')
     parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
     parser.add_argument('--dump-binary', '-d', action='store_true', help='dump codegen binary')
     parser.add_argument('files', nargs='+', type=InputFile)
@@ -34,7 +32,19 @@ def main():
     outfile = args.out_file + '.pyc'
     verbose = args.verbose
 
-    dumpbin =  args.dump_binary
+    dumpbin = args.dump_binary
+
+    if args.pedantic:
+        settings.MODE_PEDANTIC = True
+        settings.MODE_FASTGEN = False
+    elif args.no_fastgen:
+        settings.MODE_FASTGEN = False
+
+    import lexer
+    import parser
+    import typechecker
+    import optimizer
+    import codegen
 
     for inputFile in args.files:
         with inputFile as f:
