@@ -6,9 +6,9 @@ class Program {
 
 		Base b = new Bob();
 
-		b = new Bob();
-
         Bob t = new Bob();
+
+        System.out.println(t.add5(4));
 
         int res = 89;
         
@@ -32,7 +32,6 @@ class Program {
 
 class Base {
 
-    boolean classvar;
     boolean classvar;
 
 	public int add(int a, int b) {

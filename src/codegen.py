@@ -231,7 +231,11 @@ def codegen(self, c):
     expr.codegen(c)
     c.UNARY_NOT()
 
-#TODO: NewInstance
+#FIXME: NewInstance
+@codegens(ast.NewInstance)
+def codegen(self, c):
+    #s.LOAD_GLOBAL(self.name)
+    c.LOAD_NAME(self.name)
 
 @codegens(ast.Boolean)
 @codegens(ast.Integer)
@@ -255,7 +259,18 @@ def codegen(self, c):
     b.codegen(c)
     c.BINARY_POWER()
 
-#TODO: Call
+#FIXME: Call
+@codegens(ast.Call)
+def codegen(self, c):
+    obj, args = self.children
+    func = self.func
+    c.LOAD_FAST(obj)
+    print(func)
+    c.LOAD_ATTR(func)
+
+    #for arg in args:
+    args.codegen(c)
+
 
 def wrapModule(path, code):
     c = CodeGen(path, 'module')

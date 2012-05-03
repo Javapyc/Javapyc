@@ -334,6 +334,13 @@ class CodeGen:
     def JUMP_ABSOLUTE(self, target):
         self.write(Ops.JUMP_ABSOLUTE, target)
 
+    # FIXME
+    def LOAD_ATTR(self, name):
+        index = self.getName(name)
+        self.write(Ops.LOAD_ATTR, index)
+        self.popStack(1)
+        self.pushStack(1)
+
     def popStack(self, n=1):
         self._stacksize -= n
         if self._stacksize < 0:
