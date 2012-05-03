@@ -307,37 +307,3 @@ def codegen(path, tree, dumpbin = False):
         import dis
         dis.disco(module)
 
-
-def main():
-    argParser = argparse.ArgumentParser(description='compile some MiniJava')
-    argParser.add_argument('inputFile', nargs='?', type=InputFile)
-    args = argParser.parse_args()
-    if not args:
-        return
-
-    inputFile = args.inputFile
-    if not inputFile:
-        inputFile = sys.stdin
-
-    import lexer
-    import parser
-
-    with inputFile as f:
-        s = f.read()
-        scanner = lexer.MiniJavaScanner()
-        tokens = scanner.tokenize(s)
-
-        programParser = parser.ProgramParser()
-        tree = programParser.parse(tokens)
-
-        parser.dump(tree)
-
-        codegen('testmod.pyc', tree)
-
-    import testmod
-    import dis
-    dis.dis(testmod.main)
-
-if __name__ == '__main__':
-    main()
-
