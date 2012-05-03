@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from code import CodeGen, CmpOp
+from code import CodeGen, CmpOp, Flags
 import ast
 import typechecker
 
@@ -29,10 +29,13 @@ def codegen(self, c):
     
     c.setLine(1)
     
-    #TODO codegen classes
+    #codegen classes
+    for cls in classes:
+        cls.codegen(c)
 
     #make main function
     main = CodeGen(c.filename, 'main')
+    main.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
     mainclass.codegen(main)
     c.LOAD_CONST(main)
     c.MAKE_FUNCTION()
@@ -63,8 +66,51 @@ def codegen(self, c):
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
 
-#TODO: ClassDecl
-#TODO: MethodDecl
+@codegens(ast.ClassDecl)
+def codegen(self, c):
+    c.LOAD_BUILD_CLASS()
+
+    cls = CodeGen(c.filename, self.name)
+    cls.setFlags(Flags.NEWLOCALS)
+    cls.argcount = 1
+    cls.setLine(1)
+    cls.LOAD_FAST('__locals__')
+    cls.STORE_LOCALS()
+    cls.LOAD_NAME('__name__')
+    cls.STORE_NAME('__module__')
+
+    #TODO build constructor that initializes fields to initial values
+
+    for method in self.children:
+        func = CodeGen(cls.filename, method.ID)
+        func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
+        func.argcount = len(method.formallist) + 1
+        func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
+        method.codegen(func)
+        cls.LOAD_CONST(func)
+        cls.MAKE_FUNCTION()
+        cls.STORE_NAME(method.ID)
+
+    cls.LOAD_CONST(None)
+    cls.RETURN_VALUE()
+
+    c.LOAD_CONST(cls)
+    c.MAKE_FUNCTION()
+
+    c.LOAD_CONST(self.name)
+    #TODO parent class
+    c.CALL_FUNCTION(2)
+    c.STORE_NAME(self.name)
+
+@codegens(ast.MethodDecl)
+def codegen(self, c):
+    c.setLine(1)
+    *stmts, expr = self.children
+    for stmt in stmts:
+        stmt.codegen(c)
+    expr.codegen(c)
+    c.RETURN_VALUE()
+
 #TODO: Type
 #TODO: MethodCall
 #TODO: Stmtlist
@@ -92,7 +138,7 @@ def codegen(self, c):
 @codegens(ast.Print)
 def codegen(self, c):
     (expr,) = self.children
-    c.LOAD_NAME('print')
+    c.LOAD_GLOBAL('print')
     expr.codegen(c)
     c.CALL_FUNCTION(1)
     c.POP_TOP()
@@ -100,12 +146,13 @@ def codegen(self, c):
 @codegens(ast.Printf)
 def codegen(self, c):
     args = self.children
-    c.LOAD_NAME('print')
+    c.LOAD_GLOBAL('print')
     c.LOAD_CONST(self.string)
-    for arg in args:
-        arg.codegen(c)
-    c.BUILD_TUPLE(len(args))
-    c.BINARY_MODULO()
+    if len(args):
+        for arg in args:
+            arg.codegen(c)
+        c.BUILD_TUPLE(len(args))
+        c.BINARY_MODULO()
     c.LOAD_CONST('end')
     c.LOAD_CONST('')
     c.CALL_FUNCTION(1, 1)
@@ -304,6 +351,34 @@ def codegen(path, tree, dumpbin = False):
         marshal.dump(co, fout)
 
     if dumpbin:
-        import dis
-        dis.disco(module)
+        dump(co)
 
+def dump(co, indent=0):
+    import dis
+    import types
+    def pprint(text, extra=0):
+        for i in range(indent+extra):
+            print('  ', end='')
+        print(text)
+    pprint("co_name:\t{0}".format(co.co_name))
+    for key in dir(co):
+        if not key.startswith('co_'):
+            continue
+        if key in ['co_name', 'co_code', 'co_lnotab']:
+            continue
+        elif key == 'co_consts':
+            pprint("{0}:".format(key))
+            for v in co.co_consts:
+                if type(v) == types.CodeType:
+                    pprint('- Code Object:')
+                    dump(v, indent+1)
+                else:
+                    pprint('- {0}'.format(v))
+        elif key == 'co_flags':
+            val = dis.pretty_flags(co.co_flags)
+            pprint("{0}:\t\t{1}".format(key, val))
+        else:
+            val = getattr(co, key)
+            pprint("{0}:\t{1}".format(key, val))
+    #doesn't obey indent level
+    dis.dis(co)

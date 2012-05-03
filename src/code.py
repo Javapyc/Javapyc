@@ -159,11 +159,30 @@ class CodeGen:
         self.co_firstlineno = 0
         self.co_name = name
         self.co_filename = filename
-        self.co_flags = Flags.OPTIMIZED | Flags.NOFREE
+        self.co_flags = Flags.NOFREE # | Flags.NEWLOCALS | Flags.OPTIMIZED 
         self.co_stacksize = 0
         self._stacksize = 0
         self._lineno = None
         self._codeofs = 0
+
+    def setFlags(self, flag):
+        self.co_flags |= flag
+
+    @property
+    def argcount(self):
+        return self.co_argcount
+
+    @argcount.setter
+    def argcount(self, count):
+        self.co_argcount = count
+    
+    @property
+    def varnames(self):
+        return self.co_varnames
+
+    @varnames.setter
+    def varnames(self, varnames):
+        self.co_varnames = list(varnames)
 
     @property
     def filename(self):
@@ -238,6 +257,11 @@ class CodeGen:
         self.write(Ops.LOAD_NAME, index)
         self.pushStack()
     
+    def LOAD_GLOBAL(self, value):
+        index = self.getName(value)
+        self.write(Ops.LOAD_GLOBAL, index)
+        self.pushStack()
+    
     def STORE_NAME(self, value):
         index = self.getName(value)
         self.write(Ops.STORE_NAME, index)
@@ -260,6 +284,14 @@ class CodeGen:
 
     def POP_TOP(self):
         self.write(Ops.POP_TOP)
+        self.popStack()
+    
+    def LOAD_BUILD_CLASS(self):
+        self.write(Ops.LOAD_BUILD_CLASS)
+        self.pushStack()
+    
+    def STORE_LOCALS(self):
+        self.write(Ops.STORE_LOCALS)
         self.popStack()
     
     def MAKE_FUNCTION(self, defaults=0):
