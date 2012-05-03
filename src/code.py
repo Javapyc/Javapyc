@@ -262,6 +262,12 @@ class CodeGen:
         self.write(Ops.LOAD_GLOBAL, index)
         self.pushStack()
     
+    def LOAD_ATTR(self, name):
+        index = self.getName(name)
+        self.write(Ops.LOAD_ATTR, index)
+        self.popStack()
+        self.pushStack()
+
     def STORE_NAME(self, value):
         index = self.getName(value)
         self.write(Ops.STORE_NAME, index)
@@ -396,13 +402,6 @@ class CodeGen:
 
     def marker(self):
         return len(self.co_code)
-
-    # FIXME
-    def LOAD_ATTR(self, name):
-        index = self.getName(name)
-        self.write(Ops.LOAD_ATTR, index)
-        self.popStack(1)
-        self.pushStack(1)
 
     def popStack(self, n=1):
         self._stacksize -= n

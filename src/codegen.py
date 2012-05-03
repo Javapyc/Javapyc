@@ -111,8 +111,13 @@ def codegen(self, c):
     expr.codegen(c)
     c.RETURN_VALUE()
 
-#TODO: Type
-#TODO: MethodCall
+@codegens(ast.MethodCall)
+def codegen(self, c):
+    (call,) = self.children
+
+    call.codegen(c)
+    c.POP_TOP()
+
 #TODO: Stmtlist
 
 @codegens(ast.StmtList)
@@ -124,7 +129,6 @@ def codegen(self, c):
 
 @codegens(ast.Decl)
 def codegen(self, c):
-    #TODO handle bool and custom types
     (expr,) = self.children
     expr.codegen(c)
     c.STORE_FAST(self.name)
@@ -296,11 +300,10 @@ def codegen(self, c):
     expr.codegen(c)
     c.UNARY_NOT()
 
-#FIXME: NewInstance
 @codegens(ast.NewInstance)
 def codegen(self, c):
-    #s.LOAD_GLOBAL(self.name)
-    c.LOAD_NAME(self.name)
+    c.LOAD_GLOBAL(self.name)
+    c.CALL_FUNCTION()
 
 @codegens(ast.Boolean)
 @codegens(ast.Integer)
@@ -324,18 +327,18 @@ def codegen(self, c):
     b.codegen(c)
     c.BINARY_POWER()
 
-#FIXME: Call
 @codegens(ast.Call)
 def codegen(self, c):
-    obj, args = self.children
+    obj, *args = self.children
     func = self.func
-    c.LOAD_FAST(obj)
-    print(func)
+
+    obj.codegen(c)
     c.LOAD_ATTR(func)
 
-    #for arg in args:
-    args.codegen(c)
+    for arg in args:
+        arg.codegen(c)
 
+    c.CALL_FUNCTION(len(args))
 
 def codegen(path, tree, dumpbin = False):
     module = CodeGen(path, '<module>')
@@ -382,3 +385,4 @@ def dump(co, indent=0):
             pprint("{0}:\t{1}".format(key, val))
     #doesn't obey indent level
     dis.dis(co)
+
