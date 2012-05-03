@@ -88,42 +88,35 @@ def codegen(self, c):
     cond.codegen(c)
 
     # binary array size coincides with binary location of instructions
-    jumpLoc = len(c.co_code) 
-    c.POP_JUMP_IF_FALSE(0) # dummy value. Will set to beginning of else block
+    jumpLoc = c.POP_JUMP_IF_FALSE()
 
     # Codegen the ifstmt
     ifstmt.codegen(c)
 
-    endOfIf = len(c.co_code)
-    c.JUMP_FORWARD(0) # dummy value: jump to end of else block
+    # Skip the else block
+    endOfIf = c.JUMP_FORWARD()
 
-    # Go back and set the first dummy value to the correct value
-    # Note: this is an absolute address
-    c.co_code[jumpLoc+1] = len(c.co_code)
+    # Mark the jump to the else block
+    jumpLoc()
 
     # Codegen the else stmt
     elsestmt.codegen(c)
 
-    # Go back and set the second dummy value to the correct value
-    # Note: this is a relative address, hence the -3 to account for off-by-one
-    # FIXME: the -3 might be a problem? Is it always -3?
-    c.co_code[endOfIf+1] = len(c.co_code) - endOfIf - 3 
+    # Mark the end of the if statement
+    endOfIf()
     
 @codegens(ast.While)
 def codegen(self, c):
     cond, stmt = self.children
 
     # Store the place to jump back to
-    beforeCond = len(c.co_code)
+    beforeCond = c.marker()
 
     # Codegen the condition
     cond.codegen(c)
 
-    # Store the index of the jump instruction
-    jumpLoc = len(c.co_code)
-
     # Write the jump instruction
-    c.POP_JUMP_IF_FALSE(0)
+    jumpLoc = c.POP_JUMP_IF_FALSE()
 
     # Codegen the stmt
     stmt.codegen(c)
@@ -131,12 +124,8 @@ def codegen(self, c):
     # Jump back to before the cond
     c.JUMP_ABSOLUTE(beforeCond)
 
-    # Go back and fix the target of the jump instruction
-    # Note: it is jumpLoc +1 because co_code[jumpLoc]
-    # actually refers to the opcode for the jump instruction.
-    # We want to change the target (which is next in the
-    # array), not the opcode. 
-    c.co_code[jumpLoc+1] = len(c.co_code)
+    # Mark the end of the while loop
+    jumpLoc()
 
 
 @codegens(ast.Or)

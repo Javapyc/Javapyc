@@ -322,17 +322,44 @@ class CodeGen:
         self.popStack(2)
         self.pushStack(1)
 
-    def JUMP_FORWARD(self, bytes):
-        self.write(Ops.JUMP_FORWARD, bytes)
-        #self.popStack(1)
-        #self.pushStack(1)
+    def JUMP_FORWARD(self):
+        pos = len(self.co_code)
+        self.write(Ops.JUMP_FORWARD, 0)
+        def mark():
+            '''Set the placeholder offset to the correct value'''
+            # Note: this is a relative address, hence the -3 to account for off-by-one
+            # FIXME: This assumes that there will be an instruction to jump to (NOP?)
+            self.co_code[pos+1] = len(self.co_code) - pos - 3
+        return mark
     
-    def POP_JUMP_IF_FALSE(self, target):
-        self.write(Ops.POP_JUMP_IF_FALSE, target)
+    def POP_JUMP_IF_FALSE(self):
+        pos = len(self.co_code)
+        self.write(Ops.POP_JUMP_IF_FALSE, 0)
         self.popStack(1)
+        def mark():
+            '''Set the placeholder destination to the correct value'''
+            # Go back and fix the target of the jump instruction
+            # Note: it is jumpLoc +1 because co_code[jumpLoc]
+            # actually refers to the opcode for the jump instruction.
+            # We want to change the target (which is next in the
+            # array), not the opcode. 
+            self.co_code[pos+1] = len(self.co_code)
+        return mark
 
-    def JUMP_ABSOLUTE(self, target):
-        self.write(Ops.JUMP_ABSOLUTE, target)
+    def JUMP_ABSOLUTE(self, target=None):
+        if target is not None:
+            self.write(Ops.JUMP_ABSOLUTE, target)
+        else:
+            pos = len(self.co_code)
+            self.write(Ops.JUMP_ABSOLUTE, 0)
+            def mark():
+                '''Set the placeholder destination to the correct value'''
+                self.co_code[pos+1] = len(self.co_code)
+            return mark
+
+
+    def marker(self):
+        return len(self.co_code)
 
     # FIXME
     def LOAD_ATTR(self, name):
