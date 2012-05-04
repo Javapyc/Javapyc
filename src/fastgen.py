@@ -195,23 +195,28 @@ def codegen(self, c):
 def codegen(self, c):
     cond, stmt = self.children
 
-    # Store the place to jump back to
-    beforeCond = c.marker()
+    #Start the loop
+    loop = c.SETUP_LOOP()
 
-    # Codegen the condition
+    #Condition
+    loopStart = c.marker()
     cond.codegen(c)
+    jumpEnd = c.POP_JUMP_IF_FALSE()
 
-    # Write the jump instruction
-    jumpLoc = c.POP_JUMP_IF_FALSE()
-
-    # Codegen the stmt
+    #Body
     stmt.codegen(c)
+    c.JUMP_ABSOLUTE(loopStart)
 
-    # Jump back to before the cond
-    c.JUMP_ABSOLUTE(beforeCond)
+    #Loop end
+    jumpEnd()
+    c.POP_BLOCK()
 
-    # Mark the end of the while loop
-    jumpLoc()
+    #Instruction position after loop
+    loop()
+
+@codegens(ast.Break)
+def codegen(self, c):
+    c.BREAK_LOOP()
 
 @codegens(ast.NewInstance)
 def codegen(self, c):

@@ -141,6 +141,9 @@ class StmtGrammar:
     def p_stmt_while(self, args):
         r'stmt ::= while ( expr ) stmt'
         return ast.While(args[2], args[4])
+    def p_stmt_break(self, args):
+        r'stmt ::= break ;'
+        return ast.Break()
 
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '

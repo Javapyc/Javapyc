@@ -368,6 +368,19 @@ class CodeGen:
         self.write(Ops.BINARY_MODULO)
         self.popStack(2)
         self.pushStack(1)
+    
+    def BREAK_LOOP(self):
+        self.write(Ops.BREAK_LOOP)
+
+    def POP_BLOCK(self):
+        self.write(Ops.POP_BLOCK)
+
+    def SETUP_LOOP(self):
+        pos = len(self.co_code)
+        self.write(Ops.SETUP_LOOP, 0)
+        def mark():
+            self.co_code[pos+1] = len(self.co_code) - pos - 3
+        return mark
 
     def JUMP_FORWARD(self):
         pos = len(self.co_code)
@@ -375,7 +388,6 @@ class CodeGen:
         def mark():
             '''Set the placeholder offset to the correct value'''
             # Note: this is a relative address, hence the -3 to account for off-by-one
-            # FIXME: This assumes that there will be an instruction to jump to (NOP?)
             self.co_code[pos+1] = len(self.co_code) - pos - 3
         return mark
     

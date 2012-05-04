@@ -149,6 +149,9 @@ class If(Stmt):
 class While(Stmt):
     def __init__(self, cond, stmt):
         AST.__init__(self, (cond, stmt))
+class Break(Stmt):
+    def __init__(self):
+        AST.__init__(self, tuple())
 
 class Expr(AST):
     pass

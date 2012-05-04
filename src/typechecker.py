@@ -65,12 +65,20 @@ class MethodContext:
     def __init__(self, classContext):
         self.classContext = classContext
         self.formals = {}
+        self.loopDepth = 0
     def declareFormal(self, typename, name):
         self.formals[name] = typename
     def formalType(self, name):
         if name not in self.formals:
             return None
         return self.formals[name]
+    def pushLoop(self):
+        self.loopDepth += 1
+    def popLoop(self):
+        self.loopDepth -= 1
+    @property
+    def inloop(self):
+        return self.loopDepth > 0
 
 class LocalContext:
     '''
@@ -310,14 +318,21 @@ def typecheck(self, context):
 def typecheck(self, context):
     cond, stmt = self.children
     
+    context.method.pushLoop()
     if cond.typecheck(context) != ast.BoolType:
         raise TypecheckException("Error with While: condition must be boolean")
 
     if stmt.typecheck(context) == ast.Decl:
         raise TypecheckException("Error with While: cannot have single declaration in while")
+    context.method.popLoop()
 
     return ast.While
 
+@typechecks(ast.Break)
+def typecheck(self, context):
+    settings.requireExtended();
+    if not context.method.inloop:
+        raise TypecheckException("Break outside of loop")
     
 @typechecks(ast.Or)
 @typechecks(ast.And)
