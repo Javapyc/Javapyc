@@ -239,6 +239,10 @@ class CodeGen:
             self.co_code.append(value & 0xFF)
             self.co_code.append((value>>8) & 0xFF)
 
+    def writeValue(self, pos, value):
+        self.co_code[pos] = value & 0xFF
+        self.co_code[pos+1] = (value>>8) & 0xFF
+
     def LOAD_CONST(self, value):
         def loadConst(index):
             self.write(Ops.LOAD_CONST, index)
@@ -388,7 +392,7 @@ class CodeGen:
         def mark():
             '''Set the placeholder offset to the correct value'''
             # Note: this is a relative address, hence the -3 to account for off-by-one
-            self.co_code[pos+1] = len(self.co_code) - pos - 3
+            self.writeValue(pos+1, len(self.co_code) - pos - 3)
         return mark
     
     def POP_JUMP_IF_FALSE(self):
@@ -402,7 +406,7 @@ class CodeGen:
             # actually refers to the opcode for the jump instruction.
             # We want to change the target (which is next in the
             # array), not the opcode. 
-            self.co_code[pos+1] = len(self.co_code)
+            self.writeValue(pos+1, len(self.co_code))
         return mark
 
     def JUMP_ABSOLUTE(self, target=None):
@@ -413,7 +417,7 @@ class CodeGen:
             self.write(Ops.JUMP_ABSOLUTE, 0)
             def mark():
                 '''Set the placeholder destination to the correct value'''
-                self.co_code[pos+1] = len(self.co_code)
+                self.writeValue(pos+1, len(self.co_code))
             return mark
 
 
