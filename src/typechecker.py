@@ -44,7 +44,10 @@ class ClassContext:
         self.parent = parent
         self.program = None
     def varType(self, name):
-        return self.variables.get(name, None)
+        res = self.variables.get(name, None)
+        if not res and self.parent:
+            return self.parent.varType(name)
+        return res
     def lookupMethod(self, name, argTypes):
         def findMethod():
             for method in self.methods:

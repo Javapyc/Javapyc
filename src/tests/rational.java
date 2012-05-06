@@ -57,8 +57,18 @@ class Rational extends Object {
 	 * @return true if a reduction was made; false otherwise
 	 */
 	public boolean reduce() {
-		//TODO implement reduce (not really)
-		return false;
+		int n = 2;
+		boolean reduced = false;
+		while (n < denominator) {
+			if ((numerator / n * n == numerator) &&
+			    (denominator / n * n == denominator)) {
+				numerator = numerator / n;
+				denominator = denominator / n;
+				reduced = true;
+			} else {}
+			n = n + 1;
+		}
+		return reduced;
 	}
 
 	public int getNumerator() {
