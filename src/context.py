@@ -77,6 +77,7 @@ class LocalContext:
         self.method = method
         self.parent = parent
         self.scope = {}
+        self.constantScope = {}
     @property
     def program(self):
         return self.method.classContext.program
@@ -98,6 +99,18 @@ class LocalContext:
         return res
     def declareVar(self, typename, name):
         self.scope[name] = typename
+
+    def declareConstVar(self, name, value):
+        # used in optimizer for constant propogation \ folding
+        self.constantScope[name] = value
+    def getConstVar(self, name):
+        value = self.constantScope.get(name, None)
+        # used in optimizer for constant propogation \ folding
+        if not value:
+            if self.parent:
+                return self.parent.getConstVar(name)
+        return value
+
     def lookupClass(self, name):
         return self.classContext.program.lookupClass(name)
     def enterInnerScope(self):
