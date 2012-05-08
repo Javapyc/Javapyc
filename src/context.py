@@ -104,3 +104,23 @@ class LocalContext:
         ''' Enter a new scope, using this scope as the parent '''
         return LocalContext(self.method, parent=self)
 
+def isCompatible(program, src, dest):
+    # if src is None, then return true
+    if src.isObject() and dest.isObject():
+        if dest.isNull():
+            return False
+        if src.isNull():
+            return True
+
+        src = program.lookupClass(src.name)
+        dest = program.lookupClass(dest.name)
+
+        while src:
+            if src == dest:
+                return True
+            src = src.parent
+        return False
+
+    else:
+        return src == dest
+

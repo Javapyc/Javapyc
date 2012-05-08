@@ -117,26 +117,6 @@ def typecheck(self, context):
 
     return ast.MethodCall
 
-def isCompatible(program, src, dest):
-    # if src is None, then return true
-    if src.isObject() and dest.isObject():
-        if dest.isNull():
-            return False
-        if src.isNull():
-            return True
-
-        src = program.lookupClass(src.name)
-        dest = program.lookupClass(dest.name)
-
-        while src:
-            if src == dest:
-                return True
-            src = src.parent
-        return False
-
-    else:
-        return src == dest
-
 @typechecks(ast.StmtList)
 def typecheck(self, context):
     stmts = self.children
