@@ -52,6 +52,29 @@ def codegen(self, c):
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
 
+@codegens(ast.StmtList)
+def codegen(self, c):
+    stmts = self.children
+
+    context = self.context
+    methodContext = context.method
+
+    #remember how many locals we had
+    nLocals = len(methodContext.localVars)
+
+    for s in stmts:
+        s.codegen(c)
+
+    #delete unneeded locals
+    c.LOAD_FAST('_locals')
+    c.LOAD_CONST(None)
+    c.LOAD_CONST(nLocals)
+    c.BUILD_SLICE()
+    c.BINARY_SUBSCR()
+    c.STORE_FAST('_locals')
+
+    methodContext.localVars = methodContext.localVars[:nLocals]
+
 @codegens(ast.Decl)
 def codegen(self, c):
     (expr,) = self.children

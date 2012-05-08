@@ -298,6 +298,12 @@ class CodeGen:
         self.write(Ops.STORE_FAST, index)
         self.popStack()
 
+    def BUILD_SLICE(self, step=False):
+        n = 3 if step else 2
+        self.write(Ops.BUILD_SLICE, n)
+        self.popStack(n)
+        self.pushStack()
+
     def BUILD_LIST(self, n=0):
         self.write(Ops.BUILD_LIST, n)
         self.popStack(n)
