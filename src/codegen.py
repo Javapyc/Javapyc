@@ -133,7 +133,7 @@ def codegen(self, c):
 def codegen(self, c):
     (expr,) = self.children
     expr.codegen(c)
-    c.UNARY_INVERT()
+    c.UNARY_NEGATIVE()
 
 @codegens(ast.Not)
 def codegen(self, c):

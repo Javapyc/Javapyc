@@ -12,12 +12,13 @@ def codegen(self, c):
     mainclass, *classes = self.children
     
     c.setLine(1)
+
+    #TODO other methods
     
-    #make the only function
-    main = CodeGen(c.filename, 'program')
+    #make main function
+    main = CodeGen(c.filename, 'main')
     main.context = mainclass.context
     main.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
-    #TODO other classes
     mainclass.codegen(main)
     c.LOAD_CONST(main)
     c.MAKE_FUNCTION()
@@ -40,11 +41,59 @@ def codegen(self, c):
 @codegens(ast.MainClassDecl)
 def codegen(self, c):
     stmts = self.children
+
+    c.varnames = ['_locals']
+    c.BUILD_LIST()
+    c.STORE_FAST('_locals')
+
     for stmt in stmts:
         stmt.codegen(c)
     
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
+
+@codegens(ast.Decl)
+def codegen(self, c):
+    (expr,) = self.children
+    
+    context = self.context
+    methodContext = context.method
+    classContext = context.classContext
+    vartype = classContext.varType(self.name)
+    #TODO fields
+
+    c.LOAD_FAST('_locals')
+    c.LOAD_ATTR('append')
+    expr.codegen(c)
+    c.CALL_FUNCTION(1)
+    methodContext.localVars.append(self.name)
+
+@codegens(ast.Assignment)
+def codegen(self, c):
+    (expr,) = self.children
+    
+    context = self.context
+    methodContext = context.method
+    classContext = context.classContext
+    typename = classContext.varType(self.name)
+    #TODO fields
+
+    expr.codegen(c)
+    c.LOAD_FAST('_locals')
+    c.LOAD_CONST(methodContext.localVars.index(self.name))
+    c.STORE_SUBSCR()
+
+@codegens(ast.ID)
+def codegen(self, c):
+    context = self.context
+    methodContext = context.method
+    classContext = context.classContext
+    typename = classContext.varType(self.name)
+    #TODO fields
+
+    c.LOAD_FAST('_locals')
+    c.LOAD_CONST(methodContext.localVars.index(self.name))
+    c.BINARY_SUBSCR()
 
 @codegens(ast.If)
 def codegen(self, c):

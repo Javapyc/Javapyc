@@ -19,7 +19,6 @@ def codegen(self, c):
 
     #make main function
     main = CodeGen(c.filename, 'main')
-    main.context = mainclass.context
     main.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
     mainclass.codegen(main)
     c.LOAD_CONST(main)
@@ -95,7 +94,6 @@ def codegen(self, c):
     #generate methods
     for method in self.children:
         func = CodeGen(cls.filename, method.ID)
-        func.context = method.context
         func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
         func.argcount = len(method.formallist) + 1
         func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
@@ -145,7 +143,7 @@ def codegen(self, c):
     (expr,) = self.children
     expr.codegen(c)
     
-    context = c.context
+    context = self.context
     classContext = context.classContext
     typename = classContext.varType(self.name)
     if typename:
@@ -159,7 +157,7 @@ def codegen(self, c):
     (expr,) = self.children
     expr.codegen(c)
     
-    context = c.context
+    context = self.context
     classContext = context.classContext
     typename = classContext.varType(self.name)
     if typename:
@@ -229,7 +227,7 @@ def codegen(self, c):
 
 @codegens(ast.ID)
 def codegen(self, c):
-    context = c.context
+    context = self.context
     classContext = context.classContext
     typename = classContext.varType(self.name)
     if typename:

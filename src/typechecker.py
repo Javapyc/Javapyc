@@ -3,8 +3,9 @@ import ast
 import settings
 
 def injectTypecheck():
-    def typecheck(self, *args):
-        self.nodeType = self._typecheck(*args)
+    def typecheck(self, context):
+        self.context = context
+        self.nodeType = self._typecheck(context)
         return self.nodeType
     setattr(ast.AST, 'typecheck', typecheck)
 injectTypecheck()
@@ -68,6 +69,7 @@ class MethodContext:
     def __init__(self, classContext):
         self.classContext = classContext
         self.formals = {}
+        self.localVars = []
         self.loopDepth = 0
     def declareFormal(self, typename, name):
         self.formals[name] = typename
@@ -125,7 +127,6 @@ class LocalContext:
 def typecheck(self, context):
     mainclass, *classes = self.children
 
-    self.context = context
     for cls in classes:
         methods = cls.children
         
@@ -236,6 +237,7 @@ def isCompatible(program, src, dest):
 def typecheck(self, context):
     stmts = self.children
     context = context.enterInnerScope()
+    self.context = context
 
     for stmt in stmts:
         stmt.typecheck(context)

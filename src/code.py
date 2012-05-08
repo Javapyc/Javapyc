@@ -256,6 +256,12 @@ class CodeGen:
         self.co_consts.append(value)
         loadConst(len(self.co_consts)-1)
 
+    def IMPORT_NAME(self, value):
+        index = self.getName(value)
+        self.write(Ops.IMPORT_NAME, index)
+        self.popStack(2)
+        self.pushStack()
+
     def LOAD_NAME(self, value):
         index = self.getName(value)
         self.write(Ops.LOAD_NAME, index)
@@ -291,8 +297,13 @@ class CodeGen:
         index = self.getFast(value)
         self.write(Ops.STORE_FAST, index)
         self.popStack()
-    
-    def BUILD_TUPLE(self, n=1):
+
+    def BUILD_LIST(self, n=0):
+        self.write(Ops.BUILD_LIST, n)
+        self.popStack(n)
+        self.pushStack()
+
+    def BUILD_TUPLE(self, n=0):
         self.write(Ops.BUILD_TUPLE, n)
         self.popStack(n)
         self.pushStack()
@@ -318,7 +329,7 @@ class CodeGen:
         self.write(Ops.CALL_FUNCTION)
         self.co_code.append(argc)
         self.co_code.append(kwargs)
-        self.popStack(argc+1)
+        self.popStack(1+argc+kwargs)
         self.pushStack()
 
     def RETURN_VALUE(self):
@@ -332,6 +343,11 @@ class CodeGen:
 
     def UNARY_INVERT(self):
         self.write(Ops.UNARY_INVERT)
+        self.popStack(1)
+        self.pushStack(1)
+    
+    def UNARY_NEGATIVE(self):
+        self.write(Ops.UNARY_NEGATIVE)
         self.popStack(1)
         self.pushStack(1)
 
@@ -372,6 +388,13 @@ class CodeGen:
         self.write(Ops.BINARY_MODULO)
         self.popStack(2)
         self.pushStack(1)
+    def BINARY_SUBSCR(self):
+        self.write(Ops.BINARY_SUBSCR)
+        self.popStack(2)
+        self.pushStack(1)
+    def STORE_SUBSCR(self):
+        self.write(Ops.STORE_SUBSCR)
+        self.popStack(2)
     
     def BREAK_LOOP(self):
         self.write(Ops.BREAK_LOOP)
