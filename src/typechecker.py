@@ -38,8 +38,9 @@ class ProgramContext:
         return self.classes.get(name, None)
 
 class ClassContext:
-    def __init__(self, name, variables, methods, parent=None):
+    def __init__(self, name, classvars, variables, methods, parent=None):
         self.name = name
+        self.classvars = classvars
         self.variables = variables
         self.methods = methods
         self.parent = parent
@@ -147,10 +148,10 @@ def typecheck(self, context):
             if not parentClass:
                 raise TypecheckException("'{0}' does not have a parent".format(cls))
         
-        classContext = ClassContext(cls.name, varMap, methodMap, parent=parentClass)
+        classContext = ClassContext(cls.name, cls.classvars, varMap, methodMap, parent=parentClass)
         context.registerClass(cls.name, classContext)
 
-    mainClassContext = ClassContext(mainclass.name, dict(), dict())
+    mainClassContext = ClassContext(mainclass.name, list(), dict(), dict())
     context.registerClass(mainclass.name, mainClassContext)
     mainclass.typecheck(mainClassContext)
 

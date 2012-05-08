@@ -118,6 +118,28 @@ def codegen(self, c):
     c.LOAD_CONST(methodContext.localVars.index(self.name))
     c.BINARY_SUBSCR()
 
+@codegens(ast.NewInstance)
+def codegen(self, c):
+    ''' Represent an instance with a list of the form:
+        [ classname, field1, field2, ...]
+    '''
+    context = self.context
+    program = context.program
+
+    classContext = program.lookupClass(self.name)
+
+    c.LOAD_CONST(self.name)
+    for field in classContext.classvars:
+        vartype = field.typename
+        if vartype == ast.IntType:
+            c.LOAD_CONST(0)
+        elif vartype == ast.BoolType:
+            c.LOAD_CONST(False)
+        else:
+            c.LOAD_CONST(None)
+
+    c.BUILD_LIST(1 + len(classContext.classvars))
+
 @codegens(ast.If)
 def codegen(self, c):
     cond, ifstmt, elsestmt = self.children
