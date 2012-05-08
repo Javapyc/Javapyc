@@ -34,21 +34,31 @@ def codegen(self, c):
     c.CALL_FUNCTION(1)
     c.POP_TOP()
 
-@codegens(ast.Printf)
+@codegens(ast.FormatString)
 def codegen(self, c):
     args = self.children
-    c.LOAD_GLOBAL('print')
     c.LOAD_CONST(self.string)
     if len(args):
         for arg in args:
-            arg.codegen(c)
+            if isinstance(arg.nodeType, ast.BaseObjectType):
+                arg.codegen(c)
+                c.LOAD_ATTR('__str__')
+                c.CALL_FUNCTION()
+            else:
+                arg.codegen(c)
         c.BUILD_TUPLE(len(args))
         c.BINARY_MODULO()
+
+@codegens(ast.Printf)
+def codegen(self, c):
+    (formatString,) = self.children
+    c.LOAD_GLOBAL('print')
+    formatString.codegen(c)
     c.LOAD_CONST('end')
     c.LOAD_CONST('')
     c.CALL_FUNCTION(1, 1)
     c.POP_TOP()
-    
+
 @codegens(ast.Or)
 def codegen(self, c):
     left, right = self.children
@@ -156,6 +166,11 @@ def codegen(self, c):
     a.codegen(c)
     b.codegen(c)
     c.BINARY_POWER()
+ 
+@codegens(ast.StringFormat)
+def codegen(self, c):
+    (formatString,) = self.children
+    formatString.codegen(c)
 
 def codegen(path, tree, dumpbin = False):
     module = CodeGen(path, '<module>')

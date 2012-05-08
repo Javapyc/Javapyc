@@ -92,15 +92,19 @@ def codegen(self, c):
     cls.STORE_NAME('__init__')
 
     #generate methods
-    for method in self.children:
-        func = CodeGen(cls.filename, method.ID)
+    def genMethod(method, methodname):
+        func = CodeGen(cls.filename, methodname)
         func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
         func.argcount = len(method.formallist) + 1
         func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
         method.codegen(func)
         cls.LOAD_CONST(func)
         cls.MAKE_FUNCTION()
-        cls.STORE_NAME(method.ID)
+        cls.STORE_NAME(methodname)
+    for method in self.children:
+        genMethod(method, method.ID)
+        if method.ID == 'toString':
+            genMethod(method, '__str__')
 
     cls.LOAD_CONST(None)
     cls.RETURN_VALUE()

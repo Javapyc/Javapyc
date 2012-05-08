@@ -90,6 +90,9 @@ class TypeGrammar:
     def p_type_boolean(self, args):
         r'type ::= boolean'
         return ast.BoolType
+    def p_type_string(self, args):
+        r'type ::= String'
+        return ast.StringType
     def p_type_object(self, args):
         r'type ::= ID'
         return ast.ObjectType(args[0].val)
@@ -111,29 +114,8 @@ class StmtGrammar:
         r'stmt ::= System.out.println ( expr ) ;'
         return ast.Print(args[2])
     def p_stmt_printf(self, args):
-        r'stmt ::= System.out.printf ( string printfarglist ) ;'
-        return ast.Printf(args[2], args[3])
-    def p_string_single(self, args):
-        r'string ::= StringLiteral'
-        return args[0].val
-    def p_string_list(self, args):
-        r'string ::= StringLiteral string'
-        return args[0].val + args[1]
-    def p_printfarglist_empty(self, args):
-        r'printfarglist ::= '
-        return tuple()
-    def p_printfarglist_args(self, args):
-        r'printfarglist ::= , printfargs'
-        return args[1]
-    def p_printfargs_empty(self, args):
-        r'printfargs ::= '
-        return tuple()
-    def p_printfargs_expr(self, args):
-        r'printfargs ::= expr'
-        return tuple(args)
-    def p_printfargs_exprs(self, args):
-        r'printfargs ::= expr , printfargs'
-        return (args[0],) + args[2]
+        r'stmt ::= System.out.printf ( formatstring ) ;'
+        return ast.Printf(args[2])
 
     def p_stmt_if(self, args):
         r'stmt ::= if ( expr ) stmt else stmt'
@@ -256,6 +238,9 @@ class ExprGrammar:
     def p_factor_pow(self, args):
         r'factor ::= Math.pow ( expr , expr )'
         return ast.Pow(args[2], args[4])
+    def p_factor_stringformat(self, args):
+        r'factor ::= String.format ( formatstring )'
+        return ast.StringFormat(args[2])
 
     def p_methodcall_call(self, args):
         r'methodcall ::= factor . ID ( paramlist )'
@@ -272,6 +257,31 @@ class ExprGrammar:
     def p_param_expr(self, args):
         r'param ::= expr'
         return args[0]
+    
+    def p_formatstring(self, args):
+        r'formatstring ::= string formatstringarglist '
+        return ast.FormatString(args[0], args[1])
+    def p_string_single(self, args):
+        r'string ::= StringLiteral'
+        return args[0].val
+    def p_string_list(self, args):
+        r'string ::= StringLiteral string'
+        return args[0].val + args[1]
+    def p_formatstringarglist_empty(self, args):
+        r'formatstringarglist ::= '
+        return tuple()
+    def p_formatstringarglist_args(self, args):
+        r'formatstringarglist ::= , formatstringargs'
+        return args[1]
+    def p_formatstringargs_empty(self, args):
+        r'formatstringargs ::= '
+        return tuple()
+    def p_formatstringargs_expr(self, args):
+        r'formatstringargs ::= expr'
+        return tuple(args)
+    def p_formatstringargs_exprs(self, args):
+        r'formatstringargs ::= expr , formatstringargs'
+        return (args[0],) + args[2]
 
     def typestring(self, token):
         return token.typename()

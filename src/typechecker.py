@@ -140,7 +140,11 @@ def typecheck(self, context):
         methodMap = {}
         for method in methods:
             method.types = tuple(map(lambda formal: formal.typename, method.formallist))
-            methodMap[MethodPrototype(method.ID, method.types)] = method.typename
+            for prototype in methodMap:
+                if method.ID == prototype.name:
+                    raise TypecheckException("Duplicate definition of method: {0}".format(method.ID))
+            key = MethodPrototype(method.ID, method.types)
+            methodMap[key] = method.typename
 
         parentClass = None
         if cls.parent:
@@ -197,6 +201,9 @@ def typecheck(self, context):
     retType = context.lookupMethod(self.ID, self.types)
     if expr.typecheck(localContext) != retType:
         raise TypecheckException("Invalid return type")
+
+    if self.ID == 'toString' and (retType != ast.StringType or len(self.formallist) != 0):
+        raise TypecheckException("toString must return String and accept 0 parameters")
 
     return ast.MethodDecl
 
@@ -274,34 +281,8 @@ def typecheck(self, context):
 def typecheck(self, context):
     settings.requireExtended();
 
-    args = self.children
-    for arg in args:
-        arg.typecheck(context)
-
-    def types(s):
-        ls = s.split("%")
-        if len(ls) == 1:
-            return
-        for sub in ls[1:]:
-            if len(sub) == 0:
-                raise TypecheckException()
-            c = sub[0]
-            if c == 'd':
-                yield ast.IntType
-            elif c == 'b':
-                yield ast.BoolType
-            else:
-                raise TypecheckException("Error with printf: format type does not match argument")
-    argTypes = list(types(self.string))
-
-    if len(argTypes) != len(args):
-        raise TypecheckException()
-
-    for arg, t in zip(args, argTypes):
-        if arg.nodeType != t:
-            raise TypecheckException("Printf problem")
-
-    self.string = self.string.replace('%b', '%s')
+    (formatString,) = self.children
+    formatString.typecheck(context)
 
     return ast.Printf
 
@@ -434,6 +415,52 @@ def typecheck(self, context):
     if a.typecheck(context) != ast.IntType or b.typecheck(context) != ast.IntType:
         raise TypecheckException("Arguments to Math.pow must be integers, are {0}, {1}".format(a, b))
     return a.nodeType
+
+@typechecks(ast.StringFormat)
+def typecheck(self, context):
+    settings.requireExtended();
+
+    (formatString,) = self.children
+    formatString.typecheck(context)
+
+    return ast.StringType
+
+@typechecks(ast.FormatString)
+def typecheck(self, context):
+    settings.requireExtended();
+
+    args = self.children
+    for arg in args:
+        arg.typecheck(context)
+
+    def types(s):
+        ls = s.split("%")
+        if len(ls) == 1:
+            return
+        for sub in ls[1:]:
+            if len(sub) == 0:
+                raise TypecheckException()
+            c = sub[0]
+            if c == 'd':
+                yield (ast.IntType, )
+            elif c == 'b':
+                yield (ast.BoolType, )
+            elif c == 's':
+                yield (ast.StringType, ast.BaseObjectType)
+            else:
+                raise TypecheckException("Format string: unknown format type")
+    argTypes = list(types(self.string))
+
+    if len(argTypes) != len(args):
+        raise TypecheckException()
+
+    for arg, t in zip(args, argTypes):
+        if (arg.nodeType not in t) and not (ast.BaseObjectType in t and isinstance(arg.nodeType, ast.BaseObjectType)):
+            raise TypecheckException("Format string: format type does not match argument")
+
+    self.string = self.string.replace('%b', '%s')
+
+    return ast.FormatString
 
 @typechecks(ast.Call)
 def typecheck(self, context):

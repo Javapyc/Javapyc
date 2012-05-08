@@ -78,6 +78,7 @@ class BasicType(Type):
         return "<{0}>".format(self.basicType.__name__)
 IntType = BasicType(int)
 BoolType = BasicType(bool)
+StringType = BasicType(str)
 class BaseObjectType(Type):
     def isObject(self):
         return True
@@ -85,7 +86,7 @@ class BaseObjectType(Type):
         return False
 class NullTypeClass(BaseObjectType):
     def __eq__(self, o):
-        return isinstance(o, NullType)
+        return isinstance(o, NullTypeClass)
     def __hash__(self):
         return hash(None)
     def __repr__(self):
@@ -132,17 +133,8 @@ class Print(Stmt):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
 class Printf(Stmt):
-    def __init__(self, string, args):
-        AST.__init__(self, tuple(args))
-        self.string = string
-        def escape(s):
-            s = s.replace('\n', '\\n')
-            s = s.replace('\\', '\\\\')
-            s = s.replace('\"', '\"')
-            return s
-        self.displaystring = escape(string)
-    def __repr__(self):
-        return "{0}({1})".format(self.classname(), str(self.displaystring))
+    def __init__(self, formatString):
+        AST.__init__(self, (formatString,))
 class If(Stmt):
     def __init__(self, cond, ifstmt, elsestmt):
         AST.__init__(self, (cond, ifstmt, elsestmt))
@@ -280,4 +272,21 @@ class Call(Factor):
         self.func = func
     def __repr__(self):
         return 'Call({0})'.format(self.func)
+class StringFormat(Factor):
+    def __init__(self, formatString):
+        AST.__init__(self, (formatString,))
+    def __repr__(self):
+        return 'Call({0})'.format(self.func)
+class FormatString(Factor):
+    def __init__(self, string, args):
+        AST.__init__(self, tuple(args))
+        self.string = string
+        def escape(s):
+            s = s.replace('\n', '\\n')
+            s = s.replace('\\', '\\\\')
+            s = s.replace('\"', '\"')
+            return s
+        self.displaystring = escape(string)
+    def __repr__(self):
+        return "{0}({1})".format(self.classname(), str(self.displaystring))
 
