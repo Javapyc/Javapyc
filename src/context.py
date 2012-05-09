@@ -84,18 +84,21 @@ class LocalContext:
     @property
     def classContext(self):
         return self.method.classContext
-    def varType(self, name):
-        ''' Determines the type of name, regardless of whether name is
-        a local variable, formal parameter, or class field'''
+    def localVarType(self, name):
+        '''Determines the type of a locally declared variable, or a formal parameter'''
         res = self.scope.get(name, None)
         if not res:
             if self.parent:
-                return self.parent.varType(name)
+                return self.parent.localVarType(name)
             else:
-                res = self.method.formalType(name)
-                if res:
-                    return res
-                return self.classContext.varType(name)
+                return self.method.formalType(name)
+        return res
+    def varType(self, name):
+        ''' Determines the type of name, regardless of whether name is
+        a local variable, formal parameter, or class field'''
+        res = self.localVarType(name)
+        if not res:
+            return self.classContext.varType(name)
         return res
     def declareVar(self, typename, name):
         self.scope[name] = typename

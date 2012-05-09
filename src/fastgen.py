@@ -148,13 +148,12 @@ def codegen(self, c):
     expr.codegen(c)
     
     context = self.context
-    classContext = context.classContext
-    typename = classContext.varType(self.name)
+    typename = context.localVarType(self.name)
     if typename:
+        c.STORE_FAST(self.name)
+    else:
         c.LOAD_FAST('self')
         c.STORE_ATTR(self.name)
-    else:
-        c.STORE_FAST(self.name)
 
 @codegens(ast.Assignment)
 def codegen(self, c):
@@ -162,13 +161,12 @@ def codegen(self, c):
     expr.codegen(c)
     
     context = self.context
-    classContext = context.classContext
-    typename = classContext.varType(self.name)
+    typename = context.localVarType(self.name)
     if typename:
+        c.STORE_FAST(self.name)
+    else:
         c.LOAD_FAST('self')
         c.STORE_ATTR(self.name)
-    else:
-        c.STORE_FAST(self.name)
 
 @codegens(ast.If)
 def codegen(self, c):
@@ -232,13 +230,12 @@ def codegen(self, c):
 @codegens(ast.ID)
 def codegen(self, c):
     context = self.context
-    classContext = context.classContext
-    typename = classContext.varType(self.name)
+    typename = context.localVarType(self.name)
     if typename:
+        c.LOAD_FAST(self.name)
+    else:
         c.LOAD_FAST('self')
         c.LOAD_ATTR(self.name)
-    else:
-        c.LOAD_FAST(self.name)
 
 @codegens(ast.Call)
 def codegen(self, c):

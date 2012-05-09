@@ -132,7 +132,7 @@ def typecheck(self, context):
     if not isCompatible(context.program, expr.typecheck(context), self.typename):
         raise TypecheckException("Cannot assign {0} to {1}".format(expr, self.typename))
     #ensure not already declared
-    if context.varType(self.name):
+    if context.localVarType(self.name):
         raise TypecheckException("Illegal redeclaration of variable '{0}'".format(self.name))
     #record the declaration
     context.declareVar(self.typename, self.name)
