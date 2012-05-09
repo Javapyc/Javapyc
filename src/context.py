@@ -35,6 +35,8 @@ class ClassContext:
             for method in self.methods:
                 if name != method.name:
                     continue
+                if len(method.params) != len(argTypes):
+                    continue
                 for p1, p2 in zip(method.params, argTypes):
                     if not isCompatible(self.program, p1, p2):
                         continue
