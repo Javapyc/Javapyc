@@ -13,7 +13,8 @@ def codegen(self, c):
     
     c.setLine(1)
 
-    #TODO other methods
+    for cls in classes:
+        cls.codegen(c)
     
     #make main function
     main = CodeGen(c.filename, 'main')
@@ -52,6 +53,37 @@ def codegen(self, c):
     c.LOAD_CONST(None)
     c.RETURN_VALUE()
 
+@codegens(ast.ClassDecl)
+def codegen(self, c):
+    for method in self.children:
+        methodname = '{0}__{1}'.format(self.name, method.ID)
+        func = CodeGen(c.filename, methodname)
+        func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
+        func.argcount = len(method.formallist) + 1
+        func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
+        method.codegen(func)
+        c.LOAD_CONST(func)
+        c.MAKE_FUNCTION()
+        c.STORE_NAME(methodname)
+
+@codegens(ast.MethodDecl)
+def codegen(self, c):
+    *stmts, expr = self.children
+
+    c.setLine(1)
+
+    c.varnames = ['self', '_locals'] + list(map(lambda formal: formal.ID, self.formallist))
+    for formal in self.formallist:
+        c.LOAD_FAST(formal.ID)
+    c.BUILD_LIST(len(self.formallist))
+    c.STORE_FAST('_locals')
+
+    for stmt in stmts:
+        stmt.codegen(c)
+    
+    expr.codegen(c)
+    c.RETURN_VALUE()
+
 @codegens(ast.StmtList)
 def codegen(self, c):
     stmts = self.children
@@ -83,7 +115,6 @@ def codegen(self, c):
     methodContext = context.method
     classContext = context.classContext
     vartype = classContext.varType(self.name)
-    #TODO fields
 
     c.LOAD_FAST('_locals')
     c.LOAD_ATTR('append')
@@ -99,12 +130,19 @@ def codegen(self, c):
     methodContext = context.method
     classContext = context.classContext
     typename = classContext.varType(self.name)
-    #TODO fields
-
-    expr.codegen(c)
-    c.LOAD_FAST('_locals')
-    c.LOAD_CONST(methodContext.localVars.index(self.name))
-    c.STORE_SUBSCR()
+    
+    if self.name in methodContext.localVars:
+        expr.codegen(c)
+        c.LOAD_FAST('_locals')
+        c.LOAD_CONST(methodContext.localVars.index(self.name))
+        c.STORE_SUBSCR()
+    else:
+        expr.codegen(c)
+        index = list(map(lambda var: var.ID, classContext.classvars)).index(self.name)
+        c.LOAD_FAST('self')
+        #TODO parent
+        c.LOAD_CONST(1 + index)
+        c.STORE_SUBSCR()
 
 @codegens(ast.ID)
 def codegen(self, c):
@@ -112,11 +150,17 @@ def codegen(self, c):
     methodContext = context.method
     classContext = context.classContext
     typename = classContext.varType(self.name)
-    #TODO fields
-
-    c.LOAD_FAST('_locals')
-    c.LOAD_CONST(methodContext.localVars.index(self.name))
-    c.BINARY_SUBSCR()
+    
+    if self.name in methodContext.localVars:
+        c.LOAD_FAST('_locals')
+        c.LOAD_CONST(methodContext.localVars.index(self.name))
+        c.BINARY_SUBSCR()
+    else:
+        index = list(map(lambda var: var.ID, classContext.classvars)).index(self.name)
+        c.LOAD_FAST('self')
+        #TODO parent
+        c.LOAD_CONST(1 + index)
+        c.BINARY_SUBSCR()
 
 @codegens(ast.NewInstance)
 def codegen(self, c):
