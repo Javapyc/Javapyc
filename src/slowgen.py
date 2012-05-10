@@ -1,6 +1,19 @@
 '''
 Code generation routines that generate more traditional
 for a compiler
+
+Object representation:
+An object is represented by a list, where the first element is the name of the class.
+The following elements are the fields of the class hierarchy, starting with the parent.
+
+For example, if a class A extends B, and A contains an int field and B contains a boolean field,
+an instance of A could be represented by ['A', False, 0].  An instance could be represented by
+['B', False].
+
+All instance methods accept a 'self' parameter and any named arguments that are passed.  A
+method stores all parameters and local variables in a list called '_locals', which is appended
+to as variables are declared and popped from as scopes are left.
+
 '''
 
 from codegen import codegens
