@@ -59,6 +59,13 @@ def codegen(self, c):
     c.CALL_FUNCTION(1, 1)
     c.POP_TOP()
 
+@codegens(ast.MethodCall)
+def codegen(self, c):
+    (call,) = self.children
+
+    call.codegen(c)
+    c.POP_TOP()
+
 @codegens(ast.Or)
 def codegen(self, c):
     left, right = self.children

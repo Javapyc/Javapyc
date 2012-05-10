@@ -129,13 +129,6 @@ def codegen(self, c):
     expr.codegen(c)
     c.RETURN_VALUE()
 
-@codegens(ast.MethodCall)
-def codegen(self, c):
-    (call,) = self.children
-
-    call.codegen(c)
-    c.POP_TOP()
-
 @codegens(ast.StmtList)
 def codegen(self, c):
     stmts = self.children

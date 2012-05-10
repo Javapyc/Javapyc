@@ -25,6 +25,12 @@ class ClassContext:
         self.methods = methods
         self.parent = parent
         self.program = None
+    @property
+    def fields(self):
+        ls = []
+        if self.parent:
+            ls = self.parent.fields
+        return ls + list(map(lambda var: var.ID, self.classvars))
     def varType(self, name):
         res = self.variables.get(name, None)
         if not res and self.parent:

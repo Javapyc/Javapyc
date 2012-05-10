@@ -97,6 +97,20 @@ def codegen(self, c):
     expr.codegen(c)
     c.RETURN_VALUE()
 
+@codegens(ast.Call)
+def codegen(self, c):
+    obj, *args = self.children
+    func = self.func
+
+    #TODO call method of actual object, cannot be done statically!
+    raise Exception('Call not implemented')
+
+    obj.codegen(c)
+    for arg in args:
+        arg.codegen(c)
+
+    c.CALL_FUNCTION(len(args)+1)
+
 @codegens(ast.StmtList)
 def codegen(self, c):
     stmts = self.children
@@ -151,9 +165,8 @@ def codegen(self, c):
         c.STORE_SUBSCR()
     else:
         expr.codegen(c)
-        index = list(map(lambda var: var.ID, classContext.classvars)).index(self.name)
+        index = classContext.fields.index(self.name)
         c.LOAD_FAST('self')
-        #TODO parent
         c.LOAD_CONST(1 + index)
         c.STORE_SUBSCR()
 
@@ -169,9 +182,8 @@ def codegen(self, c):
         c.LOAD_CONST(methodContext.localVars.index(self.name))
         c.BINARY_SUBSCR()
     else:
-        index = list(map(lambda var: var.ID, classContext.classvars)).index(self.name)
+        index = classContext.fields.index(self.name)
         c.LOAD_FAST('self')
-        #TODO parent
         c.LOAD_CONST(1 + index)
         c.BINARY_SUBSCR()
 
