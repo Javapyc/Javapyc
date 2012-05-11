@@ -189,10 +189,10 @@ class ExprGrammar:
         return args[0]
     
     def p_term_mult(self, args):
-        r'term ::= term * factor'
+        r'term ::= term * unaryfactor'
         return ast.Mult(args[0], args[2])
     def p_term_div(self, args):
-        r'term ::= term / factor'
+        r'term ::= term / unaryfactor'
         return ast.Div(args[0], args[2])
     def p_term_factor(self, args):
         r'term ::= unaryfactor'
