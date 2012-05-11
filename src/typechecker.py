@@ -211,7 +211,10 @@ def typecheck(self, context):
 @typechecks(ast.BinaryEqualExpr)
 def typecheck(self, context):
     left, right = self.children
-    if left.typecheck(context) != right.typecheck(context):
+    leftType = left.typecheck(context)
+    rightType = right.typecheck(context)
+    if (not isCompatible(context.program, leftType, rightType) and
+        not isCompatible(context.program, rightType, leftType)):
         raise TypecheckException("Types of left and right sides of == must agree")
     return ast.BoolType
 
