@@ -386,6 +386,10 @@ class CodeGen:
         self.write(Ops.BINARY_FLOOR_DIVIDE)
         self.popStack(2)
         self.pushStack(1)
+    def BINARY_TRUE_DIVIDE(self):
+        self.write(Ops.BINARY_TRUE_DIVIDE)
+        self.popStack(2)
+        self.pushStack(1)
     def BINARY_POWER(self):
         self.write(Ops.BINARY_POWER)
         self.popStack(2)

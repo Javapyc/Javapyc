@@ -148,9 +148,11 @@ def codegen(self, c):
 
 @codegens(ast.Div)
 def codegen(self, c):
+    c.LOAD_GLOBAL('int')
     self.left.codegen(c)
     self.right.codegen(c)
-    c.BINARY_FLOOR_DIVIDE()
+    c.BINARY_TRUE_DIVIDE()
+    c.CALL_FUNCTION(1)
 
 @codegens(ast.Negate)
 def codegen(self, c):
