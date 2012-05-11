@@ -84,7 +84,7 @@ def codegen(self, c):
         else:
             init.LOAD_CONST(None)
         init.LOAD_FAST('self')
-        init.STORE_ATTR(var.ID)
+        init.STORE_ATTR('_' + var.ID)
     init.LOAD_CONST(None)
     init.RETURN_VALUE()
     cls.LOAD_CONST(init)
@@ -142,11 +142,7 @@ def codegen(self, c):
     
     context = self.context
     typename = context.localVarType(self.name)
-    if typename:
-        c.STORE_FAST(self.name)
-    else:
-        c.LOAD_FAST('self')
-        c.STORE_ATTR(self.name)
+    c.STORE_FAST(self.name)
 
 @codegens(ast.Assignment)
 def codegen(self, c):
@@ -159,7 +155,7 @@ def codegen(self, c):
         c.STORE_FAST(self.name)
     else:
         c.LOAD_FAST('self')
-        c.STORE_ATTR(self.name)
+        c.STORE_ATTR('_' + self.name)
 
 @codegens(ast.If)
 def codegen(self, c):
@@ -228,7 +224,7 @@ def codegen(self, c):
         c.LOAD_FAST(self.name)
     else:
         c.LOAD_FAST('self')
-        c.LOAD_ATTR(self.name)
+        c.LOAD_ATTR('_' + self.name)
 
 @codegens(ast.Call)
 def codegen(self, c):
