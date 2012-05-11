@@ -424,6 +424,22 @@ class CodeGen:
             self.writeValue(pos+1, len(self.co_code) - pos - 3)
         return mark
     
+    def JUMP_IF_TRUE_OR_POP(self):
+        ''' Callers must manage parameter stack manually '''
+        pos = len(self.co_code)
+        self.write(Ops.JUMP_IF_TRUE_OR_POP, 0)
+        def mark():
+            self.writeValue(pos+1, len(self.co_code))
+        return mark
+    
+    def JUMP_IF_FALSE_OR_POP(self):
+        ''' Callers must manage parameter stack manually '''
+        pos = len(self.co_code)
+        self.write(Ops.JUMP_IF_FALSE_OR_POP, 0)
+        def mark():
+            self.writeValue(pos+1, len(self.co_code))
+        return mark
+    
     def POP_JUMP_IF_FALSE(self):
         pos = len(self.co_code)
         self.write(Ops.POP_JUMP_IF_FALSE, 0)

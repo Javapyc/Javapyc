@@ -68,17 +68,23 @@ def codegen(self, c):
 
 @codegens(ast.Or)
 def codegen(self, c):
+    ''' Handle short circuiting 'or' statements '''
     left, right = self.children
     left.codegen(c)
+    mark = c.JUMP_IF_TRUE_OR_POP()
     right.codegen(c)
-    c.BINARY_OR()
+    c.popStack(1)
+    mark()
 
 @codegens(ast.And)
 def codegen(self, c):
+    ''' Handle short circuiting 'and' statements '''
     left, right = self.children
     left.codegen(c)
+    mark = c.JUMP_IF_FALSE_OR_POP()
     right.codegen(c)
-    c.BINARY_AND()
+    c.popStack(1)
+    mark()
 
 @codegens(ast.Equal)
 def codegen(self, c):
