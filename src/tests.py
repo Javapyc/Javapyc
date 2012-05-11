@@ -95,16 +95,9 @@ class ParserTests(FileTest):
         p = 'tests/simple_parseerror.java'
         self.checkError(p)
 
-@staticinit
-class ParserTests(FileTest):
-
+class CodegenTests(FileTest):
     @classmethod
-    def setUpClass(cls):
-        subprocess.call(['rm', '-rf', 'testbins'])
-        subprocess.call(['mkdir', 'testbins'])
-
-    @classmethod
-    def __static__(cls):
+    def init(cls):
         for name, p, expected in testFiles('out'):
             def makeTest(name, p, expected):
                 def runTest(self):
@@ -127,6 +120,29 @@ class ParserTests(FileTest):
                         self.diff(expected, fout.name)
                 return runTest
             setattr(cls, name, makeTest(name, p, expected))
+
+@staticinit
+class FastgenTests(CodegenTests):
+    @classmethod
+    def setUpClass(cls):
+        import fastgen
+        subprocess.call(['rm', '-rf', 'testbins'])
+        subprocess.call(['mkdir', 'testbins'])
+    @classmethod
+    def __static__(cls):
+        cls.init()
+
+@unittest.skip('Very, very broken')
+@staticinit
+class SlowgenTests(CodegenTests):
+    @classmethod
+    def setUpClass(cls):
+        import slowgen
+        subprocess.call(['rm', '-rf', 'testbins'])
+        subprocess.call(['mkdir', 'testbins'])
+    @classmethod
+    def __static__(cls):
+        cls.init()
 
 if __name__ == '__main__':
     unittest.main()
