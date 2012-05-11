@@ -196,11 +196,11 @@ class CodeGen:
         co_nlocals = len(self.co_varnames)
         return Code(self.co_argcount, 0,
                     co_nlocals, self.co_stacksize, 
-                    self.co_flags, self.co_code.tostring(), 
+                    self.co_flags, self.co_code.tobytes(), 
                     tuple(co_consts), tuple(self.co_names),
                     tuple(self.co_varnames), self.co_filename,
                     self.co_name, self.co_firstlineno, 
-                    self.co_lnotab.tostring(), self.co_freevars,
+                    self.co_lnotab.tobytes(), self.co_freevars,
                     self.co_cellvars)
 
     def setLine(self, line):
