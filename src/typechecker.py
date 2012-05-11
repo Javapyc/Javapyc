@@ -264,6 +264,10 @@ def typecheck(self, context):
 def typecheck(self, context):
     return ast.BoolType
 
+@typechecks(ast.String)
+def typecheck(self, context):
+    return ast.StringType
+
 @typechecks(ast.Integer)
 def typecheck(self, context):
     self.val = int(self.val)

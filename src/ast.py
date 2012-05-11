@@ -224,6 +224,14 @@ class NewInstance(Factor):
 class Scalar(Factor):
     def __repr__(self):
         return "({0}){1}".format(self.typename(), self.val)
+class String(Scalar):
+    def __init__(self, val):
+        AST.__init__(self, tuple())
+        self.val = val
+    def typename(self):
+        return 'String'
+    def value(self):
+        return self.val
 class Integer(Scalar):
     MIN_VALUE = -0x80000000
     MAX_VALUE = 0x80000000-1

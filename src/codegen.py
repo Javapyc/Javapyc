@@ -168,6 +168,7 @@ def codegen(self, c):
 
 @codegens(ast.Boolean)
 @codegens(ast.Integer)
+@codegens(ast.String)
 def codegen(self, c):
     c.LOAD_CONST(self.value())
 

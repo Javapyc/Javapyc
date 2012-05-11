@@ -208,6 +208,9 @@ class ExprGrammar:
         r'unaryfactor ::= factor'
         return args[0]
 
+    def p_factor_string(self, args):
+        r'factor ::= string'
+        return ast.String(args[0])
     def p_factor_int(self, args):
         r'factor ::= Integer'
         return ast.Integer(args[0].val)
