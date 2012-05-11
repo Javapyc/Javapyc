@@ -95,7 +95,7 @@ def typecheck(self, context):
         stmt.typecheck(localContext)
 
     retType = context.lookupMethod(self.ID, self.types)
-    if expr.typecheck(localContext) != retType:
+    if not isCompatible(localContext.program, expr.typecheck(localContext), retType):
         raise TypecheckException("Invalid return type")
 
     if self.ID == 'toString' and (retType != ast.StringType or len(self.formallist) != 0):
