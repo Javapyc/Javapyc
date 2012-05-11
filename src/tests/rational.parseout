@@ -58,7 +58,48 @@ Program
 |     +-this
 +-Class Rational extends Object
   +-<bool> reduce()
-  | +-(bool)False
+  | +-Decl(<int>, n)
+  | | +-(int)2
+  | +-Decl(<bool>, reduced)
+  | | +-(bool)False
+  | +-While
+  | | +-LessThan
+  | | | +-ID(n)
+  | | | +-ID(denominator)
+  | | +-StmtList
+  | |   +-If
+  | |   | +-And
+  | |   | | +-Equal
+  | |   | | | +-Mult
+  | |   | | | | +-Div
+  | |   | | | | | +-ID(numerator)
+  | |   | | | | | +-ID(n)
+  | |   | | | | +-ID(n)
+  | |   | | | +-ID(numerator)
+  | |   | | +-Equal
+  | |   | |   +-Mult
+  | |   | |   | +-Div
+  | |   | |   | | +-ID(denominator)
+  | |   | |   | | +-ID(n)
+  | |   | |   | +-ID(n)
+  | |   | |   +-ID(denominator)
+  | |   | +-StmtList
+  | |   | | +-Assignment(numerator)
+  | |   | | | +-Div
+  | |   | | |   +-ID(numerator)
+  | |   | | |   +-ID(n)
+  | |   | | +-Assignment(denominator)
+  | |   | | | +-Div
+  | |   | | |   +-ID(denominator)
+  | |   | | |   +-ID(n)
+  | |   | | +-Assignment(reduced)
+  | |   | |   +-(bool)True
+  | |   | +-StmtList
+  | |   +-Assignment(n)
+  | |     +-Plus
+  | |       +-ID(n)
+  | |       +-(int)1
+  | +-ID(reduced)
   +-<int> getNumerator()
   | +-ID(numerator)
   +-<int> getDenominator()
