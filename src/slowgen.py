@@ -152,6 +152,8 @@ def codegen(self, c):
 @codegens(ast.Assignment)
 def codegen(self, c):
     (expr,) = self.children
+
+    import pdb; pdb.set_trace()
     
     context = self.context
     methodContext = context.method
@@ -210,6 +212,20 @@ def codegen(self, c):
     c.BUILD_LIST(1 + len(classContext.classvars))
 
 @codegens(ast.If)
+def codegen(self, c):
+    cond, ifstmt = self.children
+    cond.codegen(c)
+
+    # binary array size coincides with binary location of instructions
+    jumpLoc = c.POP_JUMP_IF_FALSE()
+
+    # Codegen the ifstmt
+    ifstmt.codegen(c)
+
+    # Mark the jump to after the if block
+    jumpLoc()
+
+@codegens(ast.IfElse)
 def codegen(self, c):
     cond, ifstmt, elsestmt = self.children
     cond.codegen(c)

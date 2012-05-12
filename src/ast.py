@@ -136,6 +136,9 @@ class Printf(Stmt):
     def __init__(self, formatString):
         AST.__init__(self, (formatString,))
 class If(Stmt):
+    def __init__(self, cond, ifstmt):
+        AST.__init__(self, (cond, ifstmt))
+class IfElse(Stmt):
     def __init__(self, cond, ifstmt, elsestmt):
         AST.__init__(self, (cond, ifstmt, elsestmt))
 class While(Stmt):

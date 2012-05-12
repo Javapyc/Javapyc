@@ -118,8 +118,11 @@ class StmtGrammar:
         return ast.Printf(args[2])
 
     def p_stmt_if(self, args):
-        r'stmt ::= if ( expr ) stmt else stmt'
-        return ast.If(args[2], args[4], args[6])
+        r'stmt ::= if ( expr ) stmt'
+        return ast.If(args[2], args[4])
+    def p_stmt_ifelse(self, args):
+        r'stmt ::= if ( expr ) withelse else stmt'
+        return ast.IfElse(args[2], args[4], args[6])
     def p_stmt_while(self, args):
         r'stmt ::= while ( expr ) stmt'
         return ast.While(args[2], args[4])
@@ -127,6 +130,35 @@ class StmtGrammar:
         r'stmt ::= break ;'
         return ast.Break()
 
+    def p_withelse_ifwithelse(self, args):
+        r'withelse ::= if ( expr ) withelse else withelse'
+        return ast.IfElse(args[2], args[4], args[6])
+    def p_withelse_call(self, args):
+        r'withelse ::= methodcall ;'
+        return ast.MethodCall(args[0])
+    def p_withelse_stmtlist(self, args):
+        r'withelse ::= { stmtlist }'
+        return ast.StmtList(args[1])
+    def p_withelse_decl_type(self, args):
+        r'withelse ::= type ID = expr ;'
+        return ast.Decl(args[0], args[1].val, args[3])
+    def p_withelse_assignment(self, args):
+        r'withelse ::= ID = expr ;'
+        return ast.Assignment(args[0].val, args[2])
+    def p_withelse_print(self, args):
+        r'withelse ::= System.out.println ( expr ) ;'
+        return ast.Print(args[2])
+    def p_withelse_printf(self, args):
+        r'withelse ::= System.out.printf ( formatstring ) ;'
+        return ast.Printf(args[2])
+
+    def p_withelse_while(self, args):
+        r'withelse ::= while ( expr ) stmt'
+        return ast.While(args[2], args[4])
+    def p_withelse_break(self, args):
+        r'withelse ::= break ;'
+        return ast.Break()
+    
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
         return tuple()

@@ -164,6 +164,20 @@ def typecheck(self, context):
 
 @typechecks(ast.If)
 def typecheck(self, context):
+    settings.requireExtended();
+    
+    cond, ifstmt = self.children
+    
+    if cond.typecheck(context) != ast.BoolType:
+        raise TypecheckException("Error with If: condition must be boolean")
+
+    if ifstmt.typecheck(context) == ast.Decl:
+        raise TypecheckException("Error with If: cannot have single declaration in if")
+
+    return ast.If
+
+@typechecks(ast.IfElse)
+def typecheck(self, context):
     cond, ifstmt, elsestmt = self.children
     
     if cond.typecheck(context) != ast.BoolType:
@@ -175,7 +189,7 @@ def typecheck(self, context):
     if elsestmt.typecheck(context) == ast.Decl:
         raise TypecheckException("Error with If: cannot have single declaration in else block")
 
-    return ast.If
+    return ast.IfElse
 
 @typechecks(ast.While)
 def typecheck(self, context):
