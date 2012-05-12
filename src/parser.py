@@ -98,24 +98,6 @@ class TypeGrammar:
         return ast.ObjectType(args[0].val)
 
 class StmtGrammar:
-    def p_stmt_call(self, args):
-        r'stmt ::= methodcall ;'
-        return ast.MethodCall(args[0])
-    def p_stmt_stmtlist(self, args):
-        r'stmt ::= { stmtlist }'
-        return ast.StmtList(args[1])
-    def p_stmt_decl_type(self, args):
-        r'stmt ::= type ID = expr ;'
-        return ast.Decl(args[0], args[1].val, args[3])
-    def p_stmt_assignment(self, args):
-        r'stmt ::= ID = expr ;'
-        return ast.Assignment(args[0].val, args[2])
-    def p_stmt_print(self, args):
-        r'stmt ::= System.out.println ( expr ) ;'
-        return ast.Print(args[2])
-    def p_stmt_printf(self, args):
-        r'stmt ::= System.out.printf ( formatstring ) ;'
-        return ast.Printf(args[2])
 
     def p_stmt_if(self, args):
         r'stmt ::= if ( expr ) stmt'
@@ -126,38 +108,41 @@ class StmtGrammar:
     def p_stmt_while(self, args):
         r'stmt ::= while ( expr ) stmt'
         return ast.While(args[2], args[4])
-    def p_stmt_break(self, args):
-        r'stmt ::= break ;'
-        return ast.Break()
+    def p_stmt_common(self, args):
+        r'stmt ::= common'
+        return args[0]
 
     def p_withelse_ifwithelse(self, args):
         r'withelse ::= if ( expr ) withelse else withelse'
         return ast.IfElse(args[2], args[4], args[6])
-    def p_withelse_call(self, args):
-        r'withelse ::= methodcall ;'
-        return ast.MethodCall(args[0])
-    def p_withelse_stmtlist(self, args):
-        r'withelse ::= { stmtlist }'
-        return ast.StmtList(args[1])
-    def p_withelse_decl_type(self, args):
-        r'withelse ::= type ID = expr ;'
-        return ast.Decl(args[0], args[1].val, args[3])
-    def p_withelse_assignment(self, args):
-        r'withelse ::= ID = expr ;'
-        return ast.Assignment(args[0].val, args[2])
-    def p_withelse_print(self, args):
-        r'withelse ::= System.out.println ( expr ) ;'
-        return ast.Print(args[2])
-    def p_withelse_printf(self, args):
-        r'withelse ::= System.out.printf ( formatstring ) ;'
-        return ast.Printf(args[2])
-
     def p_withelse_while(self, args):
         r'withelse ::= while ( expr ) stmt'
         return ast.While(args[2], args[4])
-    def p_withelse_break(self, args):
-        r'withelse ::= break ;'
+    def p_withelse_common(self, args):
+        r'withelse ::= common'
+        return args[0]
+        
+    def p_common_break(self, args):
+        r'common ::= break ;'
         return ast.Break()
+    def p_common_call(self, args):
+        r'common ::= methodcall ;'
+        return ast.MethodCall(args[0])
+    def p_common_stmtlist(self, args):
+        r'common ::= { stmtlist }'
+        return ast.StmtList(args[1])
+    def p_common_decl_type(self, args):
+        r'common ::= type ID = expr ;'
+        return ast.Decl(args[0], args[1].val, args[3])
+    def p_common_assignment(self, args):
+        r'common ::= ID = expr ;'
+        return ast.Assignment(args[0].val, args[2])
+    def p_common_print(self, args):
+        r'common ::= System.out.println ( expr ) ;'
+        return ast.Print(args[2])
+    def p_common_printf(self, args):
+        r'common ::= System.out.printf ( formatstring ) ;'
+        return ast.Printf(args[2])
     
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
