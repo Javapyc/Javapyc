@@ -68,7 +68,7 @@ Program
 | +-<int> steps(<int> n)
 |   +-Decl(<int>, res)
 |   | +-(int)0
-|   +-If
+|   +-IfElse
 |   | +-GreaterThan
 |   | | +-ID(n)
 |   | | +-(int)1
@@ -78,7 +78,7 @@ Program
 |   | |   | +-ID(n)
 |   | |   | +-(int)1
 |   | |   +-StmtList
-|   | |     +-If
+|   | |     +-IfElse
 |   | |     | +-Equal
 |   | |     | | +-Mult
 |   | |     | | | +-Div

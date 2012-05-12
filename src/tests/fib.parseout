@@ -25,7 +25,7 @@ Program
   +-<int> fibRecursive(<int> n)
   | +-Decl(<int>, res)
   | | +-ID(n)
-  | +-If
+  | +-IfElse
   | | +-GreaterThanEqualTo
   | | | +-ID(n)
   | | | +-(int)2

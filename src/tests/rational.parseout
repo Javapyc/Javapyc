@@ -67,7 +67,7 @@ Program
   | | | +-ID(n)
   | | | +-ID(denominator)
   | | +-StmtList
-  | |   +-If
+  | |   +-IfElse
   | |   | +-And
   | |   | | +-Equal
   | |   | | | +-Mult
