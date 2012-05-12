@@ -159,6 +159,20 @@ def codegen(self, c):
 
 @codegens(ast.If)
 def codegen(self, c):
+    cond, ifstmt = self.children
+    cond.codegen(c)
+
+    # binary array size coincides with binary location of instructions
+    jumpLoc = c.POP_JUMP_IF_FALSE()
+
+    # Codegen the ifstmt
+    ifstmt.codegen(c)
+
+    # Mark the jump to after the if block
+    jumpLoc()
+
+@codegens(ast.IfElse)
+def codegen(self, c):
     cond, ifstmt, elsestmt = self.children
     cond.codegen(c)
 
@@ -179,7 +193,8 @@ def codegen(self, c):
 
     # Mark the end of the if statement
     endOfIf()
-    
+
+
 @codegens(ast.While)
 def codegen(self, c):
     cond, stmt = self.children
