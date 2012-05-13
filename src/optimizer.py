@@ -154,6 +154,16 @@ def optimize(self):
     return self
 
 
+@optimizes(ast.If)
+def optimize(self):
+    (cond, ifstmt) = self.children
+    if isinstance(cond, ast.Boolean):
+        if cond.val:
+            return ifstmt
+        #else:
+            #return TODO some nop
+    return self
+
 @optimizes(ast.IfElse)
 def optimize(self):
     (cond, ifstmt, elsestmt) = self.children
@@ -172,6 +182,16 @@ def optimize(self):
     return self
 
 
+@optimizes(ast.Assignment)
+def optimize(self):
+    (expr) = self.children
+    if isinstance(expr, ast.Integer):
+        self.context.declareConstVar(self.name, expr.val)
+#        print("\tMapped", self.name, "=>", expr.val)
+    else:
+        self.context.declareConstVar(self.name, None)
+    return self    
+
 def optimizeStmtList(stmts):
     # Constant propogation (search for ID which are constant and pass constant instead of ID)
 
@@ -179,20 +199,13 @@ def optimizeStmtList(stmts):
     for stmt in stmts:
         stmt = stmt.optimize()
 
-        print ("\t-", stmt, stmt.children)
+#        print ("\t-", stmt, stmt.children)
 
         if isinstance(stmt, ast.Decl) and isinstance(stmt.typename, ast.BasicType) and isinstance(stmt.children[0], ast.Integer):
             # have a named variable with a constant value (a = 10, b = 15)
             stmt.context.declareConstVar(stmt.name, stmt.children[0].val)
-            print("\tFound", stmt.name, "=>", stmt.children[0].val)
+#            print("\tFound", stmt.name, "=>", stmt.children[0].val)
 
-        if isinstance(stmt, ast.Assignment):
-            if isinstance(stmt.children[0], ast.Integer):
-                stmt.context.declareConstVar(stmt.name, stmt.children[0].val)
-                print("\tMapped", stmt.name, "=>", stmt.children[0].val)
-            else:
-                print("\t", stmt.name, "MAY no longer const")
-                stmt.context.declareConstVar(stmt.name, None)
 
 
         newstmts.append(stmt)
