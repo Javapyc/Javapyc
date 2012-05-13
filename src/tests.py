@@ -4,6 +4,7 @@ import os
 import os.path
 import sys
 import re
+import time
 import unittest
 import subprocess
 from glob import iglob as glob
@@ -13,6 +14,7 @@ import spark
 import lexer
 import parser
 import typechecker
+import optimizer
 import codegen
 
 from fileutils import TempFile
@@ -97,7 +99,7 @@ class ParserTests(FileTest):
 
 class CodegenTests(FileTest):
     @classmethod
-    def init(cls):
+    def init(cls, optimize=False):
         for name, p, expected in testFiles('out'):
             def makeTest(name, p, expected):
                 def runTest(self):
@@ -107,6 +109,8 @@ class CodegenTests(FileTest):
                     javaParser = parser.ProgramParser()
                     tree = javaParser.parse(tokens)
                     typechecker.typecheck(tree)
+                    if optimize:
+                        tree.optimize()
                     binpath = os.path.join('testbins', name + '.pyc')
                     codegen.codegen(binpath, tree, False)
                     with TempFile() as fout:
@@ -114,6 +118,15 @@ class CodegenTests(FileTest):
                         proc = subprocess.Popen(('python3', binpath),
                                                 stdout=fout.f,
                                                 stderr=subprocess.STDOUT)
+
+                        #let the process run for a few seconds
+                        failTime = time.time() + 3.0
+                        while proc.poll() is None:
+                            time.sleep(0.01)
+                            if time.time() > failTime:
+                                proc.kill()
+                                raise Exception('Compiled program took too long to execute')
+
                         res = proc.wait()
                         self.assertEqual(0, res)
                         fout.flush()
@@ -131,6 +144,18 @@ class FastgenTests(CodegenTests):
     @classmethod
     def __static__(cls):
         cls.init()
+
+@unittest.skipUnless(os.environ['USER'] == 'troisisa', 'Very, very broken')
+@staticinit
+class OptimizerTests(CodegenTests):
+    @classmethod
+    def setUpClass(cls):
+        import fastgen
+        subprocess.call(['rm', '-rf', 'testbins'])
+        subprocess.call(['mkdir', 'testbins'])
+    @classmethod
+    def __static__(cls):
+        cls.init(True)
 
 @unittest.skip('Very, very broken')
 @staticinit
