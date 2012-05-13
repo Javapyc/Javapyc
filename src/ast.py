@@ -42,8 +42,8 @@ class ClassVarDecl(AST):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
 
 class MethodDecl(AST):
-    def __init__(self, typename, ID, formallist, stmtlist, expr):
-        AST.__init__(self, stmtlist + (expr,))
+    def __init__(self, typename, ID, formallist, stmts, expr):
+        AST.__init__(self, stmts + (expr,))
         self.typename = typename
         self.ID = ID
         self.formallist = formallist
