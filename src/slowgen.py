@@ -81,15 +81,19 @@ def codegen(self, c):
 
 @codegens(ast.MethodDecl)
 def codegen(self, c):
+    
     *stmts, expr = self.children
 
     c.setLine(1)
 
     c.varnames = ['self', '_locals'] + list(map(lambda formal: formal.ID, self.formallist))
     for formal in self.formallist:
-        c.LOAD_FAST(formal.ID)
+        c.LOAD_FAST(formal.ID) # also creates these variables in fast list
     c.BUILD_LIST(len(self.formallist))
     c.STORE_FAST('_locals')
+
+    # Build localVars list to be in parallel with _locals
+    self.context.localVars = c.varnames
 
     for stmt in stmts:
         stmt.codegen(c)
@@ -101,6 +105,8 @@ def codegen(self, c):
 def codegen(self, c):
     obj, *args = self.children
     func = self.func
+
+    import pdb; pdb.set_trace()
 
     #TODO call method of actual object, cannot be done statically!
     raise Exception('Call not implemented')
@@ -137,7 +143,7 @@ def codegen(self, c):
 @codegens(ast.Decl)
 def codegen(self, c):
     (expr,) = self.children
-    
+
     context = self.context
     methodContext = context.method
     classContext = context.classContext
@@ -152,7 +158,7 @@ def codegen(self, c):
 @codegens(ast.Assignment)
 def codegen(self, c):
     (expr,) = self.children
-
+    
     context = self.context
     methodContext = context.method
     classContext = context.classContext
@@ -176,7 +182,9 @@ def codegen(self, c):
     methodContext = context.method
     classContext = context.classContext
     typename = classContext.varType(self.name)
-    
+
+    # import pdb; pdb.set_trace()
+
     if self.name in methodContext.localVars:
         c.LOAD_FAST('_locals')
         c.LOAD_CONST(methodContext.localVars.index(self.name))
