@@ -63,12 +63,12 @@ def collapseInt(self, combine):
 
 @optimizes(ast.ID)
 def optimize(self):
-    if isinstance(self.context.varType(self.name), ast.BasicType):
+#    if isinstance(self.context.varType(self.name), ast.BasicType):
         # FIXME TODO this feels wrong with "== int"
-        if self.context.varType(self.name).basicType == int:
-            test = self.context.getConstVar(self.name)
-            if test:
-                return ast.Integer(test)
+#        if self.context.varType(self.name).basicType == int:
+#            test = self.context.getConstVar(self.name)
+#            if test:
+#                return ast.Integer(test)
     return self
 
 @optimizes(ast.Or)
