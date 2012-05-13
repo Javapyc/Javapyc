@@ -179,6 +179,8 @@ def optimizeStmtList(stmts):
     for stmt in stmts:
         stmt = stmt.optimize()
 
+        print ("\t-", stmt, stmt.children)
+
         if isinstance(stmt, ast.Decl) and isinstance(stmt.typename, ast.BasicType) and isinstance(stmt.children[0], ast.Integer):
             # have a named variable with a constant value (a = 10, b = 15)
             stmt.context.declareConstVar(stmt.name, stmt.children[0].val)
@@ -197,20 +199,11 @@ def optimizeStmtList(stmts):
     return newstmts
 
 
-#@optimizes(ast.ClassDecl)
-#def optimize(self):
-    #TODO add similiar code from ast.StmtList so that optimizer will use const in MethodDecl    
-#   pass
-
-#@optimizes(ast.MethodDecl
-#def optimize(self):
-    #TODO add similiar code from ast.StmtList so that optimizer will use const in MethodDecl    
-#   pass
-
-#@optimizes(ast.StmtList)
-#def optimize(self):
-    #TODO add similiar code from ast.StmtList so that optimizer will use const in MethodDecl    
-#   pass
+@optimizes(ast.StmtList)
+def optimize(self):
+    self.children = optimizeStmtList(self.children)
+    self.children = tuple(map(lambda child: child.optimize(), self.children))
+    return self
 
 
 @optimizes(ast.MainClassDecl)
