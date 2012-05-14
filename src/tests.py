@@ -146,7 +146,7 @@ class FastgenTests(CodegenTests):
     def __static__(cls):
         cls.init()
 
-@unittest.skipUnless(os.environ['USER'] == 'troisisa', 'Very, very broken')
+@unittest.skipUnless(os.environ['USER'] in ('troisisa','king'), 'Very, very broken')
 @staticinit
 class OptimizerTests(CodegenTests):
     @classmethod

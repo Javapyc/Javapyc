@@ -11,6 +11,7 @@ class MethodPrototype:
 class ProgramContext:
     def __init__(self):
         self.classes = {}
+        self.optimizerInLoop = 0 
     def registerClass(self, name, classContext):
         self.classes[name] = classContext
         classContext.program = self
@@ -113,7 +114,13 @@ class LocalContext:
 
     def declareConstVar(self, name, value):
         # used in optimizer for constant propogation \ folding
-        self.constantScope[name] = value
+
+        # search upward to see if var is defined in a scope
+        if name in self.scope:
+            self.constantScope[name] = value
+        elif self.parent:
+            self.parent.declareConstVar(name, value)
+
     def getConstVar(self, name):
         value = self.constantScope.get(name, None)
         # used in optimizer for constant propogation \ folding

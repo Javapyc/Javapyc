@@ -26,21 +26,8 @@ def optimizes(cls):
 def collapseConstantInt(self):
     left, right = self.children
 
-    leftVal = None
-    if isinstance(left, ast.ID):
-        leftVal = left.context.getConstVar(left.name)
-    elif isinstance(left, ast.Integer):
-        leftVal = left.val
-
-
-    rightVal = None
-    if isinstance(right, ast.ID):
-        rightVal = right.context.getConstVar(right.name)
-    elif isinstance(right, ast.Integer):
-        rightVal = right.val
-
-    if isinstance(leftVal, int) and isinstance(rightVal, int):
-        return ast.Integer(leftVal + rightVal)
+    if isinstance(left, ast.Integer) and isinstance(right, ast.Integer):
+        return ast.Integer(left.val + right.val)
     return self
 
 def collapseBool(self, combine):
@@ -63,12 +50,16 @@ def collapseInt(self, combine):
 
 @optimizes(ast.ID)
 def optimize(self):
-#    if isinstance(self.context.varType(self.name), ast.BasicType):
+    if self.context.program.optimizerInLoop > 0:
+        return self
+
+    if isinstance(self.context.varType(self.name), ast.BasicType):
         # FIXME TODO this feels wrong with "== int"
-#        if self.context.varType(self.name).basicType == int:
-#            test = self.context.getConstVar(self.name)
-#            if test:
-#                return ast.Integer(test)
+        if self.context.varType(self.name).basicType == int:
+            test = self.context.getConstVar(self.name)
+            if test:
+#                print("\tsubbed", test, "for", self.name)
+                return ast.Integer(test)
     return self
 
 @optimizes(ast.Or)
@@ -161,7 +152,9 @@ def optimize(self):
         if cond.val:
             return ifstmt
         else:
-            return ast.Nop()
+            temp = ast.Nop()
+            temp.context = self.context
+            return temp
     return self
 
 @optimizes(ast.IfElse)
@@ -174,11 +167,29 @@ def optimize(self):
             return elsestmt
     return self
 
+
+# not this is a special optimize which needs to set the loop status before optimizing children
+def optimizeWhile(self):
+    self.context.program.optimizerInLoop += 1
+
+#    print ("optimizing while", self.children)
+
+    self.children = tuple(map(lambda child: child.optimize(), self.children))
+    opt = self._optimize()
+
+    self.context.program.optimizerInLoop -= 1 
+
+    return opt
+setattr(ast.While, 'optimize', optimizeWhile)
+
+
 @optimizes(ast.While)
 def optimize(self):
     (cond, stmt) = self.children
     if isinstance(cond, ast.Boolean) and not cond.val:
-        return ast.StmtList(tuple())
+        temp = ast.Nop()
+        temp.context = self.context
+        return temp
     return self
 
 
@@ -187,44 +198,46 @@ def optimize(self):
     (expr) = self.children
     if isinstance(expr, ast.Integer):
         self.context.declareConstVar(self.name, expr.val)
-#        print("\tMapped", self.name, "=>", expr.val)
+#        print("\t\tMapped", self.name, "=>", expr.val)
     else:
         self.context.declareConstVar(self.name, None)
+#        print("\t\t", self.name, "no longer const", self.children)
     return self    
 
-def optimizeStmtList(stmts):
-    # Constant propogation (search for ID which are constant and pass constant instead of ID)
 
-    newstmts = []
-    for stmt in stmts:
-        stmt = stmt.optimize()
-
-#        print ("\t-", stmt, stmt.children)
-
-        if isinstance(stmt, ast.Decl) and isinstance(stmt.typename, ast.BasicType) and isinstance(stmt.children[0], ast.Integer):
-            # have a named variable with a constant value (a = 10, b = 15)
-            stmt.context.declareConstVar(stmt.name, stmt.children[0].val)
-#            print("\tFound", stmt.name, "=>", stmt.children[0].val)
-
-
-
-        newstmts.append(stmt)
-    return newstmts
-
+@optimizes(ast.Decl)
+def optimize(self):
+    if isinstance(self.typename, ast.BasicType) and isinstance(self.children[0], ast.Integer):
+        # have a named variable with a constant value (a = 10, b = 15)
+        self.context.declareConstVar(self.name, self.children[0].val)
+#        print("\t\tFound", self.name, "=>", self.children[0].val)
+    return self
 
 @optimizes(ast.StmtList)
 def optimize(self):
-    self.children = optimizeStmtList(self.children)
-    self.children = tuple(map(lambda child: child.optimize(), self.children))
+    (stmts) = self.children
+    # Constant propogation (search for ID which are constant and pass constant instead of ID)
+
+#    print ("StmtList")
+
+    newstmts = []
+    for stmt in stmts:
+#        print ("\t-", stmt, stmt.children, self.context.program.optimizerInLoop)
+        stmt = stmt.optimize()
+        newstmts.append(stmt)
+
+    self.children = newstmts
     return self
+
+def optimizeStmtList(self):
+    return self._optimize()
+setattr(ast.StmtList, 'optimize', optimizeStmtList)
 
 
 @optimizes(ast.MainClassDecl)
 def optimize(self):
     # TODO call while change is happening
 #    print('optimizing')
-    self.children = optimizeStmtList(self.children)
-    self.children = tuple(map(lambda child: child.optimize(), self.children))
     return self
 
 
