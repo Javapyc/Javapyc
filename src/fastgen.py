@@ -124,9 +124,17 @@ def codegen(self, c):
 def codegen(self, c):
     c.setLine(1)
     *stmts, expr = self.children
+
+    if self.isGenerator():
+        c.setFlags(Flags.GENERATOR)
+
     for stmt in stmts:
         stmt.codegen(c)
-    expr.codegen(c)
+
+    if expr:
+        expr.codegen(c)
+    else:
+        c.LOAD_CONST(None)
     c.RETURN_VALUE()
 
 @codegens(ast.StmtList)
@@ -156,6 +164,14 @@ def codegen(self, c):
     else:
         c.LOAD_FAST('self')
         c.STORE_ATTR('_' + self.name)
+
+@codegens(ast.Yield)
+def codegen(self, c):
+    (expr,) = self.children
+    expr.codegen(c)
+
+    c.YIELD_VALUE()
+    c.POP_TOP()
 
 @codegens(ast.If)
 def codegen(self, c):

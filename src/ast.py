@@ -48,6 +48,19 @@ class MethodDecl(AST):
         self.ID = ID
         self.formallist = formallist
         self.types = None
+    def hasYield(self):
+        def crawl(node):
+            if isinstance(node, Yield):
+                return True
+            for child in node.children:
+                if crawl(child):
+                    return True
+            return False
+        return crawl(self)
+    def isGenerator(self):
+        return self.children[-1] is None and self.hasYield()
+    def isMethod(self):
+        return self.children[-1] and not self.hasYield()
     def __repr__(self):
         return "{0} {1}({2})".format(self.typename, self.ID, ', '.join(map(repr, self.formallist)))
 
@@ -135,6 +148,9 @@ class Print(Stmt):
 class Printf(Stmt):
     def __init__(self, formatString):
         AST.__init__(self, (formatString,))
+class Yield(Stmt):
+    def __init__(self, expr):
+        AST.__init__(self, (expr,))
 class If(Stmt):
     def __init__(self, cond, ifstmt):
         AST.__init__(self, (cond, ifstmt))

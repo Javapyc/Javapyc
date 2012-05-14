@@ -89,17 +89,22 @@ def typecheck(self, context):
 
     for formal in self.formallist:
         methodContext.declareFormal(formal.typename, formal.ID)
+    methodContext.retType = context.lookupMethod(self.ID, self.types)
 
     localContext = LocalContext(methodContext)
     for stmt in stmts:
         stmt.typecheck(localContext)
 
-    retType = context.lookupMethod(self.ID, self.types)
-    if not isCompatible(localContext.program, expr.typecheck(localContext), retType):
-        raise TypecheckException("Invalid return type")
+    if self.isMethod():
+        if not isCompatible(localContext.program, expr.typecheck(localContext), methodContext.retType):
+            raise TypecheckException("Invalid return type")
 
-    if self.ID == 'toString' and (retType != ast.StringType or len(self.formallist) != 0):
-        raise TypecheckException("toString must return String and accept 0 parameters")
+        if self.ID == 'toString' and (methodContext.retType != ast.StringType or len(self.formallist) != 0):
+            raise TypecheckException("toString must return String and accept 0 parameters")
+    elif self.isGenerator():
+        pass
+    else:
+        raise TypecheckException("Return statement required if not a generator") 
 
     return ast.MethodDecl
 
@@ -161,6 +166,17 @@ def typecheck(self, context):
     formatString.typecheck(context)
 
     return ast.Printf
+
+@typechecks(ast.Yield)
+def typecheck(self, context):
+    settings.requireExtended();
+
+    (expr,) = self.children
+    
+    if not isCompatible(context.program, expr.typecheck(context), context.method.retType):
+        raise TypecheckException("Invalid yield type")
+
+    return ast.Yield
 
 @typechecks(ast.If)
 def typecheck(self, context):

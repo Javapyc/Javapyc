@@ -64,9 +64,12 @@ class ClassDeclGrammar:
         return (args[0],) + args[1]
 
 class MethodDeclGrammar:
-    def p_methoddecl_all(self, args):
+    def p_methoddecl_method(self, args):
         r'methoddecl ::= public type ID ( formallist ) { stmtlist return expr ; }'
         return ast.MethodDecl(args[1], args[2].val, args[4], args[7], args[9])
+    def p_methoddecl_generator(self, args):
+        r'methoddecl ::= public type ID ( formallist ) { stmtlist }'
+        return ast.MethodDecl(args[1], args[2].val, args[4], args[7], None)
 
 class FormalGrammar:
     def p_formal_typeID(self, args):
@@ -143,6 +146,9 @@ class StmtGrammar:
     def p_common_printf(self, args):
         r'common ::= System.out.printf ( formatstring ) ;'
         return ast.Printf(args[2])
+    def p_common_yield(self, args):
+        r'stmt ::= yield expr ;'
+        return ast.Yield(args[1]);
     
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '

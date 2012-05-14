@@ -354,6 +354,11 @@ class CodeGen:
         self.write(Ops.RETURN_VALUE)
         self.popStack()
     
+    def YIELD_VALUE(self):
+        self.write(Ops.YIELD_VALUE)
+        self.popStack()
+        self.pushStack()
+    
     def UNARY_NOT(self):
         self.write(Ops.UNARY_NOT)
         self.popStack(1)
