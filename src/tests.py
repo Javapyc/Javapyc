@@ -134,7 +134,6 @@ class CodegenTests(FileTest):
                 return runTest
             setattr(cls, name, makeTest(name, p, expected))
 
-@unittest.skip('Very, very broken')
 @staticinit
 class FastgenTests(CodegenTests):
     @classmethod
