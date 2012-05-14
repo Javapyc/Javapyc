@@ -309,6 +309,18 @@ class CodeGen:
         self.popStack(n)
         self.pushStack()
 
+    def BUILD_MAP(self, count):
+        ''' Count is the expected number of key : value pairs
+            in the map '''
+        self.write(Ops.BUILD_MAP, count)
+        self.pushStack()
+
+    def STORE_MAP(self):
+        ''' This inserts TOS and TOS1 as key:value
+            into the map which should be at TOS2 '''
+        self.write(Ops.STORE_MAP)
+        self.popStack(2)
+
     def BUILD_TUPLE(self, n=0):
         self.write(Ops.BUILD_TUPLE, n)
         self.popStack(n)

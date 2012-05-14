@@ -157,7 +157,7 @@ class OptimizerTests(CodegenTests):
     def __static__(cls):
         cls.init(True)
 
-@unittest.skip('Very, very broken')
+# @unittest.skip('Very, very broken')
 @staticinit
 class SlowgenTests(CodegenTests):
     @classmethod

@@ -87,7 +87,7 @@ def codegen(self, c):
     c.setLine(1)
 
     params = list(map(lambda formal: formal.ID, self.formallist))
-    c.varnames = ['self'] + params + ['_locals']
+    c.varnames = ['self'] + params + ['_locals'] # NOTE: order is important here!
     for formal in self.formallist:
         c.LOAD_FAST(formal.ID) # also creates these variables in fast list
     c.BUILD_LIST(len(self.formallist))
@@ -109,7 +109,15 @@ def codegen(self, c):
 
     objType = obj.typecheck(self.context)
 
-    c.LOAD_GLOBAL("{0}__{1}".format(objType, func))
+    # TODO: get funcName from vtable here
+    # pseudocode...
+    # self := _locals[0]
+    # funcName := self[0][func]
+    
+    funcName = "{0}__{1}".format(objType, func)
+
+    # === Shouldn't change with vtables
+    c.LOAD_GLOBAL(funcName)
     obj.codegen(c) # "self" variable
     
     for arg in args:
@@ -200,7 +208,8 @@ def codegen(self, c):
 @codegens(ast.NewInstance)
 def codegen(self, c):
     ''' Represent an instance with a list of the form:
-        [ classname, field1, field2, ...]
+        OLD: [ classname, field1, field2, ...]
+        TODO: will become: [ vtable, field1, field2, ...]
     '''
 
     context = self.context
@@ -208,7 +217,15 @@ def codegen(self, c):
 
     classContext = program.lookupClass(self.name)
 
+    # TODO: create vtable instead of const
     c.LOAD_CONST(self.name)
+    # To replace what is above:
+    # c.BUILD_MAP(expected num of pairs)
+    # for pair in numpairs:
+    #     c.LOAD_CONST(value) # should be... Classname__funcname?
+    #     c.LOAD_CONST(key) # should be... funcname?
+    #     c.STORE_MAP()
+    
     for field in classContext.classvars:
         vartype = field.typename
         if vartype == ast.IntType:
