@@ -68,7 +68,6 @@ def codegen(self, c):
 
 @codegens(ast.ClassDecl)
 def codegen(self, c):
-    print("inside classdecl")
     for method in self.children:
         methodname = '{0}__{1}'.format(self.name, method.ID)
         func = CodeGen(c.filename, methodname)
@@ -79,9 +78,6 @@ def codegen(self, c):
         c.LOAD_CONST(func)
         c.MAKE_FUNCTION()
         c.STORE_NAME(methodname)
-    # print("CLassdecl: {0}".format(c.co_consts))
-    # print("CLassdecl: {0}".format(c.co_consts[1].co_name))
-    # import pdb; pdb.set_trace()
 
 @codegens(ast.MethodDecl)
 def codegen(self, c):
@@ -111,44 +107,11 @@ def codegen(self, c):
     obj, *args = self.children
     func = self.func
 
-     # ====
     objType = obj.typecheck(self.context)
-    classContext = self.context.lookupClass(objType.name)
-    argTypes = tuple(map(lambda arg: arg.typecheck(self.context), args))
 
-    retType = classContext.lookupMethod(self.func, argTypes)
-    print(objType, classContext, retType)
-    # ====
-
-    # c.LOAD_CONST("{0}__{1}".format(objType, func))
-
-    # c.LOAD_GLOBAL("{0}__{1}".format(objType, func))
-    # obj.codegen(c)
-    # c.LOAD_CONST(3)
-    # c.CALL_FUNCTION(2)
-    # import pdb; pdb.set_trace()
-    
-    
-
-    # what is the object? obj (is really just the name)
-    # the function call looks like:
-    # obj.func(args)
-    # So we need to find the lowest class in the inheritance hierarchy
-    # which contains func(args)
-
-    # Why is the necessary method not yet been compiled?
-    # I expect the correct code object to be in c.co_consts.
-    
-    
-    #TODO call method of actual object, cannot be done statically!
-    # raise Exception('Call not implemented')
-
-    # c.LOAD_FAST("Fibonacci")
     c.LOAD_GLOBAL("{0}__{1}".format(objType, func))
     obj.codegen(c) # "self" variable
-    # c.LOAD_NAME(obj.name);
     
-    # c.LOAD_CONST(99);
     for arg in args:
         arg.codegen(c)
 
@@ -223,8 +186,6 @@ def codegen(self, c):
     methodContext = context.method
     classContext = context.classContext
     typename = classContext.varType(self.name)
-
-    # import pdb; pdb.set_trace()
 
     if self.name in methodContext.localVars:
         c.LOAD_FAST('_locals')
