@@ -301,3 +301,8 @@ class FormatString(Factor):
     def __repr__(self):
         return "{0}({1})".format(self.classname(), str(self.displaystring))
 
+
+class Nop(AST):
+    def __init__(self):
+        AST.__init__(self, tuple())
+

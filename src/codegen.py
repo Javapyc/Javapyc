@@ -26,6 +26,10 @@ else:
     import slowgen
 
 #include common codegen routines
+@codegens(ast.Nop)
+def codegen(self, c):
+    pass
+
 @codegens(ast.Print)
 def codegen(self, c):
     (expr,) = self.children

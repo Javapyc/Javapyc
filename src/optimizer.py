@@ -160,8 +160,8 @@ def optimize(self):
     if isinstance(cond, ast.Boolean):
         if cond.val:
             return ifstmt
-        #else:
-            #return TODO some nop
+        else:
+            return ast.Nop()
     return self
 
 @optimizes(ast.IfElse)
@@ -222,7 +222,7 @@ def optimize(self):
 @optimizes(ast.MainClassDecl)
 def optimize(self):
     # TODO call while change is happening
-    print('optimizing')
+#    print('optimizing')
     self.children = optimizeStmtList(self.children)
     self.children = tuple(map(lambda child: child.optimize(), self.children))
     return self
