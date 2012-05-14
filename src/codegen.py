@@ -205,8 +205,9 @@ def codegen(path, tree, dumpbin = False):
         #code object
         marshal.dump(co, fout)
 
+
     if dumpbin:
-        dump(co)
+        dump(co)    
 
 def dump(co, indent=0):
     import dis

@@ -23,7 +23,7 @@ import ast
 @codegens(ast.Program)
 def codegen(self, c):
     mainclass, *classes = self.children
-    
+
     c.setLine(1)
 
     for cls in classes:
@@ -68,16 +68,20 @@ def codegen(self, c):
 
 @codegens(ast.ClassDecl)
 def codegen(self, c):
+    print("inside classdecl")
     for method in self.children:
         methodname = '{0}__{1}'.format(self.name, method.ID)
         func = CodeGen(c.filename, methodname)
         func.setFlags(Flags.NEWLOCALS | Flags.OPTIMIZED)
-        func.argcount = len(method.formallist) + 1
+        func.argcount = len(method.formallist)+1
         func.varnames = ['self'] + list(map(lambda formal: formal.ID, method.formallist))
         method.codegen(func)
         c.LOAD_CONST(func)
         c.MAKE_FUNCTION()
         c.STORE_NAME(methodname)
+    # print("CLassdecl: {0}".format(c.co_consts))
+    # print("CLassdecl: {0}".format(c.co_consts[1].co_name))
+    # import pdb; pdb.set_trace()
 
 @codegens(ast.MethodDecl)
 def codegen(self, c):
@@ -86,14 +90,15 @@ def codegen(self, c):
 
     c.setLine(1)
 
-    c.varnames = ['self', '_locals'] + list(map(lambda formal: formal.ID, self.formallist))
+    params = list(map(lambda formal: formal.ID, self.formallist))
+    c.varnames = ['self'] + params + ['_locals']
     for formal in self.formallist:
         c.LOAD_FAST(formal.ID) # also creates these variables in fast list
     c.BUILD_LIST(len(self.formallist))
     c.STORE_FAST('_locals')
 
     # Build localVars list to be in parallel with _locals
-    self.context.localVars = c.varnames
+    self.context.localVars = params
 
     for stmt in stmts:
         stmt.codegen(c)
@@ -106,12 +111,44 @@ def codegen(self, c):
     obj, *args = self.children
     func = self.func
 
-    import pdb; pdb.set_trace()
+     # ====
+    objType = obj.typecheck(self.context)
+    classContext = self.context.lookupClass(objType.name)
+    argTypes = tuple(map(lambda arg: arg.typecheck(self.context), args))
 
+    retType = classContext.lookupMethod(self.func, argTypes)
+    print(objType, classContext, retType)
+    # ====
+
+    # c.LOAD_CONST("{0}__{1}".format(objType, func))
+
+    # c.LOAD_GLOBAL("{0}__{1}".format(objType, func))
+    # obj.codegen(c)
+    # c.LOAD_CONST(3)
+    # c.CALL_FUNCTION(2)
+    # import pdb; pdb.set_trace()
+    
+    
+
+    # what is the object? obj (is really just the name)
+    # the function call looks like:
+    # obj.func(args)
+    # So we need to find the lowest class in the inheritance hierarchy
+    # which contains func(args)
+
+    # Why is the necessary method not yet been compiled?
+    # I expect the correct code object to be in c.co_consts.
+    
+    
     #TODO call method of actual object, cannot be done statically!
-    raise Exception('Call not implemented')
+    # raise Exception('Call not implemented')
 
-    obj.codegen(c)
+    # c.LOAD_FAST("Fibonacci")
+    c.LOAD_GLOBAL("{0}__{1}".format(objType, func))
+    obj.codegen(c) # "self" variable
+    # c.LOAD_NAME(obj.name);
+    
+    # c.LOAD_CONST(99);
     for arg in args:
         arg.codegen(c)
 
@@ -149,10 +186,14 @@ def codegen(self, c):
     classContext = context.classContext
     vartype = classContext.varType(self.name)
 
+    # Add the new variable to _locals
     c.LOAD_FAST('_locals')
     c.LOAD_ATTR('append')
     expr.codegen(c)
     c.CALL_FUNCTION(1)
+    c.POP_TOP() # to remove None
+
+    # Add it to the parallel copy of localVars
     methodContext.localVars.append(self.name)
 
 @codegens(ast.Assignment)
@@ -200,6 +241,7 @@ def codegen(self, c):
     ''' Represent an instance with a list of the form:
         [ classname, field1, field2, ...]
     '''
+
     context = self.context
     program = context.program
 
@@ -216,6 +258,10 @@ def codegen(self, c):
             c.LOAD_CONST(None)
 
     c.BUILD_LIST(1 + len(classContext.classvars))
+
+@codegens(ast.This)
+def codegen(self, c):
+    c.LOAD_FAST('self')
 
 @codegens(ast.If)
 def codegen(self, c):
