@@ -1,24 +1,22 @@
 <!doctype html>  
 <html lang="en">
-	
 	<head>
 		<meta charset="utf-8">
-		
 		<title>Javapyc</title>
-
 		<meta name="description" content="Javapyc final presentation">
 		<meta name="author" content="Javapyc team">
-
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-		
-		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-		
-		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="css/main.css">
-		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
-
-		<link rel="stylesheet" href="lib/zenburn.css">
+		<link rel='stylesheet' href='css/fonts.css' />
+		<link rel="stylesheet" href="css/reset.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print" />
+		<link rel="stylesheet" href="lib/zenburn.css" />
+		<style type="text/css">
+			.bold {
+				font-weight: bold;
+			}
+		</style>
 	</head>
 	
 	<body>
@@ -30,6 +28,7 @@
 			
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
+
 				<section>
 					<h1>Javapyc</h1>
 					<h3 class="inverted">From Java to CPython Bytecode</h3>
@@ -37,6 +36,124 @@
 						// Delicously hacky. Look away.
 						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
 					</script>
+				</section>
+				
+				<section>
+					<h2>Architecture</h2>
+
+					<section></section>
+
+					<section>
+						
+
+					</section>
+
+				</section>
+
+				<section>
+					<h2>Additional Features</h2>
+
+					<section></section>
+
+					<section>
+					<ul>
+						<li class="bold">String formatting</li>
+						<li class="bold">Optimizations</li>
+						<br />
+
+						<div class="fragment">
+						<li>Generators</li>
+						<li>Retargetable Backend</li>
+						<li>Single branch if</li>
+						<li>Break</li>
+						<li>Math.Pow</li>
+						<li>Method call expression</li>
+						</div>
+					</ul>
+					</section>
+				</section>
+
+				<section>
+					<h2>String Formatting</h2>
+
+					<section>
+						<pre><code class="java">
+class Program {
+	public static void main(String[] args) {
+
+		int a = 22;
+		int b = 20;
+
+		System.out.printf("%d + %d = %d\n", a, b, a+b);
+
+		System.out.printf("%s\n", new Dog().setName("Bob"));
+	}
+}
+
+class Dog {
+
+	String name;
+
+	public Dog setName(String newName) {
+		name = newName;
+		return this;
+	}
+
+	public String getSpecies() {
+		return "dog";
+	}
+
+	public String toString() {
+		return String.format("%s is a %s", name, this.getSpecies());
+	}
+}
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Parser</h3>
+						<pre><code class="python">
+    def p_common_printf(self, args):
+        r'common ::= System.out.printf ( formatstring ) ;'
+        return ast.Printf(args[2])
+    def p_factor_stringformat(self, args):
+        r'factor ::= String.format ( formatstring )'
+        return ast.StringFormat(args[2])
+
+    def p_formatstring(self, args):
+        r'formatstring ::= string formatstringarglist '
+        return ast.FormatString(args[0], args[1])
+
+    def p_string_single(self, args):
+        r'string ::= StringLiteral'
+        return args[0].val
+    def p_string_list(self, args):
+        r'string ::= StringLiteral string'
+        return args[0].val + args[1]
+						</pre></code>
+
+					</section>
+
+					<section>
+						<h3>Bytecode</h3>
+						<pre><code class="python">
+@codegens(ast.FormatString)
+def codegen(self, c):
+    args = self.children
+    c.LOAD_CONST(self.string)
+    if len(args):
+        for arg in args:
+            if isinstance(arg.nodeType, ast.BaseObjectType):
+                arg.codegen(c)
+                c.LOAD_ATTR('__str__')
+                c.CALL_FUNCTION()
+            else:
+                arg.codegen(c)
+        c.BUILD_TUPLE(len(args))
+        c.BINARY_MODULO()
+						</pre></code>
+
+					</section>
 				</section>
 				
 				<section>
