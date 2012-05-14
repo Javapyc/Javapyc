@@ -73,7 +73,7 @@ class ExpressionScanner1(GenericScanner):
         self.rv.append(t)
 
     def t_delimiter(self, s):
-        r';|\.|,|=|\(|\)|{|}|\[|\]'
+        r':|;|\.|,|=|\(|\)|{|}|\[|\]'
         t = Delimiter(s)
         self.rv.append(t)
 
@@ -87,7 +87,7 @@ class ExpressionScanner2(ExpressionScanner1):
 
     # Need to be checked first or will be considered an ID
     def t_reserved(self, s):
-        r'class\b|public\b|static\b|extends\b|void\b|int\b|boolean\b|if\b|else\b|while\b|return\b|null\b|true\b|false\b|this\b|new\b|String\.format\b|String\b|main\b|System\.out\.printf\b|System\.out\.println\b|Math.pow\b|break\b|yield\b'
+        r'class\b|public\b|static\b|extends\b|void\b|int\b|boolean\b|if\b|else\b|while\b|for\b|return\b|null\b|true\b|false\b|this\b|new\b|String\.format\b|String\b|main\b|System\.out\.printf\b|System\.out\.println\b|Math.pow\b|break\b|yield\b'
         t = ReservedWord(s)
         self.rv.append(t)
 

@@ -359,6 +359,19 @@ class CodeGen:
         self.popStack()
         self.pushStack()
     
+    def GET_ITER(self):
+        self.write(Ops.GET_ITER)
+        self.popStack(1)
+        self.pushStack(1)
+    
+    def FOR_ITER(self):
+        pos = len(self.co_code)
+        self.write(Ops.FOR_ITER, 0)
+        self.pushStack(1)
+        def mark():
+            self.co_code[pos+1] = len(self.co_code) - pos - 3
+        return mark
+    
     def UNARY_NOT(self):
         self.write(Ops.UNARY_NOT)
         self.popStack(1)

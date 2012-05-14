@@ -125,6 +125,9 @@ class StmtGrammar:
         r'withelse ::= common'
         return args[0]
         
+    def p_common_foreach(self, args):
+        r'stmt ::= for ( type ID : expr ) stmt'
+        return ast.ForEach(args[2], args[3].val, args[5], args[7])
     def p_common_break(self, args):
         r'common ::= break ;'
         return ast.Break()
@@ -147,9 +150,9 @@ class StmtGrammar:
         r'common ::= System.out.printf ( formatstring ) ;'
         return ast.Printf(args[2])
     def p_common_yield(self, args):
-        r'stmt ::= yield expr ;'
+        r'common ::= yield expr ;'
         return ast.Yield(args[1]);
-    
+
     def p_stmtlist_empty(self, args):
         r'stmtlist ::= '
         return tuple()

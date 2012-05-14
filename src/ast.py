@@ -160,6 +160,11 @@ class IfElse(Stmt):
 class While(Stmt):
     def __init__(self, cond, stmt):
         AST.__init__(self, (cond, stmt))
+class ForEach(Stmt):
+    def __init__(self, typename, name, expr, stmt):
+        AST.__init__(self, (expr, stmt))
+        self.typename = typename
+        self.name = name
 class Break(Stmt):
     def __init__(self):
         AST.__init__(self, tuple())

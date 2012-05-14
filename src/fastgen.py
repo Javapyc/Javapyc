@@ -234,6 +234,32 @@ def codegen(self, c):
     #Instruction position after loop
     loop()
 
+@codegens(ast.ForEach)
+def codegen(self, c):
+    expr, stmt = self.children
+
+    #Start the loop
+    loop = c.SETUP_LOOP()
+
+    #Expression
+    expr.codegen(c)
+    c.GET_ITER()
+    loopStart = c.marker()
+    jumpEnd = c.FOR_ITER()
+    c.STORE_FAST(self.name)
+
+    #Body
+    stmt.codegen(c)
+    c.JUMP_ABSOLUTE(loopStart)
+
+    #Loop end
+    jumpEnd()
+    c.POP_BLOCK()
+
+    #Instruction position after loop
+    loop()
+    c.popStack(1)
+
 @codegens(ast.Break)
 def codegen(self, c):
     c.BREAK_LOOP()

@@ -221,6 +221,27 @@ def typecheck(self, context):
 
     return ast.While
 
+@typechecks(ast.ForEach)
+def typecheck(self, context):
+    expr, stmt = self.children
+    
+    context = context.enterInnerScope()
+    self.context = context
+    context.method.pushLoop()
+
+    if not isCompatible(context.program, expr.typecheck(context), self.typename):
+        raise TypecheckException("Cannot assign {0} to {1}".format(expr, self.typename))
+    #ensure not already declared
+    if context.localVarType(self.name):
+        raise TypecheckException("Illegal redeclaration of variable '{0}'".format(self.name))
+    context.declareVar(self.typename, self.name)
+
+    if stmt.typecheck(context) == ast.Decl:
+        raise TypecheckException("Error with ForEach: cannot have single declaration in loop")
+    context.method.popLoop()
+
+    return ast.ForEach
+
 @typechecks(ast.Break)
 def typecheck(self, context):
     settings.requireExtended();
