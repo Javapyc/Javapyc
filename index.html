@@ -16,6 +16,12 @@
 			.bold {
 				font-weight: bold;
 			}
+			.codetitle {
+				margin: 10px auto;
+				text-align: left;
+				position: relative;
+				width: 90%;
+			}
 		</style>
 	</head>
 	
@@ -29,8 +35,7 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 
-				<section>
-					<h1>Javapyc</h1>
+				<section><h1>Javapyc</h1>
 					<h3 class="inverted">From Java to CPython Bytecode</h3>
 					<script>
 						// Delicously hacky. Look away.
@@ -44,20 +49,7 @@
 					</p>
 				</section>
 				
-				<section>
-					<h2>Architecture</h2>
-
-					<section></section>
-
-					<section>
-						
-
-					</section>
-
-				</section>
-
-				<section>
-					<h2>Additional Features</h2>
+				<section><h2>Additional Features</h2>
 
 					<section></section>
 
@@ -79,30 +71,22 @@
 					</section>
 				</section>
 
-				<section>
-					<h2>String Formatting</h2>
+				<section><h2>String Formatting</h2>
 
 					<section>
-						<pre><code class="java">
-class Program {
+						<pre><code class="java">class Program {
 	public static void main(String[] args) {
-
 		int a = 22;
 		int b = 20;
-
 		System.out.printf("%d + %d = %d\n", a, b, a+b);
-
 		System.out.printf("%s\n", new Dog().setName("Bob"));
 	}
 }
 
 class Dog {
-
 	String name;
-
 	public Dog setName(String newName) {
-		name = newName;
-		return this;
+		name = newName; return this;
 	}
 
 	public String getSpecies() {
@@ -110,17 +94,17 @@ class Dog {
 	}
 
 	public String toString() {
-		return String.format("%s is a %s", name, this.getSpecies());
+		return String.format("%s is a %s",
+			name, this.getSpecies());
 	}
-}
-						</code></pre>
+}</code></pre>
 					</section>
 
 					<section>
 						<h3>Parser</h3>
 						<pre><code class="python">
-    def p_common_printf(self, args):
-        r'common ::= System.out.printf ( formatstring ) ;'
+    def p_stmt_printf(self, args):
+        r'stmt ::= System.out.printf ( formatstring ) ;'
         return ast.Printf(args[2])
     def p_factor_stringformat(self, args):
         r'factor ::= String.format ( formatstring )'
@@ -162,28 +146,51 @@ def codegen(self, c):
 					</section>
 				</section>
 
-				<section>
-					<h2>Optimizations</h2>
+				<section><h2>Optimizations</h2>
 				</section>
 				
-				<section>
-					<h2>Some Code</h2>
-					<pre><code contenteditable>
-@codegens(ast.Decl)
-def codegen(self, c):
-    (expr,) = self.children
-    expr.codegen(c)
-    
-    context = self.context
-    typename = context.localVarType(self.name)
-    c.STORE_FAST(self.name)
-					</code></pre>
+				<section><h2>Generators</h2>
+
+					<section></section>
+
+					<section>
+					<p class="codetitle">A Python Generator:</p>
+					<pre><code class="python">for i in range(1, 10, 2):
+    print(i)</code></pre>
+					<p class="codetitle">Java Equivalent:</p>
+					<pre><code class="java">class Program {
+	public static void main(String[] args) {
+		Generator gen = new Generator();
+		for (int i : gen.range(1, 10, 2)) {
+			System.out.println(i);
+		}
+	}
+}
+class Generator {
+	public int range(int start, int stop, int step) {
+		while (start &lt; stop) {
+			yield start;
+			start = start + step;
+		}
+	}
+}</code></pre>
+					</section>
+
 				</section>
+
+				<section><h2>More Features</h2>
+
+					<ul>
+						<li class="fragment">Retargetable Backend</li>
+						<li class="fragment">Single branch if</li>
+						<li class="fragment">Break</li>
+						<li class="fragment">Math.Pow</li>
+						<li class="fragment">Method call expression</li>
+					</ul>
 				
-				<section>
-					<h2>TODO</h2>
-					<p>Everything else</p>
 				</section>
+
+				<section><h2>Demos</h2></section>
 				
 				<section>
 					<h1>Questions?</h1>
