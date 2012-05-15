@@ -157,7 +157,6 @@ class ValueNode extends Node {
 			} else /* (value > mValue) */ {
 				mRight = mRight.add(value);
 			}
-		} else {
 		}
 
 		return this;
@@ -170,7 +169,6 @@ class ValueNode extends Node {
 	public String indent(String s, int depth) {
 		if (depth > 0) {
 			s = this.indent(String.format(" %s", s), depth-1);
-		} else {
 		}
 
 		return s;
