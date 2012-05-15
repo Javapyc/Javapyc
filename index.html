@@ -147,8 +147,91 @@ def codegen(self, c):
 				</section>
 
 				<section><h2>Optimizations</h2>
-				</section>
-				
+					<section></section>
+
+					<section>
+					<ul>
+                        <li>Dead code removal</li>
+                        <li>Unreachable code</li>
+                        <li>Condition removal</li>
+						<div class="fragment">
+                            <li>Constant folding</li>
+                            <li>Perform basic operations on primatives</li>
+                            <li>Aggresive variable substitution</li>
+                        </div>
+                        <li class="fragment">Inlining</li>
+					</ul>
+			  		</section>
+					<section>
+						<pre><code class="java">class Program {
+    public static void main(String[] args) {
+        int a = 22 + 10;
+        int b = 20 + a;
+        int m = 2 * a + b - 5;
+        System.out.println(a);
+        System.out.println(m);
+    }
+}
+                        </code></pre>
+                        <div class="fragment">                        
+                            <h3>folds to</h3>
+    						<pre><code class="java">class Program {
+    public static void main(String[] args) {
+        int a = 32;
+        int b = 20 + a;
+        int m = 2 * a + b - 5;
+        System.out.println(a);
+        System.out.println(m);
+    }
+}
+                            </code></pre>
+                        </div>
+					</section>
+					<section>
+						<pre><code class="java">class Program {
+    public static void main(String[] args) {
+        int a = 32;
+        int b = 20 + a;
+        int m = 2 * a + b - 5;
+        System.out.println(a);
+        System.out.println(m);
+    }
+}
+                        </code></pre>
+                        <div class="fragment">                        
+                            <h3>substitutes to (and folds again to)</h3>
+    						<pre><code class="java">class Program {
+    public static void main(String[] args) {
+        int a = 32;
+        int b = 52;
+        int m = 110;
+        System.out.println(32);
+        System.out.println(110);
+    }
+}
+                            </code></pre>
+                        </div>
+					</section>
+					<section>
+                        <h3>With dead code removed</h3>
+						<pre><code class="java">class Program {
+    public static void main(String[] args) {
+        System.out.println(32);
+        System.out.println(110);
+    }
+}
+                        </code></pre>
+					</section>
+                    <section>
+                        <h3>Limitations</h3>
+                        <ul>
+                            <li>Doesn't work on class variables</li>
+                            <li>Doesn't work inside loops (even for unchanging variables)</li>
+                            <li>Requires multiple runs of optimization code</li>
+                            <li>Only inlines return only functions</li>
+                        </ul>
+                    </section>	
+                </section>			
 				<section><h2>Generators</h2>
 
 					<section></section>
