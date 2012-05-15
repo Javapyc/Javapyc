@@ -329,6 +329,11 @@ class CodeGen:
     def POP_TOP(self):
         self.write(Ops.POP_TOP)
         self.popStack()
+
+    def DUP_TOP(self):
+        self.write(Ops.DUP_TOP)
+        self.popStack(1) # to check for underflow
+        self.pushStack(2)
     
     def LOAD_BUILD_CLASS(self):
         self.write(Ops.LOAD_BUILD_CLASS)
@@ -499,6 +504,10 @@ class CodeGen:
                 self.writeValue(pos+1, len(self.co_code))
             return mark
 
+    def ROT_TWO(self):
+        self.write(Ops.ROT_TWO)
+        self.popStack(2)
+        self.pushStack(2)
 
     def marker(self):
         return len(self.co_code)

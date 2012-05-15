@@ -109,17 +109,37 @@ def codegen(self, c):
 
     objType = obj.typecheck(self.context)
 
-    # TODO: get funcName from vtable here
+    # Get funcName from vtable here
     # pseudocode...
     # self := _locals[0]
     # funcName := self[0][func]
-    
-    funcName = "{0}__{1}".format(objType, func)
 
-    # === Shouldn't change with vtables
-    c.LOAD_GLOBAL(funcName)
-    obj.codegen(c) # "self" variable
+    obj.codegen(c)
+    c.DUP_TOP()
+
+    # Put globals dict on top of the stack
+    c.LOAD_GLOBAL('globals')
+    c.CALL_FUNCTION(0)
+
+    # put "this" on top of the stack
+    c.ROT_TWO()
     
+    # Now get the vtable on the top of the stack
+    c.LOAD_CONST(0)
+    c.BINARY_SUBSCR()
+
+    # Apply the key (func) to get the value (<class>__<func>) on TOS
+    c.LOAD_CONST(func) 
+    c.BINARY_SUBSCR()
+
+    # Subscript globals (map) with <class>__<func>
+    # TOS will be the code object with that name
+    c.BINARY_SUBSCR()
+
+    # To put "this" on top of the stack
+    # needed for function call
+    c.ROT_TWO()
+       
     for arg in args:
         arg.codegen(c)
 
@@ -200,6 +220,7 @@ def codegen(self, c):
         c.LOAD_CONST(methodContext.localVars.index(self.name))
         c.BINARY_SUBSCR()
     else:
+        # TODO: make it include all parent variables also
         index = classContext.fields.index(self.name)
         c.LOAD_FAST('self')
         c.LOAD_CONST(1 + index)
@@ -208,8 +229,7 @@ def codegen(self, c):
 @codegens(ast.NewInstance)
 def codegen(self, c):
     ''' Represent an instance with a list of the form:
-        OLD: [ classname, field1, field2, ...]
-        TODO: will become: [ vtable, field1, field2, ...]
+        [ vtable, field1, field2, ...]
     '''
 
     context = self.context
@@ -217,15 +237,22 @@ def codegen(self, c):
 
     classContext = program.lookupClass(self.name)
 
-    # TODO: create vtable instead of const
-    c.LOAD_CONST(self.name)
-    # To replace what is above:
-    # c.BUILD_MAP(expected num of pairs)
-    # for pair in numpairs:
-    #     c.LOAD_CONST(value) # should be... Classname__funcname?
-    #     c.LOAD_CONST(key) # should be... funcname?
-    #     c.STORE_MAP()
-    
+    methods = {}
+    while (classContext):
+        for m in classContext.methods:
+            if m.name not in methods:
+                methods[m.name] = "{0}__{1}".format(classContext.name, m.name)
+        classContext = classContext.parent
+
+    c.BUILD_MAP(len(methods)) 
+
+    for method in methods:
+        c.LOAD_CONST(methods[method]) # value
+        c.LOAD_CONST(method) # key
+        c.STORE_MAP()
+
+    classContext = program.lookupClass(self.name)
+
     for field in classContext.classvars:
         vartype = field.typename
         if vartype == ast.IntType:
