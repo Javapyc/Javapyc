@@ -26,6 +26,13 @@ class ClassContext:
         self.methods = methods
         self.parent = parent
         self.program = None
+
+    @property
+    def classvarsAndParent(self):
+        ls = []
+        if self.parent:
+            ls = self.parent.classvarsAndParent
+        return ls + list(self.classvars)
     @property
     def fields(self):
         ls = []

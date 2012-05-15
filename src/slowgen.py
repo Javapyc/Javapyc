@@ -108,7 +108,7 @@ def codegen(self, c):
     func = self.func
 
     objType = obj.typecheck(self.context)
-
+    
     # Get funcName from vtable here
     # pseudocode...
     # self := _locals[0]
@@ -203,7 +203,7 @@ def codegen(self, c):
         c.STORE_SUBSCR()
     else:
         expr.codegen(c)
-        index = classContext.fields.index(self.name)
+        index = classContext.fields.index(self.name) 
         c.LOAD_FAST('self')
         c.LOAD_CONST(1 + index)
         c.STORE_SUBSCR()
@@ -220,7 +220,6 @@ def codegen(self, c):
         c.LOAD_CONST(methodContext.localVars.index(self.name))
         c.BINARY_SUBSCR()
     else:
-        # TODO: make it include all parent variables also
         index = classContext.fields.index(self.name)
         c.LOAD_FAST('self')
         c.LOAD_CONST(1 + index)
@@ -253,7 +252,7 @@ def codegen(self, c):
 
     classContext = program.lookupClass(self.name)
 
-    for field in classContext.classvars:
+    for field in classContext.classvarsAndParent:
         vartype = field.typename
         if vartype == ast.IntType:
             c.LOAD_CONST(0)
@@ -262,7 +261,8 @@ def codegen(self, c):
         else:
             c.LOAD_CONST(None)
 
-    c.BUILD_LIST(1 + len(classContext.classvars))
+    c.BUILD_LIST(1 + len(classContext.classvarsAndParent))
+    # import pdb; pdb.set_trace()
 
 @codegens(ast.This)
 def codegen(self, c):

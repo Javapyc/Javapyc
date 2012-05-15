@@ -6,7 +6,7 @@ class Main {
 
 		int a = f.set(3);
 		a = f.get();
-		int c = b.set(6);
+		int c = b.set(6); // this line has probs
 		c = b.get();
 
 		System.out.println(a + c);	//should print 12
@@ -28,8 +28,10 @@ class Foo{
 }
 
 class Bar extends Foo{
-
+	
 	public int get(){
 		return 9;
 	}
 }
+
+
