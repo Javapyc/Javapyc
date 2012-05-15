@@ -50,6 +50,8 @@ class MethodDecl(AST):
         self.types = None
     def hasYield(self):
         def crawl(node):
+            if not node:
+                return False
             if isinstance(node, Yield):
                 return True
             for child in node.children:
@@ -58,7 +60,7 @@ class MethodDecl(AST):
             return False
         return crawl(self)
     def isGenerator(self):
-        return self.children[-1] is None and self.hasYield()
+        return self.children[-1] is None
     def isMethod(self):
         return self.children[-1] and not self.hasYield()
     def __repr__(self):
