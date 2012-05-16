@@ -327,5 +327,3 @@ def codegen(self, c):
     # Mark the end of the while loop
     jumpLoc()
 
-print('WARNING: slowgen codegen not fully implemented')
-

@@ -99,7 +99,7 @@ class ParserTests(FileTest):
 
 class CodegenTests(FileTest):
     @classmethod
-    def init(cls, optimize=False):
+    def init(cls, optimize=False, skip=[]):
         for name, p, expected in testFiles('out'):
             def makeTest(name, p, expected):
                 def runTest(self):
@@ -132,7 +132,8 @@ class CodegenTests(FileTest):
                         fout.flush()
                         self.diff(expected, fout.name)
                 return runTest
-            setattr(cls, name, makeTest(name, p, expected))
+            if name not in skip:
+                setattr(cls, name, makeTest(name, p, expected))
 
 @staticinit
 class FastgenTests(CodegenTests):
@@ -145,7 +146,6 @@ class FastgenTests(CodegenTests):
     def __static__(cls):
         cls.init()
 
-@unittest.skipUnless(os.environ['USER'] in ('troisisa','king'), 'Very, very broken')
 @staticinit
 class OptimizerTests(CodegenTests):
     @classmethod
@@ -155,9 +155,8 @@ class OptimizerTests(CodegenTests):
         subprocess.call(['mkdir', 'testbins'])
     @classmethod
     def __static__(cls):
-        cls.init(True)
+        cls.init(True, skip=['test_generator'])
 
-# @unittest.skip('Very, very broken')
 @staticinit
 class SlowgenTests(CodegenTests):
     @classmethod
@@ -167,7 +166,7 @@ class SlowgenTests(CodegenTests):
         subprocess.call(['mkdir', 'testbins'])
     @classmethod
     def __static__(cls):
-        cls.init()
+        cls.init(skip=['test_generator', 'test_strings'])
 
 if __name__ == '__main__':
     unittest.main()
