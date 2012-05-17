@@ -220,40 +220,28 @@ class NotEqual(BinaryEqualExpr):
 class CompExpr(EqualExpr):
     def __copy__(self):
         children = tuple(map(lambda c: c.__copy__(), self.children))
-        return CompExpr(children)
+        return type(self)(children)
 class BinaryCompExpr(CompExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
-    def __copy__(self):
-        return CompExpr(self.children[0].__copy__(), self.children[1].__copy__())
 class LessThan(BinaryCompExpr):
-    def __copy__(self):
-        return LessThan(self.children[0].__copy__(), self.children[1].__copy__())
-class GreaterThan(BinaryCompExpr):
-    def __copy__(self):
-        return GreaterThan(self.children[0].__copy__(), self.children[1].__copy__())
-class LessThanEqualTo(BinaryCompExpr):
-    def __copy__(self):
-        return LessThanEqualTo(self.children[0].__copy__(), self.children[1].__copy__())
-class GreaterThanEqualTo(BinaryCompExpr):
-    def __copy__(self):
-        return GreaterThanEqualTo(self.children[0].__copy__(), self.children[1].__copy__())
-
-class AlgExpr(CompExpr):
     pass
+class GreaterThan(BinaryCompExpr):
+    pass
+class LessThanEqualTo(BinaryCompExpr):
+    pass
+class GreaterThanEqualTo(BinaryCompExpr):
+    pass
+class AlgExpr(CompExpr):
+    def __copy__(self):
+        return type(self)(self.children[0].__copy__(), self.children[1].__copy__())
 class BinaryExpr(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
-    def __copy__(self):
-        return BinaryExpr(self.children[0].__copy__(), self.children[1].__copy__())
 class Plus(BinaryExpr):
-    def __copy__(self):
-        t = Plus(self.children[0].__copy__(), self.children[1].__copy__())
-        t.context = self.context;
-        return t
+    pass
 class Minus(BinaryExpr):
-    def __copy__(self):
-        return Minus(self.children[0].__copy__(), self.children[1].__copy__())
+    pass
 class Term(AlgExpr):
     def __copy__(self):
         children = tuple(map(lambda c: c.__copy__(), self.children))
@@ -262,18 +250,12 @@ class Term(AlgExpr):
 class BinaryTerm(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
-    def __copy__(self):
-        return BinaryTerm(self.children[0].__copy__(), self.children[1].__copy__())
-
-
 
 class Mult(BinaryTerm):
-    def __copy__(self):
-        return Mult(self.children[0].__copy__(), self.children[1].__copy__())
+    pass
 
 class Div(BinaryTerm):
-    def __copy__(self):
-        return Div(self.children[0].__copy__(), self.children[1].__copy__())
+    pass
 
 class Factor(Term):
     def __copy__(self):
@@ -395,7 +377,7 @@ class StringFormat(Factor):
     def __init__(self, formatString):
         AST.__init__(self, (formatString,))
     def __repr__(self):
-        return 'Call({0})'.format(self.func)
+        return 'StringFormat'
     def __copy__(self):
         children = tuple(map(lambda c: c.__copy__(), self.children))
         t = StringFormat(children)
