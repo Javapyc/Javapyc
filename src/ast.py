@@ -260,23 +260,17 @@ class Div(BinaryTerm):
 class Factor(Term):
     def __copy__(self):
         children = tuple(map(lambda c: c.__copy__(), self.children))
-        return Factor(children)
+        return type(self)(children)
 
 
 class UnaryFactor(Factor):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
         self.expr = expr
-    def __copy__(self):
-        return UnaryFactor(self.children[0])
 class Negate(UnaryFactor):
-    def __copy__(self):
-        children = tuple(map(lambda c: c.__copy__(), self.children))
-        return Negate(children)
+    pass
 class Not(UnaryFactor):
-    def __copy__(self):
-        children = tuple(map(lambda c: c.__copy__(), self.children))
-        return Not(children)
+    pass
 class NewInstance(Factor):
     def __init__(self, name):
         AST.__init__(self, tuple())
@@ -288,9 +282,6 @@ class NewInstance(Factor):
 class Scalar(Factor):
     def __repr__(self):
         return "({0}){1}".format(self.typename(), self.val)
-    def __copy__(self):
-        children = tuple(map(lambda c: c.__copy__(), self.children))
-        return Scalar(children)
 
 class String(Scalar):
     def __init__(self, val):
@@ -331,15 +322,11 @@ class Null(Factor):
         return 'null'
     def value(self):
         return None
-    def __copy__(self):
-        return Null()
 class This(Factor):
     def __init__(self):
         AST.__init__(self, tuple())
     def __repr__(self):
         return 'this'
-    def __copy__(self):
-        return This()
 class ID(Factor):
     def __init__(self, name):
         AST.__init__(self, tuple())
@@ -356,9 +343,6 @@ class Pow(Factor):
         AST.__init__(self, (a,b))
     def __repr__(self):
         return 'Pow'
-    def __copy__(self):
-        children = tuple(map(lambda c: c.__copy__(), self.children))
-        return Pow(children)
         
 class Call(Factor):
     def __init__(self, obj, func, args):
@@ -378,11 +362,6 @@ class StringFormat(Factor):
         AST.__init__(self, (formatString,))
     def __repr__(self):
         return 'StringFormat'
-    def __copy__(self):
-        children = tuple(map(lambda c: c.__copy__(), self.children))
-        t = StringFormat(children)
-        t.context = self.context
-        return t
 
 class FormatString(Factor):
     def __init__(self, string, args):
