@@ -24,6 +24,7 @@ class ClassContext:
         self.classvars = classvars
         self.variables = variables
         self.methods = methods
+        self.constMethods = {}
         self.parent = parent
         self.program = None
 
@@ -61,6 +62,26 @@ class ClassContext:
         if not res and self.parent:
             return self.parent.lookupMethod(name, argTypes)
         return res
+
+    def declareConstMethod(self, name, argTypes, formallist, returnExpr):
+        self.constMethods[(name,argTypes)] = (formallist, returnExpr)
+
+    def getConstMethod(self, name, argTypes):
+        for method in self.methods:
+            if name != method.name:
+                continue
+            if len(method.params) != len(argTypes):
+                continue
+            for p1, p2 in zip(method.params, argTypes):
+                if not isCompatible(self.program, p1, p2):
+                    continue
+            # this class has the method being called check if it is const
+            temp = self.constMethods.get((name,argTypes), None)
+            return temp
+
+        if self.parent:
+            return self.parent.getConstMethod(name, argTypes)
+
 
 class MethodContext:
     def __init__(self, classContext):

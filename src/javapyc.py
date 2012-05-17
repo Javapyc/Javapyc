@@ -13,7 +13,7 @@ def getArguments():
     parser.add_argument('--verbose', '-v', action='count')
     parser.add_argument('--no-fastgen', '-s', action='store_true', help='disable fast executing code generation')
     parser.add_argument('--pedantic', '-x', action='store_true', help='disable all language enhancements')
-    parser.add_argument('--optimize', '-O', action='store_true', help='enable optimizations')
+    parser.add_argument('--optimize', '-O', type=int, action='store', default=0, help='enable optimizations')
     parser.add_argument('--dump-binary', '-d', action='store_true', help='dump codegen binary')
     parser.add_argument('files', nargs='+', type=InputFile)
     return parser.parse_args()
@@ -25,9 +25,6 @@ def main():
     if len(args.files) > 1:
         print("Only one input file is supported")
         sys.exit(1)
-
-    if args.phase == 'optimize':
-        args.optimize = True
 
     outfile = args.out_file + '.pyc'
     verbose = args.verbose
@@ -82,16 +79,25 @@ def main():
             if args.phase == 'optimize':
                 parser.dump(tree, sys.stdout)
                 print()
-            if args.optimize:
-                tree.optimize()
+
+            if args.phase == 'optimize' or args.optimize:
+                if args.phase == 'optimize' and args.optimize == 0:
+                    args.optimize = 1
+
+                print("running", args.optimize, "rounds of optimize()")
+
+                for roundNum in range(args.optimize):
+                    tree.optimize()
+
             if args.phase == 'optimize':
                 parser.dump(tree, sys.stdout)
                 break
-            
+
             #Generate Code
             codegen.codegen(outfile, tree, dumpbin)
             if args.phase == 'codegen':
                 break
+
 
             if args.phase == 'run':
                 import importlib

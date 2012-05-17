@@ -145,12 +145,24 @@ def optimize(self):
     return self
 
 
+# note this is a special optimize which needs to set the loop status before optimizing children
+def optimizeIfs(self):
+    self.context.program.optimizerInLoop += 1
+     
+    self.children = tuple(map(lambda child: child.optimize(), self.children))
+    opt = self._optimize()
+
+    self.context.program.optimizerInLoop -= 1
+    return opt
+setattr(ast.IfElse, 'optimize', optimizeIfs)
+setattr(ast.If, 'optimize', optimizeIfs)
+
 @optimizes(ast.If)
 def optimize(self):
     (cond, ifstmt) = self.children
     if isinstance(cond, ast.Boolean):
         if cond.val:
-            return ifstmt
+            return ifstmt.optimize()
         else:
             temp = ast.Nop()
             temp.context = self.context
@@ -168,17 +180,14 @@ def optimize(self):
     return self
 
 
-# not this is a special optimize which needs to set the loop status before optimizing children
+# note this is a special optimize which needs to set the loop status before optimizing children
 def optimizeWhile(self):
     self.context.program.optimizerInLoop += 1
-
-#    print ("optimizing while", self.children)
 
     self.children = tuple(map(lambda child: child.optimize(), self.children))
     opt = self._optimize()
 
     self.context.program.optimizerInLoop -= 1 
-
     return opt
 setattr(ast.While, 'optimize', optimizeWhile)
 
@@ -192,16 +201,72 @@ def optimize(self):
         return temp
     return self
 
+@optimizes(ast.MethodDecl)
+def optimize(self):
+    *stmts, expr = self.children
+    if len(stmts) == 0:
+        formalTypes = tuple([i.typename for i in self.formallist])
+#        print ("\tMETHOD", self.ID, formalTypes, " can be inlined as (", expr, self.formallist, ")", self.context.classContext)
+#        print ()
+        self.context.classContext.declareConstMethod(self.ID, formalTypes, self.formallist, expr)
+    return self
+
+def inlineSub(node, formalList, argList):
+    if isinstance(node, ast.This):
+        # can not optimize this calls
+        return None
+
+
+    if type(node) == ast.ID:
+        if node.name in formalList:
+            return argList[formalList.index(node.name)] 
+        # reference to class static can not inline
+        return None
+
+    node.children = tuple(map(lambda x: inlineSub(x, formalList, argList), node.children))
+    if None in node.children:
+        return None
+
+    return node
+
+@optimizes(ast.Call)
+def optimize(self):
+    (var, *args) = self.children
+
+    if isinstance(var, ast.ID):
+        className = self.context.getConstVar(var.name)
+        if not className:
+            return self
+    else:
+        # can't optimize this.calls easily (to easy to mess up tail recursion)
+        return self    
+
+    classContext = self.context.lookupClass(className)
+
+    formalTypes = tuple(map(lambda arg: arg.typecheck(self.context), args))
+
+    temp = classContext.getConstMethod(self.func, formalTypes)
+    if temp:
+        (formallist, expr) = temp
+#        print ("call:", className, self.func, formalTypes, args, "\t=>", formallist, expr, expr.children, classContext)
+        test = inlineSub(expr.__copy__(), [i.ID for i in formallist], args)
+
+        if test:
+#            print ("hi:", test, test.children, "\t", expr, expr.children)
+#            print()
+            return test 
+
+    return self
 
 @optimizes(ast.Assignment)
 def optimize(self):
-    (expr) = self.children
+    (expr,) = self.children
     if isinstance(expr, ast.Integer):
         self.context.declareConstVar(self.name, expr.val)
 #        print("\t\tMapped", self.name, "=>", expr.val)
     else:
         self.context.declareConstVar(self.name, None)
-#        print("\t\t", self.name, "no longer const", self.children)
+#        print("\t\t", self.name, "no longer const", self.children, type(expr))
     return self    
 
 
@@ -211,6 +276,10 @@ def optimize(self):
         # have a named variable with a constant value (a = 10, b = 15)
         self.context.declareConstVar(self.name, self.children[0].val)
 #        print("\t\tFound", self.name, "=>", self.children[0].val)
+    if isinstance(self.typename, ast.ObjectType) and isinstance(self.children[0], ast.NewInstance):
+        # have a named variable set to new XYZ()
+        self.context.declareConstVar(self.name, self.children[0].name)
+#        print("\t\tFound", self.name, "(new) =>", self.children[0].name)
     return self
 
 @optimizes(ast.StmtList)

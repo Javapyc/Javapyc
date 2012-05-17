@@ -99,7 +99,7 @@ class ParserTests(FileTest):
 
 class CodegenTests(FileTest):
     @classmethod
-    def init(cls, optimize=False, skip=[]):
+    def init(cls, optimize=0, skip=[]):
         for name, p, expected in testFiles('out'):
             def makeTest(name, p, expected):
                 def runTest(self):
@@ -110,7 +110,8 @@ class CodegenTests(FileTest):
                     tree = javaParser.parse(tokens)
                     typechecker.typecheck(tree)
                     if optimize:
-                        tree.optimize()
+                        for roundNum in range(optimize):
+                            tree.optimize()
                     binpath = os.path.join('testbins', name + '.pyc')
                     codegen.codegen(binpath, tree, False)
                     with TempFile() as fout:
@@ -155,7 +156,7 @@ class OptimizerTests(CodegenTests):
         subprocess.call(['mkdir', 'testbins'])
     @classmethod
     def __static__(cls):
-        cls.init(True, skip=['test_generator'])
+        cls.init(5, skip=['test_generator'])
 
 @staticinit
 class SlowgenTests(CodegenTests):

@@ -91,6 +91,12 @@ class BasicType(Type):
         return hash(self.basicType)
     def __repr__(self):
         return "<{0}>".format(self.basicType.__name__)
+    def __copy__(self):
+        children = tuple(map(lambda c: c__copy__(), self.children))
+        t = BasicType(self.basicType)
+        t.context = self.context
+        return t
+
 IntType = BasicType(int)
 BoolType = BasicType(bool)
 StringType = BasicType(str)
@@ -172,80 +178,138 @@ class Break(Stmt):
         AST.__init__(self, tuple())
 
 class Expr(AST):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c__copy__(), self.children))
+        t = Expr(children)
+        t.context = self.context
+        return t 
+    
+
 class Or(Expr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return Or(self.children[0].__copy__(), self.children[1].__copy__())
 
 class AndExpr(Expr):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return AndExpr(children)
 class And(AndExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return Mult(self.children[0].__copy__(), self.children[1].__copy__())
 
 class EqualExpr(AndExpr):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return EqualExpr(children)
 class BinaryEqualExpr(EqualExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return BinaryEqualExpr(self.children[0].__copy__(), self.children[1].__copy__())
 class Equal(BinaryEqualExpr):
-    pass
+    def __copy__(self):
+        return Equal(self.children[0].__copy__(), self.children[1].__copy__())
 class NotEqual(BinaryEqualExpr):
-    pass
+    def __copy__(self):
+        return NotEqual(self.children[0].__copy__(), self.children[1].__copy__())
 
 class CompExpr(EqualExpr):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return CompExpr(children)
 class BinaryCompExpr(CompExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return CompExpr(self.children[0].__copy__(), self.children[1].__copy__())
 class LessThan(BinaryCompExpr):
-    pass
+    def __copy__(self):
+        return LessThan(self.children[0].__copy__(), self.children[1].__copy__())
 class GreaterThan(BinaryCompExpr):
-    pass
+    def __copy__(self):
+        return GreaterThan(self.children[0].__copy__(), self.children[1].__copy__())
 class LessThanEqualTo(BinaryCompExpr):
-    pass
+    def __copy__(self):
+        return LessThanEqualTo(self.children[0].__copy__(), self.children[1].__copy__())
 class GreaterThanEqualTo(BinaryCompExpr):
-    pass
+    def __copy__(self):
+        return GreaterThanEqualTo(self.children[0].__copy__(), self.children[1].__copy__())
 
 class AlgExpr(CompExpr):
     pass
 class BinaryExpr(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return BinaryExpr(self.children[0].__copy__(), self.children[1].__copy__())
 class Plus(BinaryExpr):
-    pass
+    def __copy__(self):
+        t = Plus(self.children[0].__copy__(), self.children[1].__copy__())
+        t.context = self.context;
+        return t
 class Minus(BinaryExpr):
-    pass
-
+    def __copy__(self):
+        return Minus(self.children[0].__copy__(), self.children[1].__copy__())
 class Term(AlgExpr):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Term(children)
+
 class BinaryTerm(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
+    def __copy__(self):
+        return BinaryTerm(self.children[0].__copy__(), self.children[1].__copy__())
+
+
+
 class Mult(BinaryTerm):
-    pass
+    def __copy__(self):
+        return Mult(self.children[0].__copy__(), self.children[1].__copy__())
+
 class Div(BinaryTerm):
-    pass
+    def __copy__(self):
+        return Div(self.children[0].__copy__(), self.children[1].__copy__())
 
 class Factor(Term):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Factor(children)
+
+
 class UnaryFactor(Factor):
     def __init__(self, expr):
         AST.__init__(self, (expr,))
         self.expr = expr
+    def __copy__(self):
+        return UnaryFactor(self.children[0])
 class Negate(UnaryFactor):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Negate(children)
 class Not(UnaryFactor):
-    pass
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Not(children)
 class NewInstance(Factor):
     def __init__(self, name):
         AST.__init__(self, tuple())
         self.name = name
     def __repr__(self):
         return "New({0})".format(self.name)
+    def __copy__(self):
+        return NewInstance(self.name)
 class Scalar(Factor):
     def __repr__(self):
         return "({0}){1}".format(self.typename(), self.val)
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Scalar(children)
+
 class String(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
@@ -254,6 +318,8 @@ class String(Scalar):
         return 'String'
     def value(self):
         return self.val
+    def __copy__(self):
+        return String(self.val)
 class Integer(Scalar):
     MIN_VALUE = -0x80000000
     MAX_VALUE = 0x80000000-1
@@ -264,6 +330,8 @@ class Integer(Scalar):
         return 'int'
     def value(self):
         return int(self.val)
+    def __copy__(self):
+        return Integer(self.val)
 class Boolean(Scalar):
     def __init__(self, val):
         AST.__init__(self, tuple())
@@ -272,6 +340,8 @@ class Boolean(Scalar):
         return 'bool'
     def value(self):
         return self.val
+    def __copy__(self):
+        return Boolean(self.val)
 class Null(Factor):
     def __init__(self):
         AST.__init__(self, tuple())
@@ -279,22 +349,35 @@ class Null(Factor):
         return 'null'
     def value(self):
         return None
+    def __copy__(self):
+        return Null()
 class This(Factor):
     def __init__(self):
         AST.__init__(self, tuple())
     def __repr__(self):
         return 'this'
+    def __copy__(self):
+        return This()
 class ID(Factor):
     def __init__(self, name):
         AST.__init__(self, tuple())
         self.name = name
     def __repr__(self):
         return 'ID({0})'.format(self.name)
+    def __copy__(self):
+        t = ID(self.name) 
+        t.context = self.context
+        return t
+
 class Pow(Factor):
     def __init__(self, a, b):
         AST.__init__(self, (a,b))
     def __repr__(self):
         return 'Pow'
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        return Pow(children)
+        
 class Call(Factor):
     def __init__(self, obj, func, args):
         AST.__init__(self, (obj,) + tuple(args))
@@ -302,11 +385,23 @@ class Call(Factor):
         self.func = func
     def __repr__(self):
         return 'Call({0})'.format(self.func)
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children[1:]))
+        t = Call(self.obj, self.func, children)
+        t.context = self.context
+        return t
+
 class StringFormat(Factor):
     def __init__(self, formatString):
         AST.__init__(self, (formatString,))
     def __repr__(self):
         return 'Call({0})'.format(self.func)
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        t = StringFormat(children)
+        t.context = self.context
+        return t
+
 class FormatString(Factor):
     def __init__(self, string, args):
         AST.__init__(self, tuple(args))
@@ -319,9 +414,14 @@ class FormatString(Factor):
         self.displaystring = escape(string)
     def __repr__(self):
         return "{0}({1})".format(self.classname(), str(self.displaystring))
-
+    def __copy__(self):
+        children = tuple(map(lambda c: c.__copy__(), self.children))
+        t = FormatString(self.string, children)
+        t.context = self.context
+        return t
 
 class Nop(AST):
     def __init__(self):
         AST.__init__(self, tuple())
-
+    def __copy__(self):
+        return Nop() 
