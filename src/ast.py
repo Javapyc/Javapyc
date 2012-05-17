@@ -212,8 +212,6 @@ class AlgExpr(CompExpr):
 class BinaryExpr(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
-        self.left = left
-        self.right = right
 class Plus(BinaryExpr):
     pass
 class Minus(BinaryExpr):
@@ -224,8 +222,6 @@ class Term(AlgExpr):
 class BinaryTerm(AlgExpr):
     def __init__(self, left, right):
         AST.__init__(self, (left,right))
-        self.left = left
-        self.right = right
 class Mult(BinaryTerm):
     pass
 class Div(BinaryTerm):

@@ -134,27 +134,31 @@ def codegen(self, c):
 
 @codegens(ast.Plus)
 def codegen(self, c):
-    self.left.codegen(c)
-    self.right.codegen(c)
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
     c.BINARY_ADD()
 
 @codegens(ast.Minus)
 def codegen(self, c):
-    self.left.codegen(c)
-    self.right.codegen(c)
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
     c.BINARY_SUBTRACT()
 
 @codegens(ast.Mult)
 def codegen(self, c):
-    self.left.codegen(c)
-    self.right.codegen(c)
+    left, right = self.children
+    left.codegen(c)
+    right.codegen(c)
     c.BINARY_MULTIPLY()
 
 @codegens(ast.Div)
 def codegen(self, c):
+    left, right = self.children
     c.LOAD_GLOBAL('int')
-    self.left.codegen(c)
-    self.right.codegen(c)
+    left.codegen(c)
+    right.codegen(c)
     c.BINARY_TRUE_DIVIDE()
     c.CALL_FUNCTION(1)
 
