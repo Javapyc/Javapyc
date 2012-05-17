@@ -16,8 +16,6 @@ class Program {
 		int n = 2;
 		int m = 10;
 
-        m = m + n;
-
 		if (n == 2)
 			System.out.printf("n == 2 (cor3)\n");
 

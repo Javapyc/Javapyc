@@ -53,12 +53,12 @@ def optimize(self):
     if self.context.program.optimizerInLoop > 0:
         return self
 
+
     if isinstance(self.context.varType(self.name), ast.BasicType):
         # FIXME TODO this feels wrong with "== int"
         if self.context.varType(self.name).basicType == int:
             test = self.context.getConstVar(self.name)
             if test:
-#                print("\tsubbed", test, "for", self.name)
                 return ast.Integer(test)
     return self
 
@@ -147,12 +147,13 @@ def optimize(self):
 
 # note this is a special optimize which needs to set the loop status before optimizing children
 def optimizeIfs(self):
-    self.context.program.optimizerInLoop += 1
-     
-    self.children = tuple(map(lambda child: child.optimize(), self.children))
-    opt = self._optimize()
+    cond = self.children[0].optimize()
 
+    self.context.program.optimizerInLoop += 1
+    self.children = (cond,) + tuple(map(lambda child: child.optimize(), self.children[1:]))
     self.context.program.optimizerInLoop -= 1
+    
+    opt = self._optimize()
     return opt
 setattr(ast.IfElse, 'optimize', optimizeIfs)
 setattr(ast.If, 'optimize', optimizeIfs)
@@ -272,10 +273,12 @@ def optimize(self):
 
 @optimizes(ast.Decl)
 def optimize(self):
-    if isinstance(self.typename, ast.BasicType) and isinstance(self.children[0], ast.Integer):
-        # have a named variable with a constant value (a = 10, b = 15)
-        self.context.declareConstVar(self.name, self.children[0].val)
-#        print("\t\tFound", self.name, "=>", self.children[0].val)
+    if isinstance(self.typename, ast.BasicType):
+        if isinstance(self.children[0], ast.Integer):
+            # have a named variable with a constant value (a = 10, b = 15)
+            self.context.declareConstVar(self.name, self.children[0].val)
+#            print("\t\tFound", self.name, "=>", self.children[0].val)
+
     if isinstance(self.typename, ast.ObjectType) and isinstance(self.children[0], ast.NewInstance):
         # have a named variable set to new XYZ()
         self.context.declareConstVar(self.name, self.children[0].name)
