@@ -69,7 +69,7 @@ class MethodDeclGrammar:
         return ast.MethodDecl(args[1], args[2].val, args[4], args[7], args[9])
     def p_methoddecl_generator(self, args):
         r'methoddecl ::= public type ID ( formallist ) { stmtlist }'
-        return ast.MethodDecl(args[1], args[2].val, args[4], args[7], None)
+        return ast.MethodDecl(ast.GeneratorType(args[1]), args[2].val, args[4], args[7], None)
 
 class FormalGrammar:
     def p_formal_typeID(self, args):
@@ -87,17 +87,23 @@ class FormalGrammar:
         return (args[0],) + args[2]
 
 class TypeGrammar:
-    def p_type_int(self, args):
-        r'type ::= int'
+    def p_rawtype_generator(self, args):
+        r'rawtype ::= Generator < rawtype >'
+        return ast.GeneratorType(args[2])
+    def p_type_rawtype(self, args):
+        r'type ::= rawtype'
+        return args[0]
+    def p_rawtype_int(self, args):
+        r'rawtype ::= int'
         return ast.IntType
-    def p_type_boolean(self, args):
-        r'type ::= boolean'
+    def p_rawtype_boolean(self, args):
+        r'rawtype ::= boolean'
         return ast.BoolType
-    def p_type_string(self, args):
-        r'type ::= String'
+    def p_rawtype_string(self, args):
+        r'rawtype ::= String'
         return ast.StringType
-    def p_type_object(self, args):
-        r'type ::= ID'
+    def p_rawtype_object(self, args):
+        r'rawtype ::= ID'
         return ast.ObjectType(args[0].val)
 
 class StmtGrammar:
