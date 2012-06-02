@@ -1,3 +1,5 @@
+
+from copy import deepcopy
 import ast
 
 def injectOptimization():
@@ -250,7 +252,7 @@ def optimize(self):
     if temp:
         (formallist, expr) = temp
 #        print ("call:", className, self.func, formalTypes, args, "\t=>", formallist, expr, expr.children, classContext)
-        test = inlineSub(expr.__copy__(), [i.ID for i in formallist], args)
+        test = inlineSub(deepcopy(expr), [i.ID for i in formallist], args)
 
         if test:
 #            print ("hi:", test, test.children, "\t", expr, expr.children)
