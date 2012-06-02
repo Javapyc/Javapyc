@@ -37,6 +37,8 @@ def main():
     if args.no_fastgen:
         settings.MODE_FASTGEN = False
 
+    settings.VERBOSITY = verbose
+
     import lexer
     import parser
     import typechecker
