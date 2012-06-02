@@ -52,8 +52,9 @@ class ClassVarDecl(AST):
         return "{0}({1}, {2})".format(self.classname(), self.typename, self.ID)
 
 class MethodDecl(AST):
-    def __init__(self, typename, ID, formallist, stmts, expr):
+    def __init__(self, generics, typename, ID, formallist, stmts, expr):
         AST.__init__(self, stmts + (expr,))
+        self.generics = generics
         self.typename = typename
         self.ID = ID
         self.formallist = formallist
@@ -87,6 +88,8 @@ class Formal(AST):
 class Type(AST):
     def __init__(self):
         AST.__init__(self, tuple())
+    def isGeneric(self):
+        return False
     def isGenerator(self):
         return False
     def isObject(self):
@@ -107,6 +110,20 @@ class BasicType(Type):
 IntType = BasicType(int)
 BoolType = BasicType(bool)
 StringType = BasicType(str)
+class GenericType(Type):
+    def __init__(self, name):
+        AST.__init__(self, tuple())
+        self.name = name
+    def isGeneric(self):
+        return True
+    def __eq__(self, o):
+        if not isinstance(o, GenericType):
+            return False
+        return self.name == o.name
+    def __hash__(self):
+        return hash(self.name)
+    def __repr__(self):
+        return "Generic<{0}>".format(self.name)
 class GeneratorType(Type):
     def __init__(self, typename):
         AST.__init__(self, (typename,))

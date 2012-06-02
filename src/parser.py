@@ -65,11 +65,29 @@ class ClassDeclGrammar:
 
 class MethodDeclGrammar:
     def p_methoddecl_method(self, args):
-        r'methoddecl ::= public type ID ( formallist ) { stmtlist return expr ; }'
-        return ast.MethodDecl(args[1], args[2].val, args[4], args[7], args[9])
+        r'methoddecl ::= public generics type ID ( formallist ) { stmtlist return expr ; }'
+        return ast.MethodDecl(args[1], args[2], args[3].val, args[5], args[8], args[10])
     def p_methoddecl_generator(self, args):
-        r'methoddecl ::= public type ID ( formallist ) { stmtlist }'
-        return ast.MethodDecl(ast.GeneratorType(args[1]), args[2].val, args[4], args[7], None)
+        r'methoddecl ::= public generics type ID ( formallist ) { stmtlist }'
+        return ast.MethodDecl(args[1], ast.GeneratorType(args[2]), args[3].val, args[5], args[8], None)
+    def p_generics_empty(self, args):
+        r'generics ::= '
+        return tuple()
+    def p_generics_single(self, args):
+        r'generics ::= < genericlist >'
+        return args[1]
+    def p_genericlist_empty(self, args):
+        r'genericlist ::= '
+        return tuple()
+    def p_genericlist_id(self, args):
+        r'genericlist ::= generic'
+        return (args[0],)
+    def p_genericlist_ids(self, args):
+        r'genericlist ::= generic , genericlist'
+        return (args[0],) + args[2]
+    def p_generic(self, args):
+        r'generic ::= ID'
+        return ast.GenericType(args[0])
 
 class FormalGrammar:
     def p_formal_typeID(self, args):
