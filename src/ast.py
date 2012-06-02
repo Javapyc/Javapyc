@@ -87,6 +87,8 @@ class Formal(AST):
 class Type(AST):
     def __init__(self):
         AST.__init__(self, tuple())
+    def isGenerator(self):
+        return False
     def isObject(self):
         return False
 class BasicType(Type):
@@ -105,6 +107,22 @@ class BasicType(Type):
 IntType = BasicType(int)
 BoolType = BasicType(bool)
 StringType = BasicType(str)
+class GeneratorType(Type):
+    def __init__(self, typename):
+        AST.__init__(self, (typename,))
+    @property
+    def typename(self):
+        return self.children[0]
+    def isGenerator(self):
+        return True
+    def __eq__(self, o):
+        if not isinstance(o, GeneratorType):
+            return False
+        return self.typename == o.typename
+    def __hash__(self):
+        return hash(self.typename)
+    def __repr__(self):
+        return "Generator<{0}>".format(self.typename)
 class BaseObjectType(Type):
     def isObject(self):
         return True

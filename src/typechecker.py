@@ -173,7 +173,7 @@ def typecheck(self, context):
 
     (expr,) = self.children
     
-    if not isCompatible(context.program, expr.typecheck(context), context.method.retType):
+    if not isCompatible(context.program, expr.typecheck(context), context.method.retType.typename):
         raise TypecheckException("Invalid yield type")
 
     return ast.Yield
@@ -229,7 +229,7 @@ def typecheck(self, context):
     self.context = context
     context.method.pushLoop()
 
-    if not isCompatible(context.program, expr.typecheck(context), self.typename):
+    if not isCompatible(context.program, expr.typecheck(context).typename, self.typename):
         raise TypecheckException("Cannot assign {0} to {1}".format(expr, self.typename))
     #ensure not already declared
     if context.localVarType(self.name):

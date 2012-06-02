@@ -180,6 +180,9 @@ def isCompatible(program, src, dest):
             src = src.parent
         return False
 
+    elif src.isGenerator() and dest.isGenerator():
+        return isCompatible(program, src.typename, dest.typename)
+
     else:
         return src == dest
 
